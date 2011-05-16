@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-
+import re
+import datetime
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+
 from rapidsms.models import Contact, Connection
-import re
 
 
 class Question(models.Model):
-    '''A question, which is just some text to be sent to the user,
-       and an optional error message if the question is not answered
-       properly'''
-    text = models.TextField()
-    # allow the question to specify a default error
-    # message
-    error_response = models.TextField(null=True, blank=True)
-    
+    '''
+    A question, which is just some text to be sent to the user,
+    and an optional error message if the question is not answered properly
+    '''
+    text = models.CharField(max_length=160)
+    error_response = models.CharField(max_length=160, blank=True)
+
     def __unicode__(self):
-        return "Q%s: %s" % (
-            self.pk,
-            self.text)
+        return "Q%s: %s" % (self.pk, self.text)
+
 
 class Tree(models.Model):
     '''A decision tree.  
@@ -36,12 +37,11 @@ class Tree(models.Model):
        that will be sent to the user when they reach a node in the 
        tree with no possible transitions.
        '''
-    trigger = models.CharField(max_length=30, help_text="The incoming message which triggers this Tree")
-    #root_question = models.ForeignKey("Question", related_name="tree_set", help_text="The first Question sent when this Tree is triggered, which may lead to many more")
-    # making this compatible with the UI
-    root_state = models.ForeignKey("TreeState", null=True, blank=True, related_name="tree_set", help_text="The first Question sent when this Tree is triggered, which may lead to many more")
-    completion_text = models.CharField(max_length=160, null=True, blank=True, help_text="The message that will be sent when the tree is completed")
-     
+    trigger = models.CharField(max_length=30, unique=True, help_text="The incoming message which triggers this Tree")
+    root_state = models.ForeignKey("TreeState", related_name="tree_set", help_text="The first Question sent when this Tree is triggered, which may lead to many more")
+    completion_text = models.CharField(max_length=160, help_text="The message that will be sent when the tree is completed")
+    summary = models.CharField(max_length=160, blank=True)
+
     def __unicode__(self):
         return "T%s: %s -> %s" % (
             self.pk,
@@ -55,7 +55,8 @@ class Tree(models.Model):
     def get_all_states(self):
         all_states = []
         all_states.append(self.root_state)
-        self.root_state.add_all_unique_children(all_states)
+        if self.root_state:
+            self.root_state.add_all_unique_children(all_states)
         return all_states
 
     class Meta:
@@ -93,19 +94,18 @@ class Answer(models.Model):
        
        
     ANSWER_TYPES = (
-        ('A', 'Answer (exact)'),
+        ('A', 'Exact Match'),
         ('R', 'Regular Expression'),
-        ('C', 'Custom logic'),
+        ('C', 'Custom Logic'),
     )
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     type = models.CharField(max_length=1, choices=ANSWER_TYPES)
     answer = models.CharField(max_length=160)
-    description = models.CharField(max_length=100, null=True)
-    
+    description = models.CharField(max_length=100, blank=True)
+
     def __unicode__(self):
         return self.name
-        #return "%s %s (%s)" % (self.helper_text(), self.type)
-    
+
     def helper_text(self):
         if self.type == "A":
             if self.description:
@@ -128,11 +128,11 @@ class TreeState(models.Model):
         associated with a question and a set of answers
         (transitions) that allow traversal to other states.""" 
     name = models.CharField(max_length=100)
-    question = models.ForeignKey(Question, blank=True, null=True)
+    question = models.ForeignKey(Question)
     # the number of tries they have to get out of this state
     # if empty there is no limit.  When the num_retries is hit
     # a user's session will be terminated.
-    num_retries = models.PositiveIntegerField(blank=True,null=True)
+    num_retries = models.PositiveIntegerField(blank=True, null=True)
 
     def has_loops_below(self):
         return TreeState.path_has_loops([self])
@@ -163,7 +163,7 @@ class TreeState(models.Model):
     def add_all_unique_children(self, added):
         ''' Adds all unique children of the state to the passed in list.  
             This happens recursively.'''
-        transitions = self.transition_set.all()
+        transitions = self.transition_set.select_related('next_state__question')
         for transition in transitions:
             if transition.next_state:
                 if transition.next_state not in added:
@@ -172,24 +172,26 @@ class TreeState(models.Model):
                 
 
     def __unicode__(self):
-        return ("State %s, Question: %s" % (
-            self.name,
-            self.question))
-    
+        return self.question.text
+
+
 class Transition(models.Model):
     """ A Transition is a way to navigate from one
         TreeState to another, via an appropriate 
         Answer. """ 
     current_state = models.ForeignKey(TreeState)
-    answer = models.ForeignKey(Answer)
-    next_state = models.ForeignKey(TreeState, blank=True, null=True, related_name='next_state')     
-    
+    answer = models.ForeignKey(Answer, related_name='transitions')
+    next_state = models.ForeignKey(TreeState, blank=True, null=True,
+                                   related_name='next_state')
+    tags = models.ManyToManyField('Tag', related_name='transitions')
+
+    class Meta:
+        unique_together = ('current_state', 'answer')
+
     def __unicode__(self):
-        return ("%s : %s --> %s" % 
-            (self.current_state,
-             self.answer,
-             self.next_state))
- 
+      return ("%s : %s --> %s" %  (self.current_state, self.answer, self.next_state)).decode('utf-8')
+
+
 class Session(models.Model):
     """ A Session represents a single person's current 
         status traversing through a Tree. It is a way
@@ -197,7 +199,7 @@ class Session(models.Model):
         are in, how many retries they have had, etc. so 
         that we aren't storing all of that in-memory. """ 
     connection = models.ForeignKey(Connection)
-    tree = models.ForeignKey(Tree)
+    tree = models.ForeignKey(Tree, related_name='sessions')
     start_date = models.DateTimeField(auto_now_add=True)
     state = models.ForeignKey(TreeState, blank=True, null=True) # none if the session is complete
     # the number of times the user has tried to answer 
@@ -214,15 +216,18 @@ class Session(models.Model):
             text = "completed"
         return ("%s : %s" % (self.connection.identity, text))
 
+
 class Entry(models.Model):
     """ An Entry is a single successful movement within
         a Session.  It represents an accepted Transition 
         from one state to another within the tree. """ 
-    session = models.ForeignKey(Session)
+    session = models.ForeignKey(Session, related_name='entries')
     sequence_id = models.IntegerField()
-    transition = models.ForeignKey(Transition)
-    time = models.DateTimeField(auto_now_add=True)
+    transition = models.ForeignKey(Transition, related_name='entries')
+    time = models.DateTimeField(auto_now_add=True, db_index=True)
     text = models.CharField(max_length=160)
+    
+    tags = models.ManyToManyField('Tag', related_name='entries')
     
     def __unicode__(self):
         return "%s-%s: %s - %s" % (self.session.id, self.sequence_id, self.transition.current_state.question, self.text)
@@ -237,7 +242,39 @@ class Entry(models.Model):
         # assume that the display text is just the text,
         # since this is what it is for free text entries
         return self.text
-    
-    
+
     class Meta:
         verbose_name_plural="Entries"
+        ordering = ('sequence_id',)
+
+
+class Tag(models.Model):
+    name = models.CharField(unique=True, max_length=100)
+    recipients = models.ManyToManyField(User, related_name='tags')
+
+    def __unicode__(self):
+        return self.name
+
+
+class TagNotification(models.Model):
+    tag = models.ForeignKey(Tag)
+    user = models.ForeignKey(User)
+    entry = models.ForeignKey(Entry)
+    sent = models.BooleanField(default=False)
+    date_added = models.DateTimeField()
+    date_sent = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('tag', 'user', 'entry')
+
+    def save(self, **kwargs):
+        if not self.pk:
+            self.date_added = datetime.datetime.now()
+        super(TagNotification, self).save(**kwargs)
+
+    @classmethod
+    def create_from_entry(cls, entry):
+        for tag in entry.tags.all():
+            for user in tag.recipients.all():
+                TagNotification.objects.get_or_create(tag=tag, entry=entry,
+                                                      user=user)

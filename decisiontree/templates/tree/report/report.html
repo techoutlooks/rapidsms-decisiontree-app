@@ -1,0 +1,82 @@
+{% extends "tree/report/base.html" %}
+{% load i18n tree-tags %}
+
+{% block content %}
+
+{{ block.super }}
+
+<form action="" method="POST" class="pretty">
+    {% csrf_token %}
+    <table class='auto'>
+        {{ form }}
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <button type="submit" class="button positive icon tick">Search</button>
+                <a class="button negative icon cross" href="{% url survey-report tree.id %}">{% trans "Cancel" %}</a>
+            </td>
+        </tr>
+    </table>
+</form>
+
+<div class='summary'>
+    <p><strong>Summary:</strong> {{ tree.summary }} <a title='{% trans "Edit Survey Summary" %}' href="{% url update_tree_summary tree.pk %}">({% trans "Edit" %})</a></p>
+</div>
+
+<table class='list auto'>
+    <thead>
+        <th>Contact</th>
+        <th>Date</th>
+        {% for state in states %}
+            <th>{{ state }}</th>
+        {% endfor %}
+    </thead>
+    <tbody>
+    {% for session in sessions %}
+        <tr>
+            <td>
+                {% if session.connection.contact %}
+                    {{ session.connection.contact }}
+                {% else %}
+                    {{ session.connection }}
+                {% endif %}
+            </td>
+            <td>{{ session.start_date|date:"Y-m-d h:i a" }}</td>
+            {% for state, entry in session.ordered_states %}
+                <td scope="row">
+                    {{ entry.text }}
+                    {% if entry %}
+                        <a href='{% url update-entry entry.pk %}' title='Edit tags'>
+                            {% if entry.cached_tags %}
+                                ({{ entry.cached_tags|join:", " }})
+                            {% else %}
+                            (Add tags)
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    <tr>
+        <td></td>
+        <td></td>
+        {% for state in states %}
+        <td>
+            {% if state.stats %}
+            <div class='totals'>
+                <span class='stat-header'>Totals:</span>
+                {% for answer, count in state.stats.answers.iteritems %}
+                    <span class='stat-answer'>{{ answer }}</span>: <span class='stat-count'>{{ count }} ({% widthratio count state.stats.total 100 %}%)</span>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </div>
+            <div class='mean'>Mean: {{ state.stats.values|mean }}</div>
+            <div class='median'>Median: {{ state.stats.values|median }}</div>
+            <div class='mode'>Mode: {{ state.stats.values|mode|join:", " }}</div>
+            {% endif %}
+        </td>
+        {% endfor %}
+    </tr>
+    </tbody>
+</table>
+{% endblock %}
