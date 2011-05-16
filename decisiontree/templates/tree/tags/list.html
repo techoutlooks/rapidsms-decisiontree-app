@@ -1,0 +1,40 @@
+{% extends "tree/base.html" %}
+{% load i18n %}
+
+{% block title %}Tags{% endblock %}
+
+{% block content %}
+
+<h2>Tags</h2>
+<ul class='horizontal'>
+    <li><a title='{% trans "Add tag" %}' href="{% url create-tag %}">{% trans "Add tag" %}</a></li>
+</ul>
+
+<table class='list auto'>
+    <thead>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </thead>
+    <tbody>
+    {% for tag in tags %}
+        <tr>
+            <td>{{ tag.pk }}</td>
+            <td>{{ tag.name }}</td>
+            <td>
+                <a href="{% url edit-tag tag.id %}" title="Edit" class="edit-link">
+                    <img class='action' alt='Edit' src="{{ MEDIA_URL }}group_messaging/edit-icon.jpeg" />
+                </a>
+            </td>
+            <td>
+                <a href="{% url delete-tag tag.id %}" title="Edit" class="delete-link">
+                    <img class='action' alt='Delete' src="{{ MEDIA_URL }}group_messaging/delete-icon.png" />
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

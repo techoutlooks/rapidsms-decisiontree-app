@@ -1,0 +1,25 @@
+{% extends "tree/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<form action="" method="POST" class="pretty"> {% csrf_token %}
+<fieldset> 
+<legend>
+{% if questionid %}
+{% trans "Question Update Form" %}
+{% else %}
+{% trans "New Question Form" %}
+{% endif %}
+</legend>
+<table>
+{{ form }}
+</table>
+
+<p class="buttons"> 
+<button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
+<a class="button negative icon cross" href="{% url list-questions %}">{% trans "Cancel" %}</a>
+</p>
+</fieldset>
+</form>
+
+{% endblock %}

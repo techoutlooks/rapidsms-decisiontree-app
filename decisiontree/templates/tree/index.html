@@ -1,56 +1,49 @@
-{% extends "layout.html" %}
-{% block title %}Decision Trees{% endblock %}
-{% block page_stylesheets %}<link type="text/css" rel="stylesheet" href="/static/tree/stylesheets/tree.css" />{% endblock %}
+{% extends "tree/base.html" %}
+
+{% block title %}Survey{% endblock %}
+
 {% block content %}
-{% load tree-tags %}
 
-<div class="module">
-	<h2>All Decision Trees</h2>
-	<table>
-		<thead>
-			<tr>
-				<th scope="col">Trigger</th>
-				<th scope="col">First Question</th>
-				<th scope="col"></th>
-			</tr>
-		</thead>
-		<tbody>{% if trees %}{% for tree in trees %}
-			<tr>
-                <th scope="row">{{ tree.trigger }}</th>
-				<td>{{ tree.root_state.question}}</td>
-				<td><a href="tree/data/{{tree.id}}">view data</a></td>
-			</tr>{% endfor %}{% else %}
-			<tr class="no-data">
-				<td colspan="2">
-					No Trees Yet.
-					<a href="admin/decisiontree/" class="add">
-						Add a Tree
-					</a>
-				</td>
-			</tr>{% endif %}
-		</tbody>
-		<tfoot>
-			<tr>
-				<td colspan="2">
-					<a href="">
-						Export to Excel
-					</a>
-				</td>
-			</tr>
-		</tfoot>
-	</table>
-</div>
+<h2>Surveys</h2>
+<ul class='horizontal'>
+    <li><a href = "{% url add_tree %}" >Add survey</a></li>
+</ul>
 
-<div class="module dt">
-	<h2>Edit a Decision Tree</h2>
-	{% if t %}{% render_state t.root_state %}{% endif %}
-</div>
+<table class='list auto'>
+    <thead>
+        <th>ID</th>
+        <th>Keyword</th>
+        <th>First State</th>
+        <th># Sessions</th>
+        <th>Edit</th>
+        <th>Delete</th>
+        <th>Report</th>
+    </thead>
+    <tbody>
+    {% for survey in surveys %}
+        <tr>
+            <td>{{ survey.pk }}</td>
+            <td>{{ survey.trigger }}</td>
+            <td>{{ survey.root_state.question.text }}</td>
+            <td>{{ survey.count }}</td>
+            <td>
+                <a href="{% url insert_tree survey.id %}" title="Edit" class="edit-link">
+                    <img class='action' alt='Edit' src="{{ MEDIA_URL }}group_messaging/edit-icon.jpeg" />
+                </a>
+            </td>
+            <td>
+                <a href="{% url delete_tree survey.id %}" title="Edit" class="delete-link">
+                    <img class='action' alt='Delete' src="{{ MEDIA_URL }}group_messaging/delete-icon.png" />
+                </a>
+            </td>
+            <td>
+                <a href="{% url survey-report survey.id %}" title="Edit" class="report-link">
+                    <img class='action' alt='Report' src="{{ MEDIA_URL }}group_messaging/report.gif" />
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-<!--<div class="module">
-	<h2>Add a Decision Tree</h2>
-	<form method="post" action="/">
-		<label for="dt-add-trigger">Trigger</label>
-		<input id="dt-add-trigger" type="text" name="trigger" />
-	</form>
-</div>-->
 {% endblock %}
