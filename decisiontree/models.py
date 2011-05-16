@@ -183,7 +183,7 @@ class Transition(models.Model):
     answer = models.ForeignKey(Answer, related_name='transitions')
     next_state = models.ForeignKey(TreeState, blank=True, null=True,
                                    related_name='next_state')
-    tags = models.ManyToManyField('Tag', related_name='transitions')
+    tags = models.ManyToManyField('Tag', related_name='transitions',blank=True)
 
     class Meta:
         unique_together = ('current_state', 'answer')
