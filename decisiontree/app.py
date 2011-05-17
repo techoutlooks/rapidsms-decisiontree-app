@@ -6,6 +6,7 @@ import datetime
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+import django.dispatch 
 from django.utils.datastructures import MultiValueDict
 
 from rapidsms.apps.base import AppBase
@@ -25,6 +26,7 @@ def scheduler_callback(router):
     app = router.get_app("decisiontree")
     app.status_update()
 
+session_end_signal = django.dispatch.Signal(providing_args=["session","canceled"])
 
 class App(AppBase):
 
@@ -209,6 +211,7 @@ class App(AppBase):
         if self.session_listeners.has_key(session.tree.trigger):
             for func in self.session_listeners[session.tree.trigger]:
                 func(session, True)
+        session_end_signal.send(sender=self, session=session, canceled=canceled)
 
     def end_sessions(self, connection):
         ''' Ends all open sessions with this connection.  
