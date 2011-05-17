@@ -49,7 +49,7 @@ class App(AppBase):
         if sessions.count() == 0:
             self.debug("No session found")
             try:
-                tree = Tree.objects.get(trigger=msg.text.lower())
+                tree = Tree.objects.get(trigger__iexact=msg.text)
             except Tree.DoesNotExist:
                 self.info('Tree not found: %s' % msg.text)
                 return False
