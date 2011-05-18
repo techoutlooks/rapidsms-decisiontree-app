@@ -3,6 +3,7 @@
 import smtplib
 import datetime
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
@@ -13,7 +14,6 @@ from rapidsms.apps.base import AppBase
 from rapidsms.models import Connection
 from rapidsms.messages import OutgoingMessage
 
-from rapidsms.contrib.scheduler.models import EventSchedule
 
 from decisiontree.models import *
 
@@ -34,13 +34,19 @@ class App(AppBase):
     session_listeners = {}
 
     def start(self):
-        try:
-            schedule = EventSchedule.objects.get(description=SCHEDULE_DESC)
-        except EventSchedule.DoesNotExist:
-            schedule = EventSchedule(description=SCHEDULE_DESC)
-        schedule.callback = CALLBACK
-        schedule.minutes = set([0, 30])
-        schedule.save()
+        notifications_enabled = getattr(settings, 'DECISIONTREE_NOTIFICATIONS', False)
+        if notifications_enabled and not "rapidsms.contrib.scheduler" in settings.INSTALLED_APPS:
+            self.info("rapidsms.contrib.scheduler not in INSTALLED_APPS, disabling notifications")
+            notifications_enabled = False
+        if notifications_enabled:
+            from rapidsms.contrib.scheduler.models import EventSchedule
+            try:
+                schedule = EventSchedule.objects.get(description=SCHEDULE_DESC)
+            except EventSchedule.DoesNotExist:
+                schedule = EventSchedule(description=SCHEDULE_DESC)
+            schedule.callback = CALLBACK
+            schedule.minutes = set([0, 30])
+            schedule.save()
         self.info('started')
 
     def handle(self, msg):

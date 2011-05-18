@@ -54,3 +54,6 @@ The following code shows a function, and how to register that function with the 
 	# register our validate password function with the "demo" keyword
         self.tree_app.register_custom_transition("demo", self.validate_password)
 
+**Notifications**
+
+For emailed notifications associated with tags to work, INSTALLED_APPS must contain 'rapidsms.contrib.scheduler' and the setting DECISIONTREE_NOTIFICATIONS must be True. The default is False.
