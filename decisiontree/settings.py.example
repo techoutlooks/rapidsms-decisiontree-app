@@ -1,0 +1,13 @@
+from celery.schedules import crontab
+
+CELERYBEAT_SCHEDULE = {
+    "decisiontree-tick": {
+        "task": "decisiontree.tasks.PeriodicTask",
+        # How often to check sessions for timeout
+        "schedule": crontab(),  # every minute
+    },
+}
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+# Session timeout in seconds  (default is 300)
+#DECISIONTREE_TIMEOUT = 300
