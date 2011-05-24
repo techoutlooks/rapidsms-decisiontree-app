@@ -208,6 +208,7 @@ class Session(models.Model):
     # this flag stores the difference between completed
     # on its own, or manually canceled.
     canceled = models.NullBooleanField(blank=True, null=True) 
+    last_modified = models.DateTimeField(auto_now=True, null=True)
      
     def __unicode__(self):
         if self.state:

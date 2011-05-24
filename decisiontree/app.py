@@ -13,10 +13,12 @@ from django.utils.datastructures import MultiValueDict
 from rapidsms.apps.base import AppBase
 from rapidsms.models import Connection
 from rapidsms.messages import OutgoingMessage
+from rapidsms.messages import IncomingMessage
 
 
 from decisiontree.models import *
 
+import logging
 
 SCHEDULE_DESC = 'decisiontree-cron-job'
 CALLBACK = 'decisiontree.app.scheduler_callback'
@@ -171,6 +173,21 @@ class App(AppBase):
         # if we haven't returned long before now, we're
         # long committed to dealing with this message
         return True
+
+    def tick(self, session):
+        """Invoked periodically for each live session to check how long
+        since we sent the last question, and decide to resend it or give
+        up the whole thing"""
+        timeout = getattr(settings, 'DECISIONTREE_TIMEOUT', 300) # seconds
+
+        now = datetime.datetime.now()
+        idle_time = now - session.last_modified
+        if idle_time >= datetime.timedelta(seconds=timeout):
+            # feed a dummy message to the handler
+            msg = IncomingMessage(connection=session.connection,
+                                  text="TimeOut")
+            self.router.incoming(msg)
+            msg.flush_responses()  # make sure response goes out
 
     def start_tree(self, tree, connection, msg=None):
         '''Initiates a new tree sequence, terminating any active sessions'''

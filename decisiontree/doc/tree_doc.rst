@@ -57,3 +57,9 @@ The following code shows a function, and how to register that function with the 
 **Notifications**
 
 For emailed notifications associated with tags to work, INSTALLED_APPS must contain 'rapidsms.contrib.scheduler' and the setting DECISIONTREE_NOTIFICATIONS must be True. The default is False.
+
+**Timeouts**
+
+decisiontree can notice when it's been waiting for a response for too long and send a reminder, repeating the question. This requires running celery and celerybeat, and the additional configuration in settings.py.example.
+
+On timeout, decisiontree will act as if it has received an invalid response. This results in sending a reminder and repeating the question, or, if the allowed retries are exhausted, giving up.
