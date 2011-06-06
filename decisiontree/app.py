@@ -158,11 +158,6 @@ class App(AppBase):
         if not session.state:
             if session.tree.completion_text:
                 msg.respond(session.tree.completion_text)
-            else:
-                official_name = Report.objects.get(session=session).official_name
-                location = Report.objects.get(session=session).location
-                count = Report.objects.filter(official_name=official_name, location=location).count()
-                msg.respond(_("Thank you for reporting this incident. You and %s other people have reported on %s in %s.") % (count,official_name,location))
 
             # end the connection so the caller can start a new session
             self._end_session(session)
