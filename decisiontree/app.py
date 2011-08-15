@@ -76,7 +76,7 @@ class App(AppBase):
         if msg.text == "end":
             response = _("Your session with '%s' has ended")
             msg.respond(response % session.tree.trigger)
-            self._end_session(session, True)
+            self._end_session(session, True, message=msg)
             return True
 
         # loop through all transitions starting with  
@@ -95,7 +95,7 @@ class App(AppBase):
             if transitions.count() == 0:
                 self.error('No questions found!')
                 msg.respond(_("No questions found"))
-                self._end_session(session)
+                self._end_session(session, message=msg)
             else:
                 # update the number of times the user has tried
                 # to answer this.  If they have reached the 
@@ -160,7 +160,7 @@ class App(AppBase):
                 msg.respond(session.tree.completion_text)
 
             # end the connection so the caller can start a new session
-            self._end_session(session)
+            self._end_session(session, message=msg)
 
         # if there is a next question ready to ask
         # send it along
@@ -220,7 +220,7 @@ class App(AppBase):
                     error = "Can't find backend %s.  Messages will not be sent" % connection.backend.slug
                     self.error(error)
 
-    def _end_session(self, session, canceled=False):
+    def _end_session(self, session, canceled=False, message=None):
         '''Ends a session, by setting its state to none,
            and alerting any session listeners'''
         session.state = None
@@ -229,7 +229,8 @@ class App(AppBase):
         if self.session_listeners.has_key(session.tree.trigger):
             for func in self.session_listeners[session.tree.trigger]:
                 func(session, True)
-        session_end_signal.send(sender=self, session=session, canceled=canceled)
+        session_end_signal.send(sender=self, session=session, canceled=canceled,
+                                message=message)
 
     def end_sessions(self, connection):
         ''' Ends all open sessions with this connection.  
