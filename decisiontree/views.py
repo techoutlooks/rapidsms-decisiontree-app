@@ -4,7 +4,7 @@ import csv
 import logging
 from StringIO import StringIO
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.contrib import messages
@@ -130,7 +130,7 @@ def update_tree_summary(request, tree_id):
             form.save()
             messages.info(request, 'Survey summary updated')
             url = reverse('survey-report', args=[tree.pk])
-            return HttpResponseRedirect(url)
+            return redirect(url)
     else:
         form = TreeSummaryForm(instance=tree)
     context = {
@@ -191,7 +191,7 @@ def addtree(request, treeid=None):
             else:
                 validationMsg = "You have successfully inserted a Survey %s." % tree.trigger
             messages.info(request, validationMsg)
-            return HttpResponseRedirect(reverse('list-surveys'))
+            return redirect('list-surveys'))
     else:
         form = TreesForm(instance=tree)
 
@@ -209,7 +209,7 @@ def deletetree(request, treeid):
     tree = get_object_or_404(Tree, pk=treeid)
     tree.delete()
     messages.info(request, 'Survey successfully deleted')
-    return HttpResponseRedirect(reverse('list-surveys'))
+    return redirect('list-surveys')
 
 
 @login_required
@@ -228,7 +228,7 @@ def addquestion(request, questionid=None):
             else:                   
                 validationMsg = "You have successfully inserted a Question %s." % question.text
             messages.info(request, validationMsg)
-            return HttpResponseRedirect(reverse('list-questions'))
+            return redirect('list-questions')
     else:
         form = QuestionForm(instance=question)
 
@@ -256,7 +256,7 @@ def deletequestion(request, questionid):
     tree = get_object_or_404(Question, pk=questionid)
     tree.delete()
     messages.info(request, 'Question successfully deleted')
-    return HttpResponseRedirect(reverse('list-questions'))
+    return redirect('list-questions')
 
 
 @login_required
@@ -276,7 +276,7 @@ def addanswer(request, answerid=None):
                 validationMsg = "You have successfully inserted Answer %s." % answer.answer
                 mycontext = {'validationMsg':validationMsg}
             messages.info(request, validationMsg)
-            return HttpResponseRedirect(reverse('answer_list'))
+            return redirect('answer_list')
 
     else:
         form = AnswerForm(instance=answer)
@@ -296,7 +296,7 @@ def deleteanswer(request, answerid):
     answer = get_object_or_404(Answer, pk=answerid)
     answer.delete()
     messages.info(request, 'Answer successfully deleted')
-    return HttpResponseRedirect(reverse('answer_list'))
+    return redirect('answer_list')
 
 
 @login_required
@@ -329,8 +329,7 @@ def update_entry(request, entry_id):
         if form.is_valid():
             form.save()
             messages.info(request, 'Tags successfully updated')
-            return HttpResponseRedirect(reverse('survey-report',
-                                        args=[entry.session.tree.id]))
+            return redirect('survey-report', id=entry.session.tree.id)
     else:
         form = EntryTagForm(instance=entry)
     context = {
@@ -357,7 +356,7 @@ def addstate(request, stateid=None):
             else:
                 validationMsg = "You have successfully inserted State %s." % state.name
             messages.info(request, validationMsg)
-            return HttpResponseRedirect(reverse('state_list'))
+            return redirect('state_list')
     else:
         form = StateForm(instance=state)
 
@@ -386,7 +385,7 @@ def deletestate(request, stateid):
     state = get_object_or_404(TreeState, pk=stateid)
     state.delete()
     messages.info(request, 'State successfully deleted')
-    return HttpResponseRedirect(reverse('state_list'))
+    return redirect('state_list')
 
 
 @login_required
@@ -418,7 +417,7 @@ def deletepath(request, pathid):
     path = get_object_or_404(Transition, pk=pathid)
     path.delete()
     messages.info(request, 'Path successfully deleted')
-    return HttpResponseRedirect(reverse('path_list'))
+    return redirect('path_list')
 
 
 @login_required
@@ -437,7 +436,7 @@ def questionpath(request, pathid=None):
             else:
                 validationMsg = "You have successfully inserted Question Path %s." % path.id
             messages.info(request, validationMsg)
-            return HttpResponseRedirect(reverse('path_list'))
+            return redirect('path_list')
     else:
         form = PathForm(instance=path)
 
@@ -470,7 +469,7 @@ def create_edit_tag(request, tag_id=None):
         if form.is_valid():
             saved_tag = form.save()
             messages.info(request, 'Tag successfully saved')
-            return HttpResponseRedirect(reverse('list-tags'))
+            return redirect('list-tags')
     else:
         form = TagForm(instance=tag)
     context = {
@@ -487,5 +486,5 @@ def delete_tag(request, tag_id):
     tag = get_object_or_404(Tag, pk=tag_id)
     tag.delete()
     messages.info(request, 'Tag successfully deleted')
-    return HttpResponseRedirect(reverse('list-tags'))
+    return redirect('list-tags')
 
