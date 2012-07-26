@@ -19,7 +19,7 @@ class Question(models.Model):
     error_response = models.CharField(max_length=160, blank=True)
 
     def __unicode__(self):
-        return "Q%s: %s" % (self.pk, self.text)
+        return u"Q%s: %s" % (self.pk, self.text)
 
 
 class Tree(models.Model):
@@ -43,7 +43,7 @@ class Tree(models.Model):
     summary = models.CharField(max_length=160, blank=True)
 
     def __unicode__(self):
-        return "T%s: %s -> %s" % (
+        return u"T%s: %s -> %s" % (
             self.pk,
             self.trigger,
             self.root_state)
@@ -189,7 +189,7 @@ class Transition(models.Model):
         unique_together = ('current_state', 'answer')
 
     def __unicode__(self):
-      return ("%s : %s --> %s" %  (self.current_state, self.answer, self.next_state)).decode('utf-8')
+      return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
 
 
 class Session(models.Model):
@@ -215,7 +215,7 @@ class Session(models.Model):
             text = self.state
         else:
             text = "completed"
-        return ("%s : %s" % (self.connection.identity, text))
+        return u"%s : %s" % (self.connection.identity, text)
 
 
 class Entry(models.Model):
@@ -231,7 +231,7 @@ class Entry(models.Model):
     tags = models.ManyToManyField('Tag', related_name='entries')
     
     def __unicode__(self):
-        return "%s-%s: %s - %s" % (self.session.id, self.sequence_id, self.transition.current_state.question, self.text)
+        return u"%s-%s: %s - %s" % (self.session.id, self.sequence_id, self.transition.current_state.question, self.text)
     
     def meta_data(self):
         return "%s - %s %s" % (
