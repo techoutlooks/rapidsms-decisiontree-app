@@ -6,9 +6,7 @@ from StringIO import StringIO
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
-from django.shortcuts import render_to_response ,redirect, get_object_or_404
-from django.views.decorators.http import require_GET, require_POST
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Count
