@@ -1,0 +1,5 @@
+include README.rst
+include distribute_setup.py
+recursive-include decisiontree/templates *
+recursive-include decisiontree/static *
+recursive-include decisiontree/fixtures *

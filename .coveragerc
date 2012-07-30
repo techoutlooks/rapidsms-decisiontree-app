@@ -1,0 +1,3 @@
+[run]
+source = decisiontree
+omit = */tests*,*/migrations/*

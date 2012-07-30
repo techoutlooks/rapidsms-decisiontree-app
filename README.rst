@@ -16,3 +16,22 @@ Features
 
 URLS:
 Note that this adds a /tree URL to (sort of) visualize trees
+
+
+Running the Tests
+-----------------------------------
+
+The tests are setup to run using `tox >= 1.4 <http://tox.readthedocs.org/>`_::
+
+    pip install tox
+    # Run all test environments
+    tox
+    # Test only Python 2.6 and Django 1.3
+    tox -e py26-1.3.X
+
+To see the test coverage you can run::
+
+    coverage run $VIRUAL_ENV/bin/django-admin.py test decisiontree --settings=decisiontree.tests.settings
+    coverage report -m
+
+A common .coveragerc file is include in the repo.

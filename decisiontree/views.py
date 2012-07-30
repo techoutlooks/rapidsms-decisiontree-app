@@ -191,7 +191,7 @@ def addtree(request, treeid=None):
             else:
                 validationMsg = "You have successfully inserted a Survey %s." % tree.trigger
             messages.info(request, validationMsg)
-            return redirect('list-surveys'))
+            return redirect('list-surveys')
     else:
         form = TreesForm(instance=tree)
 
@@ -264,7 +264,7 @@ def deletequestion(request, questionid):
 def addanswer(request, answerid=None):
     answer = None
     if answerid:
-           answer = get_object_or_404(Answer, pk=answerid)
+        answer = get_object_or_404(Answer, pk=answerid)
 
     if request.method == 'POST':
         form = AnswerForm(request.POST, instance=answer)
