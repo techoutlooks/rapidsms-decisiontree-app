@@ -1,21 +1,26 @@
-This application is a generic implementation of a decision tree, which is completely database-configurable. Install this app, populate the db using django's admin UI, and boom: there's your decision tree, interactive poll, whatever you want to call it. Have a look at models.py for details on what each model is for.
+rapidsms-decisiontree-app
+==============================
 
-EXAMPLE
-user: info
-system: what's your favorite fruit? apple, orange, pear
-user: apple
-system: i love apples too! what kind of apples?
-user: macintosh
-system: thanks for telling me about your fruit preferences. good-bye!
+This application is a generic implementation of a decision tree, which is completely database-configurable.
+Users are asked questions and respond via SMS messages using the RapidSMS framework built on top of Django.
+
+The original code for this application was written by `Dimagi <http://www.dimagi.com/>`_ and is currently
+packaged and maintained by `Caktus Consulting Group, LLC <http://www.caktusgroup.com/services>`_.
+
+
+Requirements
+-----------------------------------
+
+rapidsms-decisiontree-app is compatible with Python 2.6 and 2.7, RapidSMS 0.9.6a and Django >= 1.2.
+
 
 Features
-* support for sessions (i.e. 100 different users can all go through a session at the same time)
-* branching logic
-* tree visualization
-* errors for unrecognized messages (e.g. 'i don't recognize that kind of fruit') and multiple retries before exiting the session
+-----------------------------------
 
-URLS:
-Note that this adds a /tree URL to (sort of) visualize trees
+ * Support for sessions (i.e. 100 different users can all go through a session at the same time)
+ * Branching logic for the series of questions
+ * Tree visualization
+ * Errors for unrecognized messages (e.g. 'i don't recognize that kind of fruit') and multiple retries before exiting the session
 
 
 Running the Tests
