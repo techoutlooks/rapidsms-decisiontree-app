@@ -23,8 +23,7 @@ from decisiontree.app import App as DecisionApp
 class ResultsTest(TestCase):
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
-        self.contact = Contact.objects.create(first_name='John',
-                                              last_name='Doe')
+        self.contact = Contact.objects.create(name='John Doe')
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
@@ -130,8 +129,7 @@ class CreateDataTest(TestCase):
 class BasicSurveyTest(CreateDataTest):
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
-        self.contact = Contact.objects.create(first_name='John',
-                                              last_name='Doe')
+        self.contact = Contact.objects.create(name='John Doe')
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
@@ -217,8 +215,7 @@ class BasicSurveyTest(CreateDataTest):
 class DigestTest(CreateDataTest):
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
-        self.contact = Contact.objects.create(first_name='John',
-                                              last_name='Doe')
+        self.contact = Contact.objects.create(name='John Doe')
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
