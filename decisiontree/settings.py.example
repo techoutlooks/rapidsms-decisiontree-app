@@ -9,5 +9,7 @@ CELERYBEAT_SCHEDULE = {
 }
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
+DEFAULT_FROM_EMAIL = 'no-reply@example.com'
+
 # Session timeout in seconds  (default is 300)
 #DECISIONTREE_TIMEOUT = 300

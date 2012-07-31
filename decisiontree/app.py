@@ -301,7 +301,7 @@ class App(AppBase):
             try:
                 send_mail(subject='Survey Response Report', message=body,
                           recipient_list=[email],
-                          from_email='no-reply@souktel.com',
+                          from_email=settings.DEFAULT_FROM_EMAIL,
                           fail_silently=False)
                 sent = True
             except smtplib.SMTPException, e:
