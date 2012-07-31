@@ -3,7 +3,10 @@
 
 {% block title %}Decision Trees{% endblock %}
 
-{% block stylesheets %}<link type="text/css" rel="stylesheet" href="/static/tree/stylesheets/tree.css" />{% endblock %}
+{% block stylesheets %}
+    {{ block.super }}    
+    <link type="text/css" rel="stylesheet" href="/static/tree/stylesheets/tree.css" />
+{% endblock %}
 
 {% block content %}
 
