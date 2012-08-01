@@ -13,3 +13,6 @@ DEFAULT_FROM_EMAIL = 'no-reply@example.com'
 
 # Session timeout in seconds  (default is 300)
 #DECISIONTREE_TIMEOUT = 300
+
+# The trigger which will immediately end a session.
+DECISIONTREE_SESSION_END_TRIGGER = 'end'
