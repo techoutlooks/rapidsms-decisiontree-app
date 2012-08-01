@@ -3,11 +3,11 @@
 import smtplib
 import datetime
 
+import django.dispatch 
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
-import django.dispatch 
 from django.utils.datastructures import MultiValueDict
 
 from rapidsms.apps.base import AppBase
@@ -15,10 +15,10 @@ from rapidsms.models import Connection
 from rapidsms.messages import OutgoingMessage
 from rapidsms.messages import IncomingMessage
 
-
 from decisiontree.models import *
 
 import logging
+
 
 SCHEDULE_DESC = 'decisiontree-cron-job'
 CALLBACK = 'decisiontree.app.scheduler_callback'
@@ -278,7 +278,8 @@ class App(AppBase):
                 return self.registered_functions[answer.answer](message)
             else:
                 raise Exception("Can't find a function to match custom key: %s", answer)
-        raise Exception("Don't know how to process answer type: %s", answer.type)
+        # The type field can only contain 'A', 'R', or 'C'
+        raise Exception("Don't know how to process answer type: %s", answer.type)  # pragma: no cover
     
     def status_update(self):
         self.debug('{0} running'.format(SCHEDULE_DESC))
