@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-import re
 import datetime
 
 from django.db import models
-from django.db.models.signals import post_save
 from django.contrib.auth.models import User
-
-from rapidsms.models import Contact, Connection
 
 
 class Question(models.Model):
@@ -37,20 +33,19 @@ class Tree(models.Model):
        that will be sent to the user when they reach a node in the 
        tree with no possible transitions.
        '''
-    trigger = models.CharField(max_length=30, unique=True, help_text="The incoming message which triggers this Tree")
-    root_state = models.ForeignKey("TreeState", related_name="tree_set", help_text="The first Question sent when this Tree is triggered, which may lead to many more")
-    completion_text = models.CharField(max_length=160, help_text="The message that will be sent when the tree is completed", blank=True, null=True)
+    trigger = models.CharField(max_length=30, unique=True, 
+            help_text="The incoming message which triggers this Tree")
+    root_state = models.ForeignKey("TreeState", related_name="tree_set", 
+            help_text="The first Question sent when this Tree is triggered, which may lead to many more")
+    completion_text = models.CharField(max_length=160, blank=True, null=True,
+            help_text="The message that will be sent when the tree is completed")
     summary = models.CharField(max_length=160, blank=True)
 
     def __unicode__(self):
-        return u"T%s: %s -> %s" % (
-            self.pk,
-            self.trigger,
-            self.root_state)
+        return u"T%s: %s -> %s" % (self.pk, self.trigger, self.root_state)
 
     def has_loops(self):
         return self.root_state.has_loops_below()
-
       
     def get_all_states(self):
         all_states = []
@@ -91,8 +86,6 @@ class Answer(models.Model):
        the answer is valid, otherwise any value that
        maps to False.
     '''
-       
-       
     ANSWER_TYPES = (
         ('A', 'Exact Match'),
         ('R', 'Regular Expression'),
@@ -126,7 +119,8 @@ class Answer(models.Model):
 class TreeState(models.Model):
     """ A TreeState is a location in a tree.  It is 
         associated with a question and a set of answers
-        (transitions) that allow traversal to other states.""" 
+        (transitions) that allow traversal to other states.
+    """ 
     name = models.CharField(max_length=100)
     question = models.ForeignKey(Question)
     # the number of tries they have to get out of this state
@@ -169,7 +163,6 @@ class TreeState(models.Model):
                 if transition.next_state not in added:
                     added.append(transition.next_state)
                     transition.next_state.add_all_unique_children(added)
-                
 
     def __unicode__(self):
         return self.question.text
@@ -181,9 +174,8 @@ class Transition(models.Model):
         Answer. """ 
     current_state = models.ForeignKey(TreeState)
     answer = models.ForeignKey(Answer, related_name='transitions')
-    next_state = models.ForeignKey(TreeState, blank=True, null=True,
-                                   related_name='next_state')
-    tags = models.ManyToManyField('Tag', related_name='transitions',blank=True)
+    next_state = models.ForeignKey(TreeState, blank=True, null=True, related_name='next_state')
+    tags = models.ManyToManyField('Tag', related_name='transitions', blank=True)
 
     class Meta:
         unique_together = ('current_state', 'answer')
@@ -198,7 +190,7 @@ class Session(models.Model):
         to persist information about what state they
         are in, how many retries they have had, etc. so 
         that we aren't storing all of that in-memory. """ 
-    connection = models.ForeignKey(Connection)
+    connection = models.ForeignKey('rapidsms.Connection')
     tree = models.ForeignKey(Tree, related_name='sessions')
     start_date = models.DateTimeField(auto_now_add=True)
     state = models.ForeignKey(TreeState, blank=True, null=True) # none if the session is complete
@@ -226,12 +218,12 @@ class Entry(models.Model):
     sequence_id = models.IntegerField()
     transition = models.ForeignKey(Transition, related_name='entries')
     time = models.DateTimeField(auto_now_add=True, db_index=True)
-    text = models.CharField(max_length=160)
-    
+    text = models.CharField(max_length=160)    
     tags = models.ManyToManyField('Tag', related_name='entries')
     
     def __unicode__(self):
-        return u"%s-%s: %s - %s" % (self.session.id, self.sequence_id, self.transition.current_state.question, self.text)
+        return u"%s-%s: %s - %s" % (self.session.id, self.sequence_id, 
+                self.transition.current_state.question, self.text)
     
     def meta_data(self):
         return "%s - %s %s" % (
@@ -277,5 +269,4 @@ class TagNotification(models.Model):
     def create_from_entry(cls, entry):
         for tag in entry.tags.all():
             for user in tag.recipients.all():
-                TagNotification.objects.get_or_create(tag=tag, entry=entry,
-                                                      user=user)
+                TagNotification.objects.get_or_create(tag=tag, entry=entry, user=user)
