@@ -17,23 +17,32 @@ class DecisionTreeTestBase(TestCase):
 
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
-        self.contact = Contact.objects.create(name='John Doe')
-        self.connection = Connection.objects.create(contact=self.contact,
-                backend=self.backend, identity='1112223333')
         self.router = MockRouter()
         self.app = DecisionApp(router=self.router)
 
-    def _send(self, text):
+        # Default used by self._send and self.get_session.
+        self.contact = Contact.objects.create(name='John Doe')
+        self.connection = Connection.objects.create(contact=self.contact,
+                backend=self.backend, identity='1112223333')
+
+        # Occasionally used by some tests; not a default.
+        self.contact2 = Contact.objects.create(name='Jane Doe')
+        self.connection2 = Connection.objects.create(contact=self.contact2,
+                backend=self.backend, identity='5558675309')
+
+    def _send(self, text, connection=None):
         """Creates a message using text and handles it using self.app.
         
         Returns the message that is sent.
         """
-        msg = IncomingMessage(self.connection, text)
+        connection = connection or self.connection
+        msg = IncomingMessage(connection, text)
         self.app.handle(msg)
         return msg
 
-    def get_session(self):
-        return self.connection.session_set.all()[0]
+    def get_session(self, connection=None):
+        connection = connection or self.connection
+        return connection.session_set.all()[0]
 
     def random_string(self, length=255, extra_chars=''):
         chars = string.letters + extra_chars
