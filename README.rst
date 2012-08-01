@@ -36,7 +36,7 @@ The tests are setup to run using `tox >= 1.4 <http://tox.readthedocs.org/>`_::
 
 To see the test coverage you can run::
 
-    coverage run $VIRUAL_ENV/bin/django-admin.py test decisiontree --settings=decisiontree.tests.settings
+    coverage run $VIRTUAL_ENV/bin/django-admin.py test decisiontree --settings=decisiontree.tests.settings
     coverage report -m
 
 A common .coveragerc file is include in the repo.
