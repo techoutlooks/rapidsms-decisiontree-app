@@ -13,6 +13,7 @@ from decisiontree.app import App as DecisionApp
 
 
 class DecisionTreeTestBase(TestCase):
+    """A collection of helper methods common to most DecisionTree tests."""
 
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
@@ -23,9 +24,16 @@ class DecisionTreeTestBase(TestCase):
         self.app = DecisionApp(router=self.router)
 
     def _send(self, text):
+        """Creates a message using text and handles it using self.app.
+        
+        Returns the message that is sent.
+        """
         msg = IncomingMessage(self.connection, text)
         self.app.handle(msg)
         return msg
+
+    def get_session(self):
+        return self.connection.session_set.all()[0]
 
     def random_string(self, length=255, extra_chars=''):
         chars = string.letters + extra_chars

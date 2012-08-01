@@ -29,3 +29,5 @@ PASSWORD_HASHERS=(
 )
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+
+DECISIONTREE_SESSION_END_TRIGGER = 'end'
