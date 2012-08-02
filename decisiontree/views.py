@@ -142,20 +142,20 @@ def update_tree_summary(request, tree_id):
 
 
 @login_required
-def export(req, id = None):
-    t = get_tree(id)
-    all_states = t.get_all_states()
-    loops = t.has_loops() 
+def export(req, tree_id):
+    tree = get_object_or_404(Tree, pk=tree_id)
+    all_states = tree.get_all_states()
+    loops = tree.has_loops() 
     if not loops:
         output = StringIO()
         w = csv.writer(output)
         headings = ["Person", "Date"]
         headings.extend([state.question for state in all_states])
         w.writerow(headings)
-        sessions = Session.objects.all().filter(tree=t)
+        sessions = Session.objects.all().filter(tree=tree)
         for session in sessions:
-            values = [str(session.person), session.start_date]
-            transitions = map((lambda x: x.transition), session.entry_set.all())
+            values = [str(session.connection), session.start_date]
+            transitions = map((lambda x: x.transition), session.entries.all())
             states_w_transitions = {}
             for transition in transitions:
                 states_w_transitions[transition.current_state] = transition
@@ -169,7 +169,7 @@ def export(req, id = None):
         output.seek(0)
         response = HttpResponse(output.read(),
                             mimetype='application/ms-excel')
-        response["content-disposition"] = "attachment; filename=%s.csv" % t.trigger
+        response["content-disposition"] = "attachment; filename=%s.csv" % tree.trigger
         return response
     else:
         return render_to_response("tree/index.html", request_context=RequestContext(req))
