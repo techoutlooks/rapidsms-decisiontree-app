@@ -16,10 +16,9 @@ from rapidsms.models import Connection
 from rapidsms.messages import OutgoingMessage
 from rapidsms.messages import IncomingMessage
 
-
+from decisiontree import conf
 from decisiontree.models import *
 
-import logging
 
 SCHEDULE_DESC = 'decisiontree-cron-job'
 CALLBACK = 'decisiontree.app.scheduler_callback'
@@ -37,7 +36,7 @@ class App(AppBase):
     session_listeners = {}
 
     def start(self):
-        notifications_enabled = getattr(settings, 'DECISIONTREE_NOTIFICATIONS', False)
+        notifications_enabled = conf.NOTIFICATIONS_ENABLED
         if notifications_enabled and not "rapidsms.contrib.scheduler" in settings.INSTALLED_APPS:
             self.info("rapidsms.contrib.scheduler not in INSTALLED_APPS, disabling notifications")
             notifications_enabled = False
@@ -74,7 +73,8 @@ class App(AppBase):
         state = session.state
         self.debug(state)
 
-        if msg.text == settings.DECISIONTREE_SESSION_END_TRIGGER:
+        end_trigger = conf.SESSION_END_TRIGGER
+        if end_trigger is not None and msg.text == end_trigger:
             response = _("Your session with '%s' has ended")
             msg.respond(response % session.tree.trigger)
             self._end_session(session, True, message=msg)
@@ -174,7 +174,7 @@ class App(AppBase):
         """Invoked periodically for each live session to check how long
         since we sent the last question, and decide to resend it or give
         up the whole thing"""
-        timeout = getattr(settings, 'DECISIONTREE_TIMEOUT', 300) # seconds
+        timeout = conf.TIMEOUT
 
         now = datetime.datetime.now()
         idle_time = now - session.last_modified
