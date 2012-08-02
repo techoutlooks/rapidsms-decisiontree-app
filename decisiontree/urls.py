@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+from django.conf.urls.defaults import patterns, url
 
-import os
-from django.conf.urls.defaults import *
-import decisiontree.views as views
+import decisiontree import views
+
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='list-surveys'),

@@ -3,12 +3,13 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from decisiontree.models import *
 
+from decisiontree.models import Answer, Entry, Question, Tag, TagNotification, Transition, Tree, TreeState
 from decisiontree.utils import parse_tags, edit_string_for_tags
 
 
 class AnswerForm(forms.ModelForm):
+
     class Meta:
         model = Answer
 
@@ -84,6 +85,7 @@ class AnswerSearchForm(forms.Form):
 
 
 class TagWidget(forms.TextInput):
+
     def render(self, name, value, attrs=None):
         if value is not None and not isinstance(value, basestring):
             value = edit_string_for_tags(Tag.objects.filter(id__in=value))

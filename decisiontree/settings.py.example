@@ -1,5 +1,6 @@
 from celery.schedules import crontab
 
+
 CELERYBEAT_SCHEDULE = {
     "decisiontree-tick": {
         "task": "decisiontree.tasks.PeriodicTask",
