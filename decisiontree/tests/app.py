@@ -1,5 +1,4 @@
-from django.conf import settings
-
+from decisiontree import conf
 from decisiontree import models
 from decisiontree.tests.base import DecisionTreeTestBase
 
@@ -144,7 +143,7 @@ class AppTest(DecisionTreeTestBase):
         msg = self._send(self.trigger)
         session = self.get_session()
         self.assertNotEqual(session.state, None)
-        msg = self._send(settings.DECISIONTREE_SESSION_END_TRIGGER)
+        msg = self._send(conf.SESSION_END_TRIGGER)
         session = self.get_session()
         self.assertEqual(session.state, None)
         self.assertTrue(session.canceled)
@@ -273,7 +272,7 @@ class AppTest(DecisionTreeTestBase):
             self.app.set_session_listener(self.trigger, listener)
             msg = self._send(self.trigger)
             self.assertTrue(msg.responses[0], 'started')
-            msg = self._send(settings.DECISIONTREE_SESSION_END_TRIGGER)
+            msg = self._send(conf.SESSION_END_TRIGGER)
             self.assertTrue(msg.responses[0], 'ending')
 
         # Clean up since the test runner likes to leave this around.

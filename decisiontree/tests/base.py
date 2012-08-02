@@ -42,7 +42,9 @@ class DecisionTreeTestBase(TestCase):
 
     def get_session(self, connection=None):
         connection = connection or self.connection
-        return connection.session_set.all()[0]
+        if connection.session_set.all():
+            return connection.session_set.all()[0]
+        return None
 
     def random_string(self, length=255, extra_chars=''):
         chars = string.letters + extra_chars
@@ -59,7 +61,7 @@ class DecisionTreeTestBase(TestCase):
             'trigger': self.random_string(5),
         }
         defaults.update(data)
-        if 'root_state' not in data:
+        if 'root_state' not in defaults:
             defaults['root_state'] = self.create_state()
         return dt.Tree.objects.create(**defaults)
 
@@ -105,3 +107,26 @@ class DecisionTreeTestBase(TestCase):
         }
         defaults.update(data)
         return dt.Tag.objects.create(**defaults)
+
+    def create_entry(self, data={}):
+        defaults = {
+            'sequence_id': 0,
+            'text': self.random_string(25),
+        }
+        defaults.update(data)
+        if 'session' not in defaults:
+            defaults['session'] = self.create_session()
+        if 'transition' not in defaults:
+            defaults['transition'] = self.create_trans()
+        return dt.Entry.objects.create(**defaults)
+
+    def create_session(self, data={}):
+        defaults = {
+            'num_tries': 1,
+        }
+        defaults.update(data)
+        if 'connection' not in defaults:
+            defaults['connection'] = self.connection
+        if 'tree' not in defaults:
+            defaults['tree'] = self.create_tree()
+        return dt.Session.objects.create(**defaults)

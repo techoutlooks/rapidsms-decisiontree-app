@@ -20,14 +20,12 @@ INSTALLED_APPS = (
 
 SITE_ID = 1
         
-SECRET_KEY = 'super-secret',
+SECRET_KEY = 'super-secret'
 
-ROOT_URLCONF = 'decisiontree.tests.urls',
+ROOT_URLCONF = 'decisiontree.tests.urls'
 
-PASSWORD_HASHERS=(
+PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
 )
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-
-DECISIONTREE_SESSION_END_TRIGGER = 'end'
