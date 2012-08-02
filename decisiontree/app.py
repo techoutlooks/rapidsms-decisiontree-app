@@ -74,7 +74,7 @@ class App(AppBase):
         state = session.state
         self.debug(state)
 
-        if msg.text == settings.DECISIONTREE_SESSION_END_TRIGGER:
+        if msg.text == getattr(settings, 'DECISIONTREE_SESSION_END_TRIGGER', 'end'):
             response = _("Your session with '%s' has ended")
             msg.respond(response % session.tree.trigger)
             self._end_session(session, True, message=msg)
