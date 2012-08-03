@@ -27,13 +27,13 @@
                 <td>{{ question.error_response|truncatewords:10 }}</td>
                 <td>
                     <a href="{% url insert_question question.id %}" title="Edit" class="edit-link">
-                        <img class='action' alt='Edit' src="{{ MEDIA_URL }}group_messaging/edit-icon.jpeg" />
+                        <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url delete_question question.id %}" method="post">
+                    <form action="{% url delete_question question.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
-                        <input type="image" src="{{ MEDIA_URL }}group_messaging/delete-icon.png" />
+                        <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
                     </form>
                 </td>
             </tr>
