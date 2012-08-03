@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 from django.conf.urls.defaults import patterns, url
 
-import decisiontree import views
+from decisiontree import views
 
 
 urlpatterns = patterns('',
