@@ -4,7 +4,6 @@ import datetime
 import re
 import smtplib
 
-import django.dispatch 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -17,6 +16,7 @@ from rapidsms.models import Connection
 
 from decisiontree import conf
 from decisiontree.models import Entry, Session, TagNotification, Transition, Tree
+from decisiontree.signals import session_end_signal
 
 
 SCHEDULE_DESC = 'decisiontree-cron-job'
@@ -26,9 +26,6 @@ CALLBACK = 'decisiontree.app.scheduler_callback'
 def scheduler_callback(router):
     app = router.get_app("decisiontree")
     app.status_update()
-
-
-session_end_signal = django.dispatch.Signal(providing_args=["session", "canceled"])
 
 
 class App(AppBase):
