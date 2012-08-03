@@ -31,13 +31,14 @@
                 <td>{{ answer.description }}</td>
                 <td>
                     <a href="{% url insert_answer answer.id %}" title="Edit" class="edit-link">
-                        <img class='action' alt='Edit' src="{{ MEDIA_URL }}group_messaging/edit-icon.jpeg" />
+                        <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <a href="{% url delete_answer answer.id %}" title="Edit" class="delete-link">
-                        <img class='action' alt='Delete' src="{{ MEDIA_URL }}group_messaging/delete-icon.png" />
-                    </a>
+                    <form action="{% url delete_answer answer.id %}" method="post" style="border:0px;">
+                        {% csrf_token %}
+                        <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
+                    </form>
                 </td>
             </tr>
         {% endfor %}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-
 from django.contrib import admin
-from decisiontree.models import *
+
+from decisiontree import models
 
 
 class TransitionAdmin(admin.ModelAdmin):
@@ -11,22 +11,20 @@ class TransitionAdmin(admin.ModelAdmin):
     ordering = ('current_state',)
 
 
-class TagNotificationAdmin(admin.ModelAdmin):
-    
+class TagNotificationAdmin(admin.ModelAdmin): 
     list_display = ('id', 'user', 'tag', 'entry', 'date_added', 'sent',
                     'date_sent')
     list_filter = ('tag', 'date_added')
     ordering = ('-date_added',)
     raw_id_fields = ('entry',)
 
-admin.site.register(Tree)
-admin.site.register(Question)
-admin.site.register(Answer)
-admin.site.register(TreeState)
-admin.site.register(Transition, TransitionAdmin)
-admin.site.register(Tag)
-admin.site.register(TagNotification, TagNotificationAdmin)
-admin.site.register(Entry)
-admin.site.register(Session)
 
-
+admin.site.register(models.Tree)
+admin.site.register(models.Question)
+admin.site.register(models.Answer)
+admin.site.register(models.TreeState)
+admin.site.register(models.Transition, TransitionAdmin)
+admin.site.register(models.Tag)
+admin.site.register(models.TagNotification, TagNotificationAdmin)
+admin.site.register(models.Entry)
+admin.site.register(models.Session)

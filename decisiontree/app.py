@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+import datetime
 import re
 import smtplib
-import datetime
 
-import django.dispatch 
 from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDict
+from django.utils.translation import ugettext as _
 
 from rapidsms.apps.base import AppBase
+from rapidsms.messages import OutgoingMessage, IncomingMessage
 from rapidsms.models import Connection
-from rapidsms.messages import OutgoingMessage
-from rapidsms.messages import IncomingMessage
 
 from decisiontree import conf
-from decisiontree.models import *
+from decisiontree.models import Entry, Session, TagNotification, Transition, Tree
+from decisiontree.signals import session_end_signal
 
 
 
@@ -29,7 +28,6 @@ def scheduler_callback(router):
     app = router.get_app("decisiontree")
     app.status_update()
 
-session_end_signal = django.dispatch.Signal(providing_args=["session","canceled"])
 
 class App(AppBase):
 

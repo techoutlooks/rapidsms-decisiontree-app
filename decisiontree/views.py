@@ -4,19 +4,19 @@ import csv
 import logging
 from StringIO import StringIO
 
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.db.models import Count
-from django.db import transaction
-from django.utils.datastructures import SortedDict
-
-from decisiontree.forms import *
-from decisiontree.models import *
-
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.db.models import Count
+from django.http import HttpResponse
+from django.shortcuts import render_to_response, redirect, get_object_or_404
+from django.template import RequestContext
+from django.utils.datastructures import SortedDict
+from django.views.decorators.http import require_POST
+
+from decisiontree import forms
+from decisiontree.models import Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState
 
 
 @login_required
@@ -35,12 +35,12 @@ def data(request, id):
     tree = get_object_or_404(Tree, pk=id)
     tag = None
     if request.method == 'POST':
-        form = AnswerSearchForm(request.POST, tree=tree)
+        form = forms.AnswerSearchForm(request.POST, tree=tree)
         if form.is_valid():
             tag = form.cleaned_data['tag']
             # what now?
     else:
-        form = AnswerSearchForm(tree=tree)
+        form = forms.AnswerSearchForm(tree=tree)
 
     entry_tags = Entry.tags.through.objects
     entry_tags = entry_tags.filter(entry__session__tree=tree)
@@ -125,14 +125,14 @@ def update_tree_summary(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     
     if request.method == 'POST':
-        form = TreeSummaryForm(request.POST, instance=tree)
+        form = forms.TreeSummaryForm(request.POST, instance=tree)
         if form.is_valid():
             form.save()
             messages.info(request, 'Survey summary updated')
             url = reverse('survey-report', args=[tree.pk])
             return redirect(url)
     else:
-        form = TreeSummaryForm(instance=tree)
+        form = forms.TreeSummaryForm(instance=tree)
     context = {
         'form': form,
         'tree': tree,
@@ -142,20 +142,20 @@ def update_tree_summary(request, tree_id):
 
 
 @login_required
-def export(req, id = None):
-    t = get_tree(id)
-    all_states = t.get_all_states()
-    loops = t.has_loops() 
+def export(req, tree_id):
+    tree = get_object_or_404(Tree, pk=tree_id)
+    all_states = tree.get_all_states()
+    loops = tree.has_loops() 
     if not loops:
         output = StringIO()
         w = csv.writer(output)
         headings = ["Person", "Date"]
         headings.extend([state.question for state in all_states])
         w.writerow(headings)
-        sessions = Session.objects.all().filter(tree=t)
+        sessions = Session.objects.all().filter(tree=tree)
         for session in sessions:
-            values = [str(session.person), session.start_date]
-            transitions = map((lambda x: x.transition), session.entry_set.all())
+            values = [str(session.connection), session.start_date]
+            transitions = map((lambda x: x.transition), session.entries.all())
             states_w_transitions = {}
             for transition in transitions:
                 states_w_transitions[transition.current_state] = transition
@@ -169,7 +169,7 @@ def export(req, id = None):
         output.seek(0)
         response = HttpResponse(output.read(),
                             mimetype='application/ms-excel')
-        response["content-disposition"] = "attachment; filename=%s.csv" % t.trigger
+        response["content-disposition"] = "attachment; filename=%s.csv" % tree.trigger
         return response
     else:
         return render_to_response("tree/index.html", request_context=RequestContext(req))
@@ -183,7 +183,7 @@ def addtree(request, treeid=None):
         tree = get_object_or_404(Tree, pk=treeid)
 
     if request.method == 'POST':
-        form = TreesForm(request.POST, instance=tree)
+        form = forms.TreesForm(request.POST, instance=tree)
         if form.is_valid():
             tree = form.save()
             if treeid:
@@ -193,7 +193,7 @@ def addtree(request, treeid=None):
             messages.info(request, validationMsg)
             return redirect('list-surveys')
     else:
-        form = TreesForm(instance=tree)
+        form = forms.TreesForm(instance=tree)
 
     context = {
         'tree': tree,
@@ -203,6 +203,7 @@ def addtree(request, treeid=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletetree(request, treeid):
@@ -220,7 +221,7 @@ def addquestion(request, questionid=None):
         question = get_object_or_404(Question, pk=questionid)
 
     if request.method == 'POST':
-        form = QuestionForm(request.POST, instance=question)
+        form = forms.QuestionForm(request.POST, instance=question)
         if form.is_valid():
             question = form.save()
             if questionid:
@@ -230,7 +231,7 @@ def addquestion(request, questionid=None):
             messages.info(request, validationMsg)
             return redirect('list-questions')
     else:
-        form = QuestionForm(instance=question)
+        form = forms.QuestionForm(instance=question)
 
     context = {
         'question': question,
@@ -250,6 +251,7 @@ def questionlist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletequestion(request, questionid):
@@ -267,7 +269,7 @@ def addanswer(request, answerid=None):
         answer = get_object_or_404(Answer, pk=answerid)
 
     if request.method == 'POST':
-        form = AnswerForm(request.POST, instance=answer)
+        form = forms.AnswerForm(request.POST, instance=answer)
         if form.is_valid():
             answer = form.save()
             if answerid:
@@ -279,7 +281,7 @@ def addanswer(request, answerid=None):
             return redirect('answer_list')
 
     else:
-        form = AnswerForm(instance=answer)
+        form = forms.AnswerForm(instance=answer)
 
     context = {
         'answer': answer,
@@ -290,6 +292,7 @@ def addanswer(request, answerid=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deleteanswer(request, answerid):
@@ -325,13 +328,13 @@ def update_entry(request, entry_id):
     """ Manually update survey entry tags """
     entry = get_object_or_404(Entry, pk=entry_id)
     if request.method == 'POST':
-        form = EntryTagForm(request.POST, instance=entry)
+        form = forms.EntryTagForm(request.POST, instance=entry)
         if form.is_valid():
             form.save()
             messages.info(request, 'Tags successfully updated')
             return redirect('survey-report', id=entry.session.tree.id)
     else:
-        form = EntryTagForm(instance=entry)
+        form = forms.EntryTagForm(instance=entry)
     context = {
         'form': form,
         'entry': entry,
@@ -348,7 +351,7 @@ def addstate(request, stateid=None):
         state = get_object_or_404(TreeState, pk=stateid)
 
     if request.method == 'POST':
-        form = StateForm(request.POST, instance=state)
+        form = forms.StateForm(request.POST, instance=state)
         if form.is_valid():
             state = form.save()
             if stateid:
@@ -358,7 +361,7 @@ def addstate(request, stateid=None):
             messages.info(request, validationMsg)
             return redirect('state_list')
     else:
-        form = StateForm(instance=state)
+        form = forms.StateForm(instance=state)
 
     context = {
         'state': state,
@@ -379,6 +382,7 @@ def statelist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletestate(request, stateid):
@@ -411,6 +415,7 @@ def questionpathlist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletepath(request, pathid):
@@ -428,7 +433,7 @@ def questionpath(request, pathid=None):
         path = get_object_or_404(Transition, pk=pathid)
 
     if request.method == 'POST':
-        form = PathForm(request.POST, instance=path)
+        form = forms.PathForm(request.POST, instance=path)
         if form.is_valid():
             path = form.save()
             if pathid:
@@ -438,7 +443,7 @@ def questionpath(request, pathid=None):
             messages.info(request, validationMsg)
             return redirect('path_list')
     else:
-        form = PathForm(instance=path)
+        form = forms.PathForm(instance=path)
 
     context = {
         'path': path,
@@ -465,13 +470,13 @@ def create_edit_tag(request, tag_id=None):
     if tag_id:
         tag = get_object_or_404(Tag, pk=tag_id)
     if request.method == 'POST':
-        form = TagForm(request.POST, instance=tag)
+        form = forms.TagForm(request.POST, instance=tag)
         if form.is_valid():
             saved_tag = form.save()
             messages.info(request, 'Tag successfully saved')
             return redirect('list-tags')
     else:
-        form = TagForm(instance=tag)
+        form = forms.TagForm(instance=tag)
     context = {
         'tag': tag,
         'form': form,
@@ -480,6 +485,7 @@ def create_edit_tag(request, tag_id=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def delete_tag(request, tag_id):
