@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
+from django.views.decorators.http import require_POST
 
 from decisiontree import forms
 from decisiontree.models import Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState
@@ -202,6 +203,7 @@ def addtree(request, treeid=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletetree(request, treeid):
@@ -249,6 +251,7 @@ def questionlist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletequestion(request, questionid):
@@ -289,6 +292,7 @@ def addanswer(request, answerid=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deleteanswer(request, answerid):
@@ -378,6 +382,7 @@ def statelist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletestate(request, stateid):
@@ -410,6 +415,7 @@ def questionpathlist(request):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def deletepath(request, pathid):
@@ -479,6 +485,7 @@ def create_edit_tag(request, tag_id=None):
                               context_instance=RequestContext(request))
 
 
+@require_POST
 @login_required
 @transaction.commit_on_success
 def delete_tag(request, tag_id):
