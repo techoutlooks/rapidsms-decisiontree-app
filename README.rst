@@ -11,7 +11,9 @@ packaged and maintained by `Caktus Consulting Group, LLC <http://www.caktusgroup
 Requirements
 -----------------------------------
 
-rapidsms-decisiontree-app is compatible with Python 2.6 and 2.7, RapidSMS 0.9.6a and Django >= 1.2.
+rapidsms-decisiontree-app is compatible with Python 2.6 and 2.7, RapidSMS 0.9.6a and Django >= 1.2. There
+is optional support for the `threadless-router <https://github.com/caktus/rapidsms-threadless-router>`_
+and `django-celery <https://github.com/celery/django-celery>`_.
 
 
 Features
@@ -21,6 +23,46 @@ Features
  * Branching logic for the series of questions
  * Tree visualization
  * Errors for unrecognized messages (e.g. 'i don't recognize that kind of fruit') and multiple retries before exiting the session
+
+
+Installation
+-----------------------------------
+
+The latest stable release of rapidsms-decisiontree-app can be installed from the
+Python Package Index (PyPi) with `pip <http://www.pip-installer.org/>`_::
+
+    pip install rapidsms-decisiontree-app
+
+Once installed you should include ``decisiontree`` in your ``INSTALLED_APPS`` setting.
+
+.. code-block:: python
+
+    INSTALLED_APPS = (       
+        # Other installed apps would go here
+        'decisiontree',
+    )
+
+You'll need to create the necessary database tables::
+
+     python manage.py syncdb
+
+rapidsms-decisiontree-app supports using `South <http://south.aeracode.org/>`_
+for database migrations. If you are using South then you should migrate::
+
+    python manage.py migrate decisiontree
+
+At this point data can only be viewed/changed in the Django admin. If you want to
+enable this on the front-end you can include the ``decisiontree.urls`` in your root
+url patterns.
+
+.. code-block:: python
+
+    urlpatterns = patterns('',
+        # Other url patterns would go here
+        url(r'^decisiontree/', include('decisiontree.urls')),
+    )
+
+See the `full documentation <http://rapidsms-decisiontree-app.readthedocs.org/>`_ for additional configuration options.
 
 
 Running the Tests
