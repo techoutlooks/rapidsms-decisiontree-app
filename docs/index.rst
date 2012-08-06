@@ -13,6 +13,7 @@ Contents:
 
     overview.rst
     simple-example.rst
+    advanced-example.rst
     settings.rst
     releases.rst
 

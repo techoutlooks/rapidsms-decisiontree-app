@@ -2,7 +2,8 @@ Simple Tree Example
 ===================================
 
 Below is the setup for an example survey which asks three basic questions to a user.
-There are no branches and all responses allow for free text.
+There are no branches and all responses allow for free text. The questions are based
+on the bridgekeeper scene from "Monty Python and the Holy Grail".
 
 
 Creating Questions
@@ -105,5 +106,15 @@ Now when an incoming SMS matches the trigger text ``#test`` we will respond with
 from state one "What is your name?". They will proceed on with each question and when
 finished we will respond "Go on. Off you go." This completion text is optional.
 
-At this point we have a simple yet functioning linear survey tree. Continuing reading to 
-see how we can add branches to this series of questions.
+At this point we have a simple yet functioning linear survey tree. An example SMS workflow is given below::
+
+    555-555-1234 >>> #test
+    555-555-1234 <<< What is your name? # This is state 1, question 1
+    555-555-1234 >>> My name is Sir Lancelot of Camelot.
+    555-555-1234 <<< What is your quest? # This is state 2, question 2
+    555-555-1234 >>> To seek the Holy Grail.
+    555-555-1234 <<< What is your favorite color? # This is state 3, question 3
+    555-555-1234 >>> Blue.
+    555-555-1234 <<< Go on. Off you go. # End of questions
+
+Continuing reading to see how we can add branches to this series of questions.
