@@ -8,4 +8,5 @@ urlpatterns = patterns('',
     (r'^account/', include('rapidsms.urls.login_logout')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^tree/', include('decisiontree.urls')),
+    url(r'^', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
 )

@@ -29,3 +29,9 @@ PASSWORD_HASHERS = (
 )
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+
+
+RAPIDSMS_TABS = [
+    ("rapidsms-dashboard", "Dashboard"),
+    ("list-surveys", "Decistion Tree"),
+]
