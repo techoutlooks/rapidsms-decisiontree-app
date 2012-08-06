@@ -62,7 +62,7 @@ url patterns.
         url(r'^decisiontree/', include('decisiontree.urls')),
     )
 
-See the full documentation for additional configuration options.
+See the `full documentation <http://rapidsms-decisiontree-app.readthedocs.org/>`_ for additional configuration options.
 
 
 Running the Tests
