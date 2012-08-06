@@ -36,7 +36,7 @@ knight::
     answer: .*Arthur.*
 
 
-New States and Transistions
+New States and Transitions
 ------------------------------------
 
 We need additional states to handle these trees. Since the final question is the
@@ -57,10 +57,10 @@ question::
     question: 2
 
 
-Now we need the transistions between the questions based on the first answer. First
+Now we need the transitions between the questions based on the first answer. First
 we will do Sir Robin::
 
-    # Transistions
+    # Transitions
     pk: 3
     current state: 1
     answer: 2
@@ -78,7 +78,7 @@ we will do Sir Robin::
 
 Then King Arthur::
 
-    # Transistions
+    # Transitions
     pk: 6
     current state: 1
     answer: 3

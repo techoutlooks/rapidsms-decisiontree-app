@@ -48,7 +48,7 @@ exact matches so we will just accept any text::
 Associating Questions and Answers
 ------------------------------------
 
-Questions and answers are associated via tree states and transistions. Since we don't
+Questions and answers are associated via tree states and transitions. Since we don't
 have any branches the tree states and questions will be tied in a one to one fashion::
 
     # Tree States
@@ -64,10 +64,10 @@ have any branches the tree states and questions will be tied in a one to one fas
 Within a tree state you can also optionally specify the number of allowable retries but
 these have been excluded for simplicity.
 
-Transistions determine how users are moved through the tree based on their answers. Here
+Transitions determine how users are moved through the tree based on their answers. Here
 we will allow any text for each question and simply move the user on to the next question::
 
-    # Transistions
+    # Transitions
     pk: 1
     current state: 1
     answer: 1
@@ -83,7 +83,7 @@ we will allow any text for each question and simply move the user on to the next
     answer: 1
     next state: null
 
-Transistions can also be tagged and notifications can be sent when those tags are triggered. For
+Transitions can also be tagged and notifications can be sent when those tags are triggered. For
 instance you may create a new answer which is for the text 'blue' and have a new transition
 which handles the case when the user had the favorite color blue. Again this has been excluded
 for simplicity.
