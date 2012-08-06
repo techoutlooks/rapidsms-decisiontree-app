@@ -12,6 +12,7 @@ Contents:
     :maxdepth: 2
 
     overview.rst
+    simple-example.rst
     settings.rst
     releases.rst
 
