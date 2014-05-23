@@ -4,7 +4,7 @@ DATABASES = {
         'NAME': 'test.db',
     }
 }
-        
+
 INSTALLED_APPS = (
     "djtables",
     "rapidsms",
@@ -19,12 +19,12 @@ INSTALLED_APPS = (
 )
 
 SITE_ID = 1
-        
+
 SECRET_KEY = 'super-secret',
 
 ROOT_URLCONF = 'decisiontree.tests.urls',
 
-PASSWORD_HASHERS=(
+PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
 )
 
