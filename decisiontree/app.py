@@ -32,6 +32,7 @@ class App(AppBase):
     session_listeners = {}
 
     def start(self):
+        # FIXME: this method is deprecated in RapidSMS
         notifications_enabled = conf.NOTIFICATIONS_ENABLED
         if notifications_enabled and not "rapidsms.contrib.scheduler" in settings.INSTALLED_APPS:
             self.info("rapidsms.contrib.scheduler not in INSTALLED_APPS, disabling notifications")
@@ -76,9 +77,9 @@ class App(AppBase):
             self._end_session(session, True, message=msg)
             return True
 
-        # loop through all transitions starting with  
+        # loop through all transitions starting with
         # this state and try each one depending on the type
-        # this will be a greedy algorithm and NOT safe if 
+        # this will be a greedy algorithm and NOT safe if
         # multiple transitions can match the same answer
         transitions = Transition.objects.filter(current_state=state)
         found_transition = None
@@ -95,13 +96,13 @@ class App(AppBase):
                 self._end_session(session, message=msg)
             else:
                 # update the number of times the user has tried
-                # to answer this.  If they have reached the 
+                # to answer this.  If they have reached the
                 # maximum allowed then end their session and
                 # send them an error message.
                 session.num_tries = session.num_tries + 1
                 if state.num_retries and session.num_tries >= state.num_retries:
                     session.state = None
-                    msg.respond("Sorry, invalid answer %(retries)s times. Your session will now end. Please try again later.", 
+                    msg.respond("Sorry, invalid answer %(retries)s times. Your session will now end. Please try again later.",
                                 retries=session.num_tries)
                 # send them some hints about how to respond
                 elif state.question.error_response:
@@ -143,14 +144,14 @@ class App(AppBase):
         # advance to the next question, or remove
         # this caller's state if there are no more
 
-        # this might be "None" but that's ok, it will be the 
+        # this might be "None" but that's ok, it will be the
         # equivalent of ending the session
         session.state = found_transition.next_state
         session.num_tries = 0
         session.save()
 
-        # if this was the last message, end the session, 
-        # and also check if the tree has a defined 
+        # if this was the last message, end the session,
+        # and also check if the tree has a defined
         # completion text and if so send it
         if not session.state:
             if session.tree.completion_text:
@@ -167,13 +168,13 @@ class App(AppBase):
         return True
 
     def tick(self, session):
-        """Invoked periodically for each live session to check how long
+        """
+        Invoked periodically for each live session to check how long
         since we sent the last question, and decide to resend it or give
-        up the whole thing"""
+        up the whole thing.
+        """
         timeout = conf.TIMEOUT
-
-        now = datetime.datetime.now()
-        idle_time = now - session.last_modified
+        idle_time = datetime.datetime.now() - session.last_modified
         if idle_time >= datetime.timedelta(seconds=timeout):
             # feed a dummy message to the handler
             msg = IncomingMessage(connection=session.connection,
@@ -182,13 +183,13 @@ class App(AppBase):
             msg.flush_responses()  # make sure response goes out
 
     def start_tree(self, tree, connection, msg=None):
-        '''Initiates a new tree sequence, terminating any active sessions'''
+        """Initiates a new tree sequence, terminating any active sessions"""
         self.end_sessions(connection)
-        session = Session(connection=connection, 
+        session = Session(connection=connection,
                           tree=tree, state=tree.root_state, num_tries=0)
         session.save()
         self.debug("new session %s saved" % session)
-        
+
         # also notify any session listeners of this
         # so they can do their thing
         if self.session_listeners.has_key(tree.trigger):
@@ -197,7 +198,7 @@ class App(AppBase):
         self._send_question(session, msg)
 
     def _send_question(self, session, msg=None):
-        '''Sends the next question in the session, if there is one''' 
+        """Sends the next question in the session, if there is one"""
         state = session.state
         if state and state.question:
             response = state.question.text
@@ -205,21 +206,21 @@ class App(AppBase):
             if msg:
                 msg.respond(response)
             else:
-                # we need to get the real backend from the router 
-                # to properly send it 
+                # we need to get the real backend from the router
+                # to properly send it
                 real_backend = self.router.get_backend(session.connection.backend.slug)
                 if real_backend:
                     connection = Connection(real_backend, session.connection.identity)
                     outgoing_msg = OutgoingMessage(connection, response)
                     self.router.outgoing(outgoing_msg)
-                else: 
+                else:
                     # todo: do we want to fail more loudly than this?
                     error = "Can't find backend %s.  Messages will not be sent" % connection.backend.slug
                     self.error(error)
 
     def _end_session(self, session, canceled=False, message=None):
-        '''Ends a session, by setting its state to none,
-           and alerting any session listeners'''
+        """Ends a session, by setting its state to none,
+           and alerting any session listeners"""
         session.state = None
         session.canceled = canceled
         session.save()
@@ -230,40 +231,40 @@ class App(AppBase):
                                 message=message)
 
     def end_sessions(self, connection):
-        ''' Ends all open sessions with this connection.  
-            does nothing if there are no open sessions ''' 
+        """ Ends all open sessions with this connection.
+            does nothing if there are no open sessions """
         sessions = Session.objects.filter(connection=connection).exclude(state=None)
         for session in sessions:
             self._end_session(session, True)
-    
+
     def register_custom_transition(self, name, function):
-        ''' Registers a handler for custom logic within a 
-            state transition '''
+        """ Registers a handler for custom logic within a
+            state transition """
         self.info("Registering keyword: %s for function %s" %(name, function.func_name))
-        self.registered_functions[name] = function  
+        self.registered_functions[name] = function
 
     def set_session_listener(self, tree_key, function):
-        '''Adds a session listener to this.  These functions
+        """Adds a session listener to this.  These functions
            get called at the beginning and end of every session.
            The contract of the function is func(Session, is_ending)
            where is_ending = false at the start and true at the
            end of the session.
-        ''' 
-        
+        """
+
         self.info("Registering session listener %s for tree %s" %(function.func_name, tree_key))
         # I can't figure out how to deal with duplicates, so only allowing
         # a single registered function at a time.
-        #        
+        #
         #        if self.session_listeners.has_key(tree_key):
         #            # have to check existence.  This is mainly for the unit tests
         #            if function not in self.session_listeners[tree_key]:
         #                self.session_listeners[tree_key].append(function)
-        #        else: 
+        #        else:
         self.session_listeners[tree_key] = [function]
 
     def matches(self, answer, message):
         answer_value = message.text
-        '''returns True if the answer is a match for this.'''
+        """returns True if the answer is a match for this."""
         if not answer_value:
             return False
         if answer.type == "A":
@@ -276,7 +277,7 @@ class App(AppBase):
             else:
                 raise Exception("Can't find a function to match custom key: %s", answer)
         raise Exception("Don't know how to process answer type: %s", answer.type)
-    
+
     def status_update(self):
         self.debug('{0} running'.format(SCHEDULE_DESC))
         now = datetime.datetime.now()

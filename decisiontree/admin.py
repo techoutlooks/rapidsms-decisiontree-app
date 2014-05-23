@@ -48,12 +48,12 @@ class TransitionAdmin(admin.ModelAdmin):
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'num_recipients')
-    
+
     def num_recipients(self, obj):
         return obj.recipients.count()
 
 
-class TagNotificationAdmin(admin.ModelAdmin): 
+class TagNotificationAdmin(admin.ModelAdmin):
     list_display = ('tag', 'user', 'entry', 'date_added', 'date_sent', 'sent')
     list_filter = ('date_added', 'sent')
     ordering = ('-date_added',)

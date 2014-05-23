@@ -40,8 +40,8 @@ class QuestionForm(forms.ModelForm):
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['text'].label = 'Message Text'
         self.fields['error_response'].label = 'Error Text'
-    
-    
+
+
 class StateForm(forms.ModelForm):
 
     class Meta:
@@ -75,7 +75,7 @@ class AnswerSearchForm(forms.Form):
         # answers = \
         #     Answer.objects.filter(transitions__entries__session__tree=tree)
         tags = Tag.objects.filter(entries__session__tree=tree).distinct()
-        
+
         # self.fields['answer'].queryset = answers.distinct()
         self.fields['tag'].queryset = tags
         # self.fields['analysis'].label = 'Calculator'
@@ -116,7 +116,7 @@ class EntryTagForm(forms.ModelForm):
     class Meta:
         model = Entry
         fields = ('tags',)
-    
+
     def save(self):
         entry = super(EntryTagForm, self).save()
         # create tag notifications

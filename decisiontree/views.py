@@ -120,7 +120,7 @@ def recent_sessions(request, tree_id):
 @login_required
 def update_tree_summary(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
-    
+
     if request.method == 'POST':
         form = forms.TreeSummaryForm(request.POST, instance=tree)
         if form.is_valid():
@@ -142,7 +142,7 @@ def update_tree_summary(request, tree_id):
 def export(req, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     all_states = tree.get_all_states()
-    loops = tree.has_loops() 
+    loops = tree.has_loops()
     if not loops:
         output = StringIO()
         w = csv.writer(output)
@@ -223,7 +223,7 @@ def addquestion(request, questionid=None):
             question = form.save()
             if questionid:
                 validationMsg =("You have successfully updated the Question")
-            else:                   
+            else:
                 validationMsg = "You have successfully inserted a Question %s." % question.text
             messages.info(request, validationMsg)
             return redirect('list-questions')

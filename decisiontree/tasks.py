@@ -11,6 +11,7 @@ def check_for_session_timeout():
 
     Note: this requires the threadless router to run.
     """
+    # FIXME - It would be great to remove this dependency
     from threadless_router.router import Router
     router = Router()
     app = router.get_app('decisiontree')
