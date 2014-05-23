@@ -1,4 +1,7 @@
 {% extends "tree/base.html" %}
+
+{% load url from future %}
+
 {% load i18n %}
 
 {% block title %}Edit Entry{% endblock %}
@@ -14,7 +17,7 @@
     </table>
     <p class="buttons"> 
     <button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
-    <a class="button negative icon cross" href="{% url survey-report entry.session.tree.pk %}">{% trans "Cancel" %}</a>
+    <a class="button negative icon cross" href="{% url 'survey-report' entry.session.tree.pk %}">{% trans "Cancel" %}</a>
     </p>
 </form>
 

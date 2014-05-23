@@ -1,12 +1,15 @@
 {% extends "tree/base.html" %}
 
+{% load url from future %}
+
+
 {% block title %}Answers{% endblock %}
 
 {% block content %}
 
 <h2>Answers</h2>
 <ul class='horizontal'>
-    <li><a href="{% url add_answer %}">Add answer</a></li>
+    <li><a href="{% url 'add_answer' %}">Add answer</a></li>
 </ul>
 
 <table class='list auto'>
@@ -30,12 +33,12 @@
                 <td>{{ answer.answer }}</td>
                 <td>{{ answer.description }}</td>
                 <td>
-                    <a href="{% url insert_answer answer.id %}" title="Edit" class="edit-link">
+                    <a href="{% url 'insert_answer' answer.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url delete_answer answer.id %}" method="post" style="border:0px;">
+                    <form action="{% url 'delete_answer' answer.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
                         <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
                     </form>

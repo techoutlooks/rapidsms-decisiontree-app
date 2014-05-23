@@ -1,12 +1,15 @@
 {% extends "tree/base.html" %}
 
+{% load url from future %}
+
+
 {% block title %}States{% endblock %}
 
 {% block content %}
 
 <h2>States</h2>
 <ul class='horizontal'>
-    <li><a href = "{% url add_state %}" >Add state</a></li>
+    <li><a href = "{% url 'add_state' %}" >Add state</a></li>
 </ul>
 
 <table class='list auto'>
@@ -28,12 +31,12 @@
                 <td>{{ state.question.text }}</td>
                 <td>{{ state.num_retries }}</td>
                 <td>
-                    <a href="{% url insert_state state.id %}" title="Edit" class="edit-link">
+                    <a href="{% url 'insert_state' state.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url delete_state state.id %}" method="post" style="border:0px;">
+                    <form action="{% url 'delete_state' state.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
                         <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
                     </form>

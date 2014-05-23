@@ -1,4 +1,7 @@
 {% extends "tree/base.html" %}
+
+{% load url from future %}
+
 {% load i18n %}
 
 {% block title %}Paths{% endblock %}
@@ -7,7 +10,7 @@
 
 <h2>Paths</h2>
 <ul class='horizontal'>
-    <li><a title='{% trans "Add path" %}' href="{% url add_path %}">{% trans "Add path" %}</a></li>
+    <li><a title='{% trans "Add path" %}' href="{% url 'add_path' %}">{% trans "Add path" %}</a></li>
 </ul>
 
 <table class='list auto'>
@@ -31,12 +34,12 @@
                 <td>{{ path.next_state }}</td>
                 <td>{{ path.cached_tags|join:", " }}</td>
                 <td>
-                    <a href="{% url insert_path path.id %}" title="Edit" class="edit-link">
+                    <a href="{% url 'insert_path' path.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url delete_path path.id %}" method="post" style="border:0px;">
+                    <form action="{% url 'delete_path' path.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
                         <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
                     </form>

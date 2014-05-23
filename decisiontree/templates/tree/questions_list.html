@@ -1,12 +1,15 @@
 {% extends "tree/base.html" %}
 
+{% load url from future %}
+
+
 {% block title %}Questions{% endblock %}
 
 {% block content %}
 
 <h2>Questions</h2>
 <ul class='horizontal'>
-    <li><a href="{% url add_question %}">Add question</a></li>
+    <li><a href="{% url 'add_question' %}">Add question</a></li>
 </ul>
 
 <table class='list auto'>
@@ -26,12 +29,12 @@
                 <td>{{ question.text }}</td>
                 <td>{{ question.error_response|truncatewords:10 }}</td>
                 <td>
-                    <a href="{% url insert_question question.id %}" title="Edit" class="edit-link">
+                    <a href="{% url 'insert_question' question.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url delete_question question.id %}" method="post" style="border:0px;">
+                    <form action="{% url 'delete_question' question.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
                         <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
                     </form>

@@ -1,4 +1,7 @@
 {% extends "tree/base.html" %}
+
+{% load url from future %}
+
 {% load i18n %}
 
 {% block title %}{% if auto_tag %}Edit{% else %}Create{% endif %} Tag{% endblock %}
@@ -14,7 +17,7 @@
     </table>
     <p class="buttons"> 
     <button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
-    <a class="button negative icon cross" href="{% url list-tags %}">{% trans "Cancel" %}</a>
+    <a class="button negative icon cross" href="{% url 'list-tags' %}">{% trans "Cancel" %}</a>
     </p>
 </form>
 

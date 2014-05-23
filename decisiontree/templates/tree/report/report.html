@@ -1,4 +1,7 @@
 {% extends "tree/report/base.html" %}
+
+{% load url from future %}
+
 {% load i18n tree_tags %}
 
 {% block content %}
@@ -13,14 +16,14 @@
             <td>&nbsp;</td>
             <td>
                 <button type="submit" class="button positive icon tick">Search</button>
-                <a class="button negative icon cross" href="{% url survey-report tree.id %}">{% trans "Cancel" %}</a>
+                <a class="button negative icon cross" href="{% url 'survey-report' tree.id %}">{% trans "Cancel" %}</a>
             </td>
         </tr>
     </table>
 </form>
 
 <div class='summary'>
-    <p><strong>Summary:</strong> {{ tree.summary }} <a title='{% trans "Edit Survey Summary" %}' href="{% url update_tree_summary tree.pk %}">({% trans "Edit" %})</a></p>
+    <p><strong>Summary:</strong> {{ tree.summary }} <a title='{% trans "Edit Survey Summary" %}' href="{% url 'update_tree_summary' tree.pk %}">({% trans "Edit" %})</a></p>
 </div>
 
 <table class='list auto'>
@@ -46,7 +49,7 @@
                 <td scope="row">
                     {{ entry.text }}
                     {% if entry %}
-                        <a href='{% url update-entry entry.pk %}' title='Edit tags'>
+                        <a href='{% url 'update-entry' entry.pk %}' title='Edit tags'>
                             {% if entry.cached_tags %}
                                 ({{ entry.cached_tags|join:", " }})
                             {% else %}
