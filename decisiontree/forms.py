@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 from decisiontree.models import Answer, Entry, Question, Tag, TagNotification, Transition, Tree, TreeState
 from decisiontree.utils import parse_tags, edit_string_for_tags
@@ -107,7 +105,7 @@ class TagField(forms.CharField):
             raise forms.ValidationError(_("Please provide a comma-separated list of tags."))
         tags = []
         for tag_name in tag_names:
-            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            tag, created = Tag.objects.get_or_create(name=tag_name)
             tags.append(tag)
         return tags
 

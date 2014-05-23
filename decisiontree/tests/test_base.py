@@ -1,18 +1,13 @@
-import logging
 import string
 import random
 
-from django.test import TransactionTestCase, TestCase
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core import mail
 
+from rapidsms.tests.harness import MockRouter
 from rapidsms.models import Connection, Contact, Backend
-
-from rapidsms.tests.harness import MockRouter, MockBackend
-from rapidsms.models import Connection, Contact, Backend
-from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.messages.incoming import IncomingMessage
-
 
 from decisiontree import models as dt
 
