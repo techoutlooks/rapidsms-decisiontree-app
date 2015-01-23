@@ -156,8 +156,7 @@ def export(request, tree_id):
             w.writerow(values)
         # rewind the virtual file
         output.seek(0)
-        response = HttpResponse(output.read(),
-                            mimetype='application/ms-excel')
+        response = HttpResponse(output.read(), content_type='application/ms-excel')
         response["content-disposition"] = "attachment; filename=%s.csv" % tree.trigger
         return response
     else:
@@ -259,7 +258,6 @@ def addanswer(request, answerid=None):
                 validationMsg = ("You have successfully updated the Answer")
             else:
                 validationMsg = "You have successfully inserted Answer %s." % answer.answer
-                mycontext = {'validationMsg': validationMsg}
             messages.info(request, validationMsg)
             return redirect('answer_list')
 
@@ -437,7 +435,7 @@ def create_edit_tag(request, tag_id=None):
     if request.method == 'POST':
         form = forms.TagForm(request.POST, instance=tag)
         if form.is_valid():
-            saved_tag = form.save()
+            form.save()
             messages.info(request, 'Tag successfully saved')
             return redirect('list-tags')
     else:

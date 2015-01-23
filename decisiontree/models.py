@@ -6,8 +6,8 @@ from django.db import models
 
 class Question(models.Model):
     """
-    A question, which is just some text to be sent to the user,
-    and an optional error message if the question is not answered properly
+    A question, which is just some text to be sent to the user, and an optional
+    error message if the question is not answered properly
     """
     text = models.CharField(max_length=160)
     error_response = models.CharField(max_length=160, blank=True)
@@ -19,24 +19,27 @@ class Question(models.Model):
 class Tree(models.Model):
     """A decision tree.
 
-       Trees have a trigger, which is is the incoming
-       message that will initiate a tree.  They also have a root state
-       which is the first state the tree will be in.  The question linked
-       to the root state will be the one that is sent when the tree is
-       initiated.  The remaining logic of the tree is encapsulated by
-       the Transition objects, which define how answers to questions
-       move from one state to the next.
+    Trees have a trigger, which is is the incoming message that will initiate a
+    tree.  They also have a root state which is the first state the tree will
+    be in.  The question linked to the root state will be the one that is sent
+    when the tree is initiated.  The remaining logic of the tree is
+    encapsulated by the Transition objects, which define how answers to
+    questions move from one state to the next.
 
-       A tree also has optional completion text, which is the message
-       that will be sent to the user when they reach a node in the
-       tree with no possible transitions.
-       """
-    trigger = models.CharField(max_length=30, unique=True,
-            help_text="The incoming message which triggers this Tree")
-    root_state = models.ForeignKey("TreeState", related_name="tree_set",
-            help_text="The first Question sent when this Tree is triggered, which may lead to many more")
-    completion_text = models.CharField(max_length=160, blank=True, null=True,
-            help_text="The message that will be sent when the tree is completed")
+    A tree also has optional completion text, which is the message that will be
+    sent to the user when they reach a node in the tree with no possible
+    transitions.
+    """
+    trigger = models.CharField(
+        max_length=30, unique=True,
+        help_text="The incoming message which triggers this Tree")
+    root_state = models.ForeignKey(
+        "TreeState", related_name="tree_set",
+        help_text="The first Question sent when this Tree is triggered, "
+                  "which may lead to many more")
+    completion_text = models.CharField(
+        max_length=160, blank=True, null=True,
+        help_text="The message that will be sent when the tree is completed")
     summary = models.CharField(max_length=160, blank=True)
 
     def __unicode__(self):
@@ -62,27 +65,21 @@ class Tree(models.Model):
 class Answer(models.Model):
     """An answer to a question.
 
-       There are three possible types of answers:
+    There are three possible types of answers:
 
-       The simplest is an exact answer. Messages
-       will only match this answer if the text is
-       exactly the same as the answer specified.
+    The simplest is an exact answer. Messages will only match this answer if
+    the text is exactly the same as the answer specified.
 
-       The second is a regular expression.  In this
-       case the system will run a regular expression
-       over the message and match the answer if the
-       regular expression matches.
+    The second is a regular expression.  In this case the system will run a
+    regular expression over the message and match the answer if the regular
+    expression matches.
 
-       The final type is custom logic.  In this case
-       the answer should be a special keyword that
-       the application developer defines. The
-       application developer can then register a
-       function tied to this keyword with the tree
-       app and the tree app will call that function to
-       see if the answer should match. The function
-       should return any value that maps to True if
-       the answer is valid, otherwise any value that
-       maps to False.
+    The final type is custom logic.  In this case the answer should be a
+    special keyword that the application developer defines. The application
+    developer can then register a function tied to this keyword with the tree
+    app and the tree app will call that function to see if the answer should
+    match. The function should return any value that maps to True if the answer
+    is valid, otherwise any value that maps to False.
     """
     ANSWER_TYPES = (
         ('A', 'Exact Match'),
@@ -115,9 +112,9 @@ class Answer(models.Model):
 
 
 class TreeState(models.Model):
-    """ A TreeState is a location in a tree.  It is
-        associated with a question and a set of answers
-        (transitions) that allow traversal to other states.
+    """
+    A TreeState is a location in a tree.  It is associated with a question and
+    a set of answers (transitions) that allow traversal to other states.
     """
     name = models.CharField(max_length=100)
     question = models.ForeignKey(Question)
@@ -153,8 +150,10 @@ class TreeState(models.Model):
         return False
 
     def add_all_unique_children(self, added):
-        """ Adds all unique children of the state to the passed in list.
-            This happens recursively."""
+        """
+        Adds all unique children of the state to the passed in list.  This
+        happens recursively.
+        """
         transitions = self.transition_set.select_related('next_state__question')
         for transition in transitions:
             if transition.next_state:
@@ -167,12 +166,14 @@ class TreeState(models.Model):
 
 
 class Transition(models.Model):
-    """ A Transition is a way to navigate from one
-        TreeState to another, via an appropriate
-        Answer. """
+    """
+    A Transition is a way to navigate from one TreeState to another, via an
+    appropriate Answer.
+    """
     current_state = models.ForeignKey(TreeState)
     answer = models.ForeignKey(Answer, related_name='transitions')
-    next_state = models.ForeignKey(TreeState, blank=True, null=True, related_name='next_state')
+    next_state = models.ForeignKey(
+        TreeState, blank=True, null=True, related_name='next_state')
     tags = models.ManyToManyField('Tag', related_name='transitions', blank=True)
 
     class Meta(object):
@@ -183,11 +184,12 @@ class Transition(models.Model):
 
 
 class Session(models.Model):
-    """ A Session represents a single person's current
-        status traversing through a Tree. It is a way
-        to persist information about what state they
-        are in, how many retries they have had, etc. so
-        that we aren't storing all of that in-memory. """
+    """
+    A Session represents a single person's current status traversing through a
+    Tree. It is a way to persist information about what state they are in, how
+    many retries they have had, etc. so that we aren't storing all of that
+    in-memory.
+    """
     connection = models.ForeignKey('rapidsms.Connection')
     tree = models.ForeignKey(Tree, related_name='sessions')
     start_date = models.DateTimeField(auto_now_add=True)
@@ -209,9 +211,10 @@ class Session(models.Model):
 
 
 class Entry(models.Model):
-    """ An Entry is a single successful movement within
-        a Session.  It represents an accepted Transition
-        from one state to another within the tree. """
+    """
+    An Entry is a single successful movement within a Session.  It represents
+    an accepted Transition from one state to another within the tree.
+    """
     session = models.ForeignKey(Session, related_name='entries')
     sequence_id = models.IntegerField()
     transition = models.ForeignKey(Transition, related_name='entries')
@@ -220,8 +223,9 @@ class Entry(models.Model):
     tags = models.ManyToManyField('Tag', related_name='entries')
 
     def __unicode__(self):
-        return u"%s-%s: %s - %s" % (self.session.id, self.sequence_id,
-                self.transition.current_state.question, self.text)
+        return u"%s-%s: %s - %s" % (
+            self.session.id, self.sequence_id,
+            self.transition.current_state.question, self.text)
 
     def meta_data(self):
         return "%s - %s %s" % (

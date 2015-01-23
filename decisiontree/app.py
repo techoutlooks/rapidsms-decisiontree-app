@@ -34,7 +34,7 @@ class App(AppBase):
     def start(self):
         # FIXME: this method is deprecated in RapidSMS
         notifications_enabled = conf.NOTIFICATIONS_ENABLED
-        if notifications_enabled and not "rapidsms.contrib.scheduler" in settings.INSTALLED_APPS:
+        if notifications_enabled and "rapidsms.contrib.scheduler" not in settings.INSTALLED_APPS:
             self.info("rapidsms.contrib.scheduler not in INSTALLED_APPS, disabling notifications")
             notifications_enabled = False
         if notifications_enabled:
@@ -102,8 +102,9 @@ class App(AppBase):
                 session.num_tries = session.num_tries + 1
                 if state.num_retries and session.num_tries >= state.num_retries:
                     session.state = None
-                    msg.respond("Sorry, invalid answer %(retries)s times. Your session will now end. Please try again later.",
-                                retries=session.num_tries)
+                    msg.respond("Sorry, invalid answer %(retries)s times. "
+                                "Your session will now end. Please try again "
+                                "later.", retries=session.num_tries)
                 # send them some hints about how to respond
                 elif state.question.error_response:
                     msg.respond(state.question.error_response)
@@ -215,7 +216,8 @@ class App(AppBase):
                     self.router.outgoing(outgoing_msg)
                 else:
                     # todo: do we want to fail more loudly than this?
-                    error = "Can't find backend %s.  Messages will not be sent" % connection.backend.slug
+                    error = ("Can't find backend %s. Messages will not be "
+                             "sent" % connection.backend.slug)
                     self.error(error)
 
     def _end_session(self, session, canceled=False, message=None):
@@ -280,7 +282,6 @@ class App(AppBase):
 
     def status_update(self):
         self.debug('{0} running'.format(SCHEDULE_DESC))
-        now = datetime.datetime.now()
         notifications = TagNotification.objects.filter(sent=False)
         notifications = notifications.select_related().order_by('tag', 'entry')
         self.info('found {0} notifications'.format(notifications.count()))

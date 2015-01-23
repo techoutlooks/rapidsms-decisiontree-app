@@ -16,6 +16,7 @@ from decisiontree.app import App as DecisionApp
 
 
 class ResultsTest(TestCase):
+
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
         self.contact = Contact.objects.create(name='John Doe')
@@ -122,6 +123,7 @@ class CreateDataTest(TestCase):
 
 
 class BasicSurveyTest(CreateDataTest):
+
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
         self.contact = Contact.objects.create(name='John Doe')
@@ -138,7 +140,7 @@ class BasicSurveyTest(CreateDataTest):
 
     def test_invalid_trigger(self):
         tree = self.create_tree(data={'trigger': 'food'})
-        trans = self.create_trans(data={'current_state': tree.root_state})
+        self.create_trans(data={'current_state': tree.root_state})
         msg = self._send('i-do-not-exist')
         self.assertTrue(len(msg.responses) == 0)
 
@@ -160,14 +162,14 @@ class BasicSurveyTest(CreateDataTest):
 
     def test_error_response(self):
         tree = self.create_tree(data={'trigger': 'food'})
-        trans = self.create_trans(data={'current_state': tree.root_state})
+        self.create_trans(data={'current_state': tree.root_state})
         self._send('food')
         msg = self._send('bad-answer')
         self.assertTrue('is not a valid answer' in msg.responses[0]['text'])
 
     def test_error_response_from_question(self):
         tree = self.create_tree(data={'trigger': 'food'})
-        trans = self.create_trans(data={'current_state': tree.root_state})
+        self.create_trans(data={'current_state': tree.root_state})
         tree.root_state.question.error_response = 'my error response'
         tree.root_state.question.save()
         self._send('food')
@@ -179,7 +181,7 @@ class BasicSurveyTest(CreateDataTest):
         trans = self.create_trans(data={'current_state': tree.root_state})
         self._send('food')
         answer = trans.answer.answer
-        msg = self._send(answer)
+        self._send(answer)
         entry = trans.entries.all()[0]
         self.assertEqual(entry.sequence_id, 1)
 
@@ -188,14 +190,14 @@ class BasicSurveyTest(CreateDataTest):
         trans1 = self.create_trans(data={'current_state': tree.root_state})
         trans2 = self.create_trans(data={'current_state': trans1.next_state})
         self._send('food')
-        msg = self._send(trans1.answer.answer)
-        msg = self._send(trans2.answer.answer)
+        self._send(trans1.answer.answer)
+        self._send(trans2.answer.answer)
         entry = trans2.entries.order_by('-sequence_id')[0]
         self.assertEqual(entry.sequence_id, 2)
 
     def test_sequence_end(self):
         tree = self.create_tree(data={'trigger': 'food'})
-        trans1 = self.create_trans(data={'current_state': tree.root_state})
+        self.create_trans(data={'current_state': tree.root_state})
         self._send('food')
         session = self.connection.session_set.all()[0]
         self.assertNotEqual(session.state, None)
@@ -208,6 +210,7 @@ class BasicSurveyTest(CreateDataTest):
 
 
 class DigestTest(CreateDataTest):
+
     def setUp(self):
         self.backend = Backend.objects.create(name='test-backend')
         self.contact = Contact.objects.create(name='John Doe')
@@ -230,7 +233,7 @@ class DigestTest(CreateDataTest):
         trans1 = self.create_trans(data={'current_state': tree.root_state})
         trans1.tags.add(self.fruit_tag)
         self._send('food')
-        msg = self._send(trans1.answer.answer)
+        self._send(trans1.answer.answer)
         entry = trans1.entries.order_by('-sequence_id')[0]
         self.assertTrue(self.fruit_tag.pk in entry.tags.values_list('pk', flat=True))
         notification = dt.TagNotification.objects.all()[0]
@@ -242,8 +245,8 @@ class DigestTest(CreateDataTest):
         trans2 = self.create_trans(data={'current_state': trans1.next_state})
         trans1.tags.add(self.fruit_tag)
         self._send('food')
-        msg = self._send(trans1.answer.answer)
-        msg = self._send(trans2.answer.answer)
+        self._send(trans1.answer.answer)
+        self._send(trans2.answer.answer)
         self.app.status_update()
         self.assertEquals(len(mail.outbox), 1)
         notification = dt.TagNotification.objects.all()[0]
