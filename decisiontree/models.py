@@ -140,15 +140,15 @@ class TreeState(models.Model):
         last_node = path[len(path) - 1]
         transitions = last_node.transition_set.all()
         for transition in transitions:
-          if transition.next_state:
-              # Base case.  We have already seen this state in the path
-              if path.__contains__(transition.next_state):
-                  return True
-              next_path = path[:]
-              next_path.append(transition.next_state)
-              # recursive case - there is a loop somewhere below this path
-              if TreeState.path_has_loops(next_path):
-                  return True
+            if transition.next_state:
+                # Base case.  We have already seen this state in the path
+                if path.__contains__(transition.next_state):
+                    return True
+                next_path = path[:]
+                next_path.append(transition.next_state)
+                # recursive case - there is a loop somewhere below this path
+                if TreeState.path_has_loops(next_path):
+                    return True
         # we trickle down to here - went all the way through without finding any loops
         return False
 
@@ -179,7 +179,7 @@ class Transition(models.Model):
         unique_together = ('current_state', 'answer')
 
     def __unicode__(self):
-      return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
+        return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
 
 
 class Session(models.Model):
