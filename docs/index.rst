@@ -6,7 +6,7 @@
 .. include:: ../README.rst
 
 Contents:
--------------------------------------------
+---------
 
 .. toctree::
     :maxdepth: 2
@@ -17,11 +17,9 @@ Contents:
     settings.rst
     releases.rst
 
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
