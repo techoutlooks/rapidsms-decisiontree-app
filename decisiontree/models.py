@@ -191,7 +191,7 @@ class Session(models.Model):
     connection = models.ForeignKey('rapidsms.Connection')
     tree = models.ForeignKey(Tree, related_name='sessions')
     start_date = models.DateTimeField(auto_now_add=True)
-    state = models.ForeignKey(TreeState, blank=True, null=True) # none if the session is complete
+    state = models.ForeignKey(TreeState, blank=True, null=True)  # none if the session is complete
     # the number of times the user has tried to answer
     # this question
     num_tries = models.PositiveIntegerField()
@@ -235,7 +235,7 @@ class Entry(models.Model):
         return self.text
 
     class Meta(object):
-        verbose_name_plural="Entries"
+        verbose_name_plural = "Entries"
         ordering = ('sequence_id',)
 
 

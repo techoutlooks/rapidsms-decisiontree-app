@@ -240,7 +240,7 @@ class App(AppBase):
     def register_custom_transition(self, name, function):
         """ Registers a handler for custom logic within a
             state transition """
-        self.info("Registering keyword: %s for function %s" %(name, function.func_name))
+        self.info("Registering keyword: %s for function %s" % (name, function.func_name))
         self.registered_functions[name] = function
 
     def set_session_listener(self, tree_key, function):
@@ -251,7 +251,7 @@ class App(AppBase):
            end of the session.
         """
 
-        self.info("Registering session listener %s for tree %s" %(function.func_name, tree_key))
+        self.info("Registering session listener %s for tree %s" % (function.func_name, tree_key))
         # I can't figure out how to deal with duplicates, so only allowing
         # a single registered function at a time.
         #

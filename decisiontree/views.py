@@ -12,7 +12,8 @@ from django.utils.datastructures import SortedDict
 from django.views.decorators.http import require_POST
 
 from decisiontree import forms
-from decisiontree.models import Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState
+from decisiontree.models import (
+    Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState)
 
 
 @login_required
@@ -175,7 +176,7 @@ def addtree(request, treeid=None):
         if form.is_valid():
             tree = form.save()
             if treeid:
-                validationMsg =("Survey successfully updated")
+                validationMsg = ("Survey successfully updated")
             else:
                 validationMsg = "You have successfully inserted a Survey %s." % tree.trigger
             messages.info(request, validationMsg)
@@ -211,7 +212,7 @@ def addquestion(request, questionid=None):
         if form.is_valid():
             question = form.save()
             if questionid:
-                validationMsg =("You have successfully updated the Question")
+                validationMsg = ("You have successfully updated the Question")
             else:
                 validationMsg = "You have successfully inserted a Question %s." % question.text
             messages.info(request, validationMsg)
@@ -255,10 +256,10 @@ def addanswer(request, answerid=None):
         if form.is_valid():
             answer = form.save()
             if answerid:
-                validationMsg =("You have successfully updated the Answer")
+                validationMsg = ("You have successfully updated the Answer")
             else:
                 validationMsg = "You have successfully inserted Answer %s." % answer.answer
-                mycontext = {'validationMsg':validationMsg}
+                mycontext = {'validationMsg': validationMsg}
             messages.info(request, validationMsg)
             return redirect('answer_list')
 
@@ -297,6 +298,7 @@ def list_entries(request):
         'entries': entries,
     })
 
+
 @login_required
 @transaction.commit_on_success
 def update_entry(request, entry_id):
@@ -315,6 +317,7 @@ def update_entry(request, entry_id):
         'entry': entry,
     })
 
+
 @login_required
 @transaction.commit_on_success
 def addstate(request, stateid=None):
@@ -327,7 +330,7 @@ def addstate(request, stateid=None):
         if form.is_valid():
             state = form.save()
             if stateid:
-                validationMsg =("State updated sucessfully")
+                validationMsg = ("State updated sucessfully")
             else:
                 validationMsg = "You have successfully inserted State %s." % state.name
             messages.info(request, validationMsg)
@@ -403,7 +406,7 @@ def questionpath(request, pathid=None):
         if form.is_valid():
             path = form.save()
             if pathid:
-                validationMsg =("Path successfully updated")
+                validationMsg = ("Path successfully updated")
             else:
                 validationMsg = "You have successfully inserted Question Path %s." % path.id
             messages.info(request, validationMsg)
