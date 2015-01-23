@@ -192,7 +192,7 @@ class App(AppBase):
 
         # also notify any session listeners of this
         # so they can do their thing
-        if self.session_listeners.has_key(tree.trigger):
+        if tree.trigger in self.session_listeners:
             for func in self.session_listeners[tree.trigger]:
                 func(session, False)
         self._send_question(session, msg)
@@ -224,7 +224,7 @@ class App(AppBase):
         session.state = None
         session.canceled = canceled
         session.save()
-        if self.session_listeners.has_key(session.tree.trigger):
+        if session.tree.trigger in self.session_listeners:
             for func in self.session_listeners[session.tree.trigger]:
                 func(session, True)
         session_end_signal.send(sender=self, session=session, canceled=canceled,
@@ -272,7 +272,7 @@ class App(AppBase):
         elif answer.type == "R":
             return re.match(answer.answer, answer_value, re.IGNORECASE)
         elif answer.type == "C":
-            if self.registered_functions.has_key(answer.answer):
+            if answer.answer in self.registered_functions:
                 return self.registered_functions[answer.answer](message)
             else:
                 raise Exception("Can't find a function to match custom key: %s", answer)

@@ -148,7 +148,7 @@ def export(request, tree_id):
             for transition in transitions:
                 states_w_transitions[transition.current_state] = transition
             for state in all_states:
-                if states_w_transitions.has_key(state):
+                if state in states_w_transitions:
                     values.append(states_w_transitions[state].answer)
                 else:
                     values.append("")
