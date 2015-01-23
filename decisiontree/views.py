@@ -7,8 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.datastructures import SortedDict
 from django.views.decorators.http import require_POST
 
@@ -20,11 +19,9 @@ from decisiontree.models import Answer, Entry, Question, Session, Tag, Transitio
 def index(request):
     trees = Tree.objects.select_related('root_state__question')
     trees = trees.annotate(count=Count('sessions'))
-    context = {
+    return render(request, "tree/index.html", {
         'surveys': trees.order_by('trigger'),
-    }
-    return render_to_response("tree/index.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -95,26 +92,22 @@ def data(request, id):
         stat_map[current_state]['values'] = columns[current_state]
     for state in states:
         state.stats = stat_map.get(state.pk, {})
-    context = {
+    return render(request, "tree/report/report.html", {
         'form': form,
         'tree': tree,
         'sessions': sessions,
         'states': states,
-    }
-    return render_to_response("tree/report/report.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def recent_sessions(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     sessions = tree.sessions.select_related()
-    context = {
+    return render(request, "tree/report/sessions.html", {
         'tree': tree,
         'ordered_sessions': sessions.order_by('-start_date')[:25],
-    }
-    return render_to_response("tree/report/sessions.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -130,16 +123,14 @@ def update_tree_summary(request, tree_id):
             return redirect(url)
     else:
         form = forms.TreeSummaryForm(instance=tree)
-    context = {
+    return render(request, "tree/summary.html", {
         'form': form,
         'tree': tree,
-    }
-    return render_to_response("tree/summary.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
-def export(req, tree_id):
+def export(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     all_states = tree.get_all_states()
     loops = tree.has_loops()
@@ -169,7 +160,7 @@ def export(req, tree_id):
         response["content-disposition"] = "attachment; filename=%s.csv" % tree.trigger
         return response
     else:
-        return render_to_response("tree/index.html", request_context=RequestContext(req))
+        return render(request, "tree/index.html", {})
 
 
 @login_required
@@ -192,12 +183,10 @@ def addtree(request, treeid=None):
     else:
         form = forms.TreesForm(instance=tree)
 
-    context = {
+    return render(request, 'tree/survey.html', {
         'tree': tree,
         'form': form,
-    }
-    return render_to_response('tree/survey.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -230,22 +219,18 @@ def addquestion(request, questionid=None):
     else:
         form = forms.QuestionForm(instance=question)
 
-    context = {
+    return render(request, 'tree/question.html', {
         'question': question,
         'form': form,
         'questionid': questionid,
-    }
-    return render_to_response('tree/question.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def questionlist(request):
-    context = {
+    return render(request, 'tree/questions_list.html', {
         'questions': Question.objects.order_by('text')
-    }
-    return render_to_response('tree/questions_list.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -280,13 +265,11 @@ def addanswer(request, answerid=None):
     else:
         form = forms.AnswerForm(instance=answer)
 
-    context = {
+    return render(request, 'tree/answer.html', {
         'answer': answer,
         'form': form,
         'answerid': answerid,
-    }
-    return render_to_response('tree/answer.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -301,23 +284,18 @@ def deleteanswer(request, answerid):
 
 @login_required
 def answerlist(request):
-    context = {
+    return render(request, "tree/answers_list.html", {
         'answers': Answer.objects.order_by('name'),
-    }
-    return render_to_response("tree/answers_list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def list_entries(request):
     """ List most recent survey activity """
     entries = Entry.objects.select_related().order_by('-time')[:25]
-    context = {
+    return render(request, "tree/entry/list.html", {
         'entries': entries,
-    }
-    return render_to_response("tree/entry/list.html", context,
-                              context_instance=RequestContext(request))
-
+    })
 
 @login_required
 @transaction.commit_on_success
@@ -332,13 +310,10 @@ def update_entry(request, entry_id):
             return redirect('survey-report', id=entry.session.tree.id)
     else:
         form = forms.EntryTagForm(instance=entry)
-    context = {
+    return render(request, "tree/entry/edit.html", {
         'form': form,
         'entry': entry,
-    }
-    return render_to_response("tree/entry/edit.html", context,
-                              context_instance=RequestContext(request))
-
+    })
 
 @login_required
 @transaction.commit_on_success
@@ -360,23 +335,19 @@ def addstate(request, stateid=None):
     else:
         form = forms.StateForm(instance=state)
 
-    context = {
+    return render(request, 'tree/state.html', {
         'state': state,
         'form': form,
         'stateid': stateid,
-    }
-    return render_to_response('tree/state.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def statelist(request):
     states = TreeState.objects.select_related('question').order_by('question')
-    context = {
+    return render(request, "tree/states_list.html", {
         'states': states,
-    }
-    return render_to_response("tree/states_list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -405,11 +376,9 @@ def questionpathlist(request):
         path_map[trans_tag.transition_id].append(trans_tag.tag)
     for path in paths:
         path.cached_tags = path_map.get(path.pk, [])
-    context = {
+    return render(request, 'tree/path_list.html', {
         'paths': paths,
-    }
-    return render_to_response('tree/path_list.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -442,22 +411,18 @@ def questionpath(request, pathid=None):
     else:
         form = forms.PathForm(instance=path)
 
-    context = {
+    return render(request, 'tree/path.html', {
         'path': path,
         'form': form,
         'pathid': pathid,
-    }
-    return render_to_response('tree/path.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def list_tags(request):
-    context = {
+    return render(request, "tree/tags/list.html", {
         'tags': Tag.objects.order_by('name'),
-    }
-    return render_to_response("tree/tags/list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -474,12 +439,10 @@ def create_edit_tag(request, tag_id=None):
             return redirect('list-tags')
     else:
         form = forms.TagForm(instance=tag)
-    context = {
+    return render(request, "tree/tags/edit.html", {
         'tag': tag,
         'form': form,
-    }
-    return render_to_response("tree/tags/edit.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
@@ -490,4 +453,3 @@ def delete_tag(request, tag_id):
     tag.delete()
     messages.info(request, 'Tag successfully deleted')
     return redirect('list-tags')
-

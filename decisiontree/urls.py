@@ -1,12 +1,9 @@
-try:
-    from django.conf.urls import patterns, url
-except ImportError:  # Django <1.4.
-    from django.conf.urls.defaults import patterns, url
+from django.conf.urls import url
 
 from decisiontree import views
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.index, name='list-surveys'),
     url(r'^(?P<id>\d+)/report/$', views.data, name='survey-report'),
     url(r'^(?P<tree_id>\d+)/summary/edit/$', views.update_tree_summary, name='update_tree_summary'),
@@ -37,4 +34,4 @@ urlpatterns = patterns('',
     url(r'^survey/path/add/$', views.questionpath, name='add_path'),
     url(r'^survey/path/update/(\d+)/$', views.questionpath, name='insert_path'),
     url(r'^survey/path/delete/(\d+)/$', views.deletepath, name='delete_path'),
-)
+]
