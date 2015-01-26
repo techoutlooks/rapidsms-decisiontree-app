@@ -8,7 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 @python_2_unicode_compatible
 class Question(models.Model):
     text = models.CharField(
-        max_length=160,
+        max_length=160, verbose_name="message text",
         help_text="The text to send to the user.")
     error_response = models.CharField(
         max_length=160, blank=True,

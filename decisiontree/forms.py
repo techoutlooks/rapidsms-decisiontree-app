@@ -11,16 +11,14 @@ class AnswerForm(forms.ModelForm):
 
     class Meta:
         model = Answer
-
-    def clean_alias(self):
-        data = self.cleaned_data["trigger"]
-        return data.lower()
+        fields = ['name', 'type', 'answer', 'description']
 
 
 class TreesForm(forms.ModelForm):
 
     class Meta:
         model = Tree
+        fields = ['trigger', 'root_state', 'completion_text', 'summary']
 
     def __init__(self, *args, **kwargs):
         super(TreesForm, self).__init__(*args, **kwargs)
@@ -29,28 +27,23 @@ class TreesForm(forms.ModelForm):
         self.fields['root_state'].label = 'First State'
         self.fields['root_state'].queryset = states
         self.fields['trigger'].label = 'Keyword'
-        self.fields['completion_text'].label = 'Completion Text'
 
 
 class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-
-    def __init__(self, *args, **kwargs):
-        super(QuestionForm, self).__init__(*args, **kwargs)
-        self.fields['text'].label = 'Message Text'
-        self.fields['error_response'].label = 'Error Text'
+        fields = ['text', 'error_response']
 
 
 class StateForm(forms.ModelForm):
 
     class Meta:
         model = TreeState
+        fields = ['name', 'question', 'num_retries']
 
 
 class ReportForm(forms.Form):
-
     ANALYSIS_TYPES = (
         ('A', 'Mean'),
         ('R', 'Median'),
@@ -118,7 +111,7 @@ class EntryTagForm(forms.ModelForm):
 
     class Meta:
         model = Entry
-        fields = ('tags',)
+        fields = ['tags']
 
     def save(self):
         entry = super(EntryTagForm, self).save()
@@ -132,6 +125,7 @@ class PathForm(forms.ModelForm):
 
     class Meta:
         model = Transition
+        fields = ['current_state', 'answer', 'next_state', 'tags']
 
     def __init__(self, *args, **kwargs):
         super(PathForm, self).__init__(*args, **kwargs)
@@ -150,21 +144,20 @@ class TagForm(forms.ModelForm):
 
     class Meta:
         model = Tag
+        fields = ['name', 'recipients']
 
     def __init__(self, *args, **kwargs):
         super(TagForm, self).__init__(*args, **kwargs)
         self.fields['recipients'] = forms.ModelMultipleChoiceField(
-            queryset=User.objects.exclude(email=''),
-            widget=forms.CheckboxSelectMultiple,
-            required=False,
-        )
+            required=False, widget=forms.CheckboxSelectMultiple,
+            queryset=User.objects.exclude(email=''))
 
 
 class TreeSummaryForm(forms.ModelForm):
 
     class Meta:
         model = Tree
-        fields = ('summary',)
+        fields = ['summary']
 
     def __init__(self, *args, **kwargs):
         super(TreeSummaryForm, self).__init__(*args, **kwargs)
