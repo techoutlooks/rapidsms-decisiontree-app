@@ -15,7 +15,7 @@ class Question(models.Model):
         help_text="Optional error message to send if the question is not "
                   "answered properly.")
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Q%s: %s" % (self.pk, self.text)
 
 
@@ -52,7 +52,7 @@ class Tree(models.Model):
             ("can_view", "Can view tree data"),
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"T%s: %s -> %s" % (self.pk, self.trigger, self.root_state)
 
     def get_all_states(self):
@@ -96,7 +96,7 @@ class Answer(models.Model):
     answer = models.CharField(max_length=160)
     description = models.CharField(max_length=100, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def helper_text(self):
@@ -130,7 +130,7 @@ class TreeState(models.Model):
                   "If empty, there is no limit. When the number of retries is "
                   "hit, the user's session will be terminated.")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.question.text
 
     def add_all_unique_children(self, added):
@@ -189,7 +189,7 @@ class Transition(models.Model):
             ('current_state', 'answer'),
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
 
 
@@ -215,7 +215,7 @@ class Session(models.Model):
     canceled = models.NullBooleanField(blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         state = self.state or "completed"
         return u"%s : %s" % (self.connection.identity, state)
 
@@ -237,7 +237,7 @@ class Entry(models.Model):
         verbose_name_plural = "Entries"
         ordering = ('sequence_id',)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s-%s: %s - %s" % (
             self.session.pk, self.sequence_id,
             self.transition.current_state.question, self.text)
@@ -259,7 +259,7 @@ class Tag(models.Model):
     name = models.CharField(unique=True, max_length=100)
     recipients = models.ManyToManyField(User, related_name='tags')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -274,6 +274,9 @@ class TagNotification(models.Model):
 
     class Meta(object):
         unique_together = ('tag', 'user', 'entry')
+
+    def __str__(self):
+        return self.user
 
     @classmethod
     def create_from_entry(cls, entry):
