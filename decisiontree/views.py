@@ -164,7 +164,7 @@ def export(request, tree_id):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addtree(request, treeid=None):
     tree = None
     if treeid:
@@ -191,7 +191,7 @@ def addtree(request, treeid=None):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletetree(request, treeid):
     tree = get_object_or_404(Tree, pk=treeid)
     tree.delete()
@@ -200,7 +200,7 @@ def deletetree(request, treeid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addquestion(request, questionid=None):
     question = None
     if questionid:
@@ -235,7 +235,7 @@ def questionlist(request):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletequestion(request, questionid):
     tree = get_object_or_404(Question, pk=questionid)
     tree.delete()
@@ -244,7 +244,7 @@ def deletequestion(request, questionid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addanswer(request, answerid=None):
     answer = None
     if answerid:
@@ -273,7 +273,7 @@ def addanswer(request, answerid=None):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deleteanswer(request, answerid):
     answer = get_object_or_404(Answer, pk=answerid)
     answer.delete()
@@ -298,7 +298,7 @@ def list_entries(request):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def update_entry(request, entry_id):
     """ Manually update survey entry tags """
     entry = get_object_or_404(Entry, pk=entry_id)
@@ -317,7 +317,7 @@ def update_entry(request, entry_id):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addstate(request, stateid=None):
     state = None
     if stateid:
@@ -353,7 +353,7 @@ def statelist(request):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletestate(request, stateid):
     state = get_object_or_404(TreeState, pk=stateid)
     state.delete()
@@ -384,7 +384,7 @@ def questionpathlist(request):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletepath(request, pathid):
     path = get_object_or_404(Transition, pk=pathid)
     path.delete()
@@ -393,7 +393,7 @@ def deletepath(request, pathid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def questionpath(request, pathid=None):
     path = None
     if pathid:
@@ -427,7 +427,7 @@ def list_tags(request):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def create_edit_tag(request, tag_id=None):
     tag = None
     if tag_id:
@@ -448,7 +448,7 @@ def create_edit_tag(request, tag_id=None):
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def delete_tag(request, tag_id):
     tag = get_object_or_404(Tag, pk=tag_id)
     tag.delete()
