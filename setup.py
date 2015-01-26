@@ -10,7 +10,7 @@ setup(
     include_package_data=True,
     url='https://github.com/caktus/rapidsms-decisiontree-app/',
     license='BSD',
-    description='RapidSMS Decisiontree',
+    description=" ".join(__import__('decisiontree').__doc__.splitlines()).strip(),
     long_description=open('README.rst').read(),
     classifiers=(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',

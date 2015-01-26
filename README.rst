@@ -12,9 +12,9 @@ Consulting Group, LLC <http://www.caktusgroup.com/services>`_.
 Requirements
 ------------
 
-rapidsms-decisiontree-app is compatible with Python 2.6 and 2.7, RapidSMS
-0.9.6a and Django >= 1.2. There is optional support for the `threadless-router
-<https://github.com/caktus/rapidsms-threadless-router>`_ and `django-celery
+`rapidsms-decisiontree-app` is tested with RapidSMS 0.19, running with Django
+1.6 (on Python 2.6/2.7) and Django 1.7 (on Python 2.7).
+There is optional support for `django-celery
 <https://github.com/celery/django-celery>`_.
 
 Features
@@ -35,14 +35,15 @@ the Python Package Index (PyPi) with `pip <http://www.pip-installer.org/>`_::
 
     pip install rapidsms-decisiontree-app
 
-Once installed you should include ``decisiontree`` in your ``INSTALLED_APPS``
+Once installed you should include ``'decisiontree'`` in your ``INSTALLED_APPS``
 setting.
 
 .. code-block:: python
 
     INSTALLED_APPS = (
-        # Other installed apps would go here
+        ...
         'decisiontree',
+        ...
     )
 
 You'll need to create the necessary database tables::
@@ -60,10 +61,11 @@ your root url patterns.
 
 .. code-block:: python
 
-    urlpatterns = patterns('',
-        # Other url patterns would go here
+    urlpatterns = [
+        ...
         url(r'^decisiontree/', include('decisiontree.urls')),
-    )
+        ...
+    ]
 
 See the `full documentation
 <http://rapidsms-decisiontree-app.readthedocs.org/>`_ for additional
@@ -72,17 +74,28 @@ configuration options.
 Running the Tests
 -----------------
 
-The tests are setup to run using `tox >= 1.4 <http://tox.readthedocs.org/>`_::
+Test requirements are listed in `requirements/tests.txt` file in the `project
+source <https://github.com/caktus/rapidsms-decisiontree-app>`_. These
+requirements are in addition RapidSMS and its dependencies.
 
-    pip install tox
-    # Run all test environments
-    tox
-    # Test only Python 2.6 and Django 1.3
-    tox -e py26-1.3.X
+After you have installed `rapidsms-decisiontree` in your project, you can use
+the Django test runner to run tests against your installation::
+
+    python manage.py test decisiontree
+
+To easily run tests against different environments that `rapidsms-decisiontree`
+supports, download the source and navigate to the `rapidsms-decisiontree-app`
+directory. From there, you can use tox to run tests against a specific
+environment::
+
+    tox -e py2.7-django1.7
+
+Or omit the `-e` argument to run tests against all combinations of Python and
+Django that `rapidsms-decisiontree` supports.
 
 To see the test coverage you can run::
 
     coverage run $VIRTUAL_ENV/bin/django-admin.py test decisiontree --settings=decisiontree.tests.settings
     coverage report -m
 
-A common .coveragerc file is include in the repo.
+A common `.coveragerc` file is include in the repo.
