@@ -1,13 +1,11 @@
 {% extends "tree/base.html" %}
 
-{% load url from future %}
-
 {% load tree_tags %}
 
 {% block title %}Decision Trees{% endblock %}
 
 {% block stylesheets %}
-    {{ block.super }}    
+    {{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}tree/stylesheets/tree.css" />
 {% endblock %}
 

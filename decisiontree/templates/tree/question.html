@@ -1,12 +1,10 @@
 {% extends "tree/base.html" %}
 
-{% load url from future %}
-
 {% load i18n %}
 
 {% block content %}
 <form action="" method="POST" class="pretty"> {% csrf_token %}
-<fieldset> 
+<fieldset>
 <legend>
 {% if questionid %}
 {% trans "Question Update Form" %}
@@ -18,7 +16,7 @@
 {{ form }}
 </table>
 
-<p class="buttons"> 
+<p class="buttons">
 <button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
 <a class="button negative icon cross" href="{% url 'list-questions' %}">{% trans "Cancel" %}</a>
 </p>
