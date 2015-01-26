@@ -2,8 +2,10 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
+@python_2_unicode_compatible
 class Question(models.Model):
     """
     A question, which is just some text to be sent to the user, and an optional
@@ -16,6 +18,7 @@ class Question(models.Model):
         return u"Q%s: %s" % (self.pk, self.text)
 
 
+@python_2_unicode_compatible
 class Tree(models.Model):
     """A decision tree.
 
@@ -62,6 +65,7 @@ class Tree(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class Answer(models.Model):
     """An answer to a question.
 
@@ -111,6 +115,7 @@ class Answer(models.Model):
             return self.answer
 
 
+@python_2_unicode_compatible
 class TreeState(models.Model):
     """
     A TreeState is a location in a tree.  It is associated with a question and
@@ -165,6 +170,7 @@ class TreeState(models.Model):
         return self.question.text
 
 
+@python_2_unicode_compatible
 class Transition(models.Model):
     """
     A Transition is a way to navigate from one TreeState to another, via an
@@ -183,6 +189,7 @@ class Transition(models.Model):
         return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
 
 
+@python_2_unicode_compatible
 class Session(models.Model):
     """
     A Session represents a single person's current status traversing through a
@@ -210,6 +217,7 @@ class Session(models.Model):
         return u"%s : %s" % (self.connection.identity, text)
 
 
+@python_2_unicode_compatible
 class Entry(models.Model):
     """
     An Entry is a single successful movement within a Session.  It represents
@@ -243,6 +251,7 @@ class Entry(models.Model):
         ordering = ('sequence_id',)
 
 
+@python_2_unicode_compatible
 class Tag(models.Model):
     name = models.CharField(unique=True, max_length=100)
     recipients = models.ManyToManyField(User, related_name='tags')
@@ -251,6 +260,7 @@ class Tag(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class TagNotification(models.Model):
     tag = models.ForeignKey(Tag)
     user = models.ForeignKey(User)
