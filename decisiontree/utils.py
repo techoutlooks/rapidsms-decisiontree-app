@@ -1,5 +1,4 @@
 from django.utils.encoding import force_text
-from django.utils.functional import wraps
 
 
 def parse_tags(tagstring):
@@ -115,12 +114,3 @@ def edit_string_for_tags(tags):
         else:
             names.append(name)
     return u', '.join(sorted(names))
-
-
-def require_instance_manager(func):
-    @wraps(func)
-    def inner(self, *args, **kwargs):
-        if self.instance is None:
-            raise TypeError("Can't call %s with a non-instance manager" % func.__name__)
-        return func(self, *args, **kwargs)
-    return inner
