@@ -32,7 +32,11 @@
                 <td>{{ path.current_state }}</td>
                 <td>{{ path.answer }}</td>
                 <td>{{ path.next_state }}</td>
-                <td>{{ path.cached_tags|join:", " }}</td>
+                <td>
+                  {% for tag in path.tags.all %}
+                    {{ tag }}{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                </td>
                 <td>
                     <a href="{% url 'insert_path' path.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{% static "icons/silk/reload.png" %}" />

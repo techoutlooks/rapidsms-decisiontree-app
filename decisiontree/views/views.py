@@ -1,4 +1,3 @@
-from collections import defaultdict
 import csv
 from StringIO import StringIO
 
@@ -54,20 +53,8 @@ class EntryUpdate(base.TreeUpdateView):
 class PathList(base.TreeListView):
     model = models.Transition
     order_by = ['current_state__question__text']
-    select_related = ['current_state__question', 'next_state__question', 'answer']
+    select_related = ['current_state__question', 'next_state__question', 'answer', 'tags']
     template_name = "tree/path_list.html"
-
-    def get_queryset(self):
-        qs = super(PathList, self).get_queryset()
-        trans_tags = self.model.tags.through.objects
-        trans_tags = trans_tags.filter(transition__in=[path.pk for path in qs])
-        trans_tags = trans_tags.select_related('tag')
-        path_map = defaultdict(list)
-        for trans_tag in trans_tags:
-            path_map[trans_tag.transition_id].append(trans_tag.tag)
-        for path in qs:
-            path.cached_tags = path_map.get(path.pk, [])
-        return qs
 
 
 class PathCreateUpdate(base.TreeCreateUpdateView):
