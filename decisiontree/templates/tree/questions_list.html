@@ -1,5 +1,7 @@
 {% extends "tree/base.html" %}
 
+{% load static from staticfiles %}
+
 {% block title %}Questions{% endblock %}
 
 {% block content %}
@@ -27,13 +29,13 @@
                 <td>{{ question.error_response|truncatewords:10 }}</td>
                 <td>
                     <a href="{% url 'insert_question' question.id %}" title="Edit" class="edit-link">
-                        <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
+                        <img class='action' alt='Edit' src="{% static "icons/silk/reload.png" %}" />
                     </a>
                 </td>
                 <td>
                     <form action="{% url 'delete_question' question.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
-                        <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
+                        <input type="image" src="{% static "icons/silk/delete.png" %}" />
                     </form>
                 </td>
             </tr>

@@ -1,8 +1,10 @@
 {% extends "layout-split-2.html" %}
 
+{% load static from staticfiles %}
+
 {% block stylesheets %}
     {{ block.super }}
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}tree/stylesheets/tree.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "tree/stylesheets/tree.css" %}" />
 {% endblock %}
 
 {% block submenu %}
