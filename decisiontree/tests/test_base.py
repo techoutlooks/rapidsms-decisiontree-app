@@ -2,7 +2,7 @@ import string
 import random
 
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core import mail
 
 from rapidsms.tests.harness import MockRouter
@@ -219,7 +219,7 @@ class DigestTest(CreateDataTest):
                                                     identity='1112223333')
         self.router = MockRouter()
         self.app = DecisionApp(router=self.router)
-        self.user = User.objects.create_user('test', 'a@a.com', 'abc')
+        self.user = get_user_model().objects.create_user('test', 'a@a.com', 'abc')
         self.fruit_tag = dt.Tag.objects.create(name='fruit')
         self.fruit_tag.recipients.add(self.user)
 

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 from decisiontree.models import (
@@ -150,7 +150,7 @@ class TagForm(forms.ModelForm):
         super(TagForm, self).__init__(*args, **kwargs)
         self.fields['recipients'] = forms.ModelMultipleChoiceField(
             required=False, widget=forms.CheckboxSelectMultiple,
-            queryset=User.objects.exclude(email=''))
+            queryset=get_user_model().objects.exclude(email=''))
 
 
 class TreeSummaryForm(forms.ModelForm):

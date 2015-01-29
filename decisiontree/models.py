@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -257,7 +257,7 @@ class Entry(models.Model):
 @python_2_unicode_compatible
 class Tag(models.Model):
     name = models.CharField(unique=True, max_length=100)
-    recipients = models.ManyToManyField(User, related_name='tags')
+    recipients = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='tags')
 
     def __str__(self):
         return self.name
@@ -266,7 +266,7 @@ class Tag(models.Model):
 @python_2_unicode_compatible
 class TagNotification(models.Model):
     tag = models.ForeignKey(Tag)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     entry = models.ForeignKey(Entry)
     sent = models.BooleanField(default=False)
     date_added = models.DateTimeField()
