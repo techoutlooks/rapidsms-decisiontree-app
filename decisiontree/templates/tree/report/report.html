@@ -15,14 +15,14 @@
             <td>&nbsp;</td>
             <td>
                 <button type="submit" class="button positive icon tick">Search</button>
-                <a class="button negative icon cross" href="{% url 'survey-report' object.id %}">{% trans "Cancel" %}</a>
+                <a class="button negative icon cross" href="{% tenancy_url 'survey-report' object.id %}">{% trans "Cancel" %}</a>
             </td>
         </tr>
     </table>
 </form>
 
 <div class='summary'>
-    <p><strong>Summary:</strong> {{ object.summary }} <a title='{% trans "Edit Survey Summary" %}' href="{% url 'update_tree_summary' object.pk %}">({% trans "Edit" %})</a></p>
+    <p><strong>Summary:</strong> {{ object.summary }} <a title='{% trans "Edit Survey Summary" %}' href="{% tenancy_url 'update_tree_summary' object.pk %}">({% trans "Edit" %})</a></p>
 </div>
 
 <table class='list auto'>
@@ -48,7 +48,7 @@
                 <td scope="row">
                     {{ entry.text }}
                     {% if entry %}
-                        <a href='{% url 'update-entry' entry.pk %}' title='Edit tags'>
+                        <a href='{% tenancy_url 'update-entry' entry.pk %}' title='Edit tags'>
                             {% if entry.cached_tags %}
                                 ({{ entry.cached_tags|join:", " }})
                             {% else %}

@@ -1,4 +1,5 @@
 from django import template
+from django.core.urlresolvers import reverse
 
 
 register = template.Library()
@@ -56,3 +57,13 @@ def render_question(question):
 @register.inclusion_tag("tree/partials/state.html")
 def render_state(state):
     return {"state": state}
+
+
+@register.simple_tag(takes_context=True)
+@register.assignment_tag(takes_context=True, name='assign_tenancy_url')
+def tenancy_url(context, url_name, *args, **kwargs):
+    from decisiontree.multitenancy.utils import multitenancy_enabled
+    if multitenancy_enabled():
+        kwargs.setdefault('group_slug', context['request'].group_slug)
+        kwargs.setdefault('tenant_slug', context['request'].tenant_slug)
+    return reverse(url_name, args=args, kwargs=kwargs)

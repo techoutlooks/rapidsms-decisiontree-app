@@ -10,7 +10,7 @@
 
 <h2>Tags</h2>
 <ul class='horizontal'>
-    <li><a title='{% trans "Add tag" %}' href="{% url 'create-tag' %}">{% trans "Add tag" %}</a></li>
+    <li><a title='{% trans "Add tag" %}' href="{% tenancy_url 'create-tag' %}">{% trans "Add tag" %}</a></li>
 </ul>
 
 <table class='list auto'>
@@ -26,12 +26,12 @@
             <td>{{ tag.pk }}</td>
             <td>{{ tag.name }}</td>
             <td>
-                <a href="{% url 'edit-tag' tag.id %}" title="Edit" class="edit-link">
+                <a href="{% tenancy_url 'edit-tag' tag.id %}" title="Edit" class="edit-link">
                     <img class='action' alt='Edit' src="{% static "icons/silk/reload.png" %}" />
                 </a>
             </td>
             <td>
-                <form action="{% url 'delete-tag' tag.id %}" method="post" style="border:0px;">
+                <form action="{% tenancy_url 'delete-tag' tag.id %}" method="post" style="border:0px;">
                     {% csrf_token %}
                     <input type="image" src="{% static "icons/silk/delete.png" %}" />
                 </form>

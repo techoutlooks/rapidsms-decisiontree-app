@@ -10,7 +10,7 @@
 
 <h2>Paths</h2>
 <ul class='horizontal'>
-    <li><a title='{% trans "Add path" %}' href="{% url 'add_path' %}">{% trans "Add path" %}</a></li>
+    <li><a title='{% trans "Add path" %}' href="{% tenancy_url 'add_path' %}">{% trans "Add path" %}</a></li>
 </ul>
 
 <table class='list auto'>
@@ -38,12 +38,12 @@
                   {% endfor %}
                 </td>
                 <td>
-                    <a href="{% url 'insert_path' path.id %}" title="Edit" class="edit-link">
+                    <a href="{% tenancy_url 'insert_path' path.id %}" title="Edit" class="edit-link">
                         <img class='action' alt='Edit' src="{% static "icons/silk/reload.png" %}" />
                     </a>
                 </td>
                 <td>
-                    <form action="{% url 'delete_path' path.id %}" method="post" style="border:0px;">
+                    <form action="{% tenancy_url 'delete_path' path.id %}" method="post" style="border:0px;">
                         {% csrf_token %}
                         <input type="image" src="{% static "icons/silk/delete.png" %}" />
                     </form>
