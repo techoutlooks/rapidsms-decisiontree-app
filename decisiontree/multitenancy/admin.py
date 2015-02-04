@@ -39,6 +39,16 @@ class TenantLinkInlineMixin(object):
 class MultitenancyAdminMixin(object):
     """Add information about the tenant to an existing model admin."""
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """Limit FK choices to objects for tenants the user manages."""
+        related_model = db_field.related.parent_model
+        if hasattr(related_model, 'tenantlink'):
+            tenants = get_tenants_for_user(request.user)
+            qs = kwargs.get('queryset', related_model.objects.all())
+            kwargs['queryset'] = qs.filter(tenantlink__tenant__in=tenants)
+        return super(MultitenancyAdminMixin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs)
+
     @property
     def tenant_link_model(self):
         raise ImproperlyConfigured("Implementing class must specify the "
