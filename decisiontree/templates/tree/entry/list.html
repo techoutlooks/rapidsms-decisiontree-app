@@ -1,11 +1,13 @@
 {% extends "tree/base.html" %}
+
+{% load static from staticfiles %}
 {% load tree_tags %}
 
 {% block title %}Decision Trees{% endblock %}
 
 {% block stylesheets %}
-    {{ block.super }}    
-    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}tree/stylesheets/tree.css" />
+    {{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{% static "tree/stylesheets/tree.css" %}" />
 {% endblock %}
 
 {% block content %}
@@ -32,7 +34,7 @@
             <td>{{ entry.transition.current_state.question.text }}</td>
             <td>{{ entry.transition.answer }}</td>
             <td>
-                <a href='{% url update-entry entry.pk %}' title='Edit tags'>
+                <a href='{% url 'update-entry' entry.pk %}' title='Edit tags'>
                     {% for tag in entry.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
                 </a>
             </td>

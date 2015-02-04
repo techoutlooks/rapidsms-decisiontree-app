@@ -1,12 +1,12 @@
 Advanced Tree Example
-===================================
+=====================
 
-Here we will expand on the previous tree example to contain branches based on varying
-answers. We will continue to work from the Monty Python questions.
+Here we will expand on the previous tree example to contain branches based on
+varying answers. We will continue to work from the Monty Python questions.
 
 
 New Questions
-------------------------------------
+-------------
 
 First will add new questions for the addition branches::
 
@@ -19,10 +19,10 @@ First will add new questions for the addition branches::
 
 
 New Answers
-------------------------------------
+-----------
 
-In the same logic of the movie we will ask the questions based on the name of the 
-knight::
+In the same logic of the movie we will ask the questions based on the name of
+the knight::
 
     # Answers
     pk: 2
@@ -37,11 +37,11 @@ knight::
 
 
 New States and Transitions
-------------------------------------
+--------------------------
 
-We need additional states to handle these trees. Since the final question is the
-only thing different we still need multiple states which point to the same second
-question::
+We need additional states to handle these trees. Since the final question is
+the only thing different we still need multiple states which point to the same
+second question::
 
     # Tree States
     pk: 4
@@ -57,8 +57,8 @@ question::
     question: 2
 
 
-Now we need the transitions between the questions based on the first answer. First
-we will do Sir Robin::
+Now we need the transitions between the questions based on the first answer.
+First we will do Sir Robin::
 
     # Transitions
     pk: 3
@@ -94,7 +94,8 @@ Then King Arthur::
     answer: 1
     next state: null
 
-The tree itself does not need to be modified. An example SMS workflow is given below::
+The tree itself does not need to be modified. An example SMS workflow is given
+below::
 
     555-555-1234 >>> #test
     555-555-1234 <<< What is your name? # This is state 1, question 1
@@ -105,5 +106,5 @@ The tree itself does not need to be modified. An example SMS workflow is given b
     555-555-1234 >>> I don't know that.
     555-555-1234 <<< Go on. Off you go. # End of questions
 
-So this isn't perfect to movie but it should demonstrate the difference from the
-simple example.
+So this isn't perfect to movie but it should demonstrate the difference from
+the simple example.

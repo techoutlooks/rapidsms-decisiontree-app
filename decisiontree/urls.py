@@ -1,17 +1,15 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import url
 
 from decisiontree import views
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.index, name='list-surveys'),
     url(r'^(?P<id>\d+)/report/$', views.data, name='survey-report'),
-    url(r'^(?P<tree_id>\d+)/summary/edit/$', views.update_tree_summary,name='update_tree_summary'),
+    url(r'^(?P<tree_id>\d+)/summary/edit/$', views.update_tree_summary, name='update_tree_summary'),
     url(r'^(?P<tree_id>\d+)/report/sessions/$', views.recent_sessions, name='recent_sessions'),
     url(r'^entry/list/$', views.list_entries, name='list-entries'),
-    url(r'^entry/(?P<entry_id>\d+)/edit/$', views.update_entry,name='update-entry'),
+    url(r'^entry/(?P<entry_id>\d+)/edit/$', views.update_entry, name='update-entry'),
     url(r'^tags/list/$', views.list_tags, name='list-tags'),
     url(r'^tags/create/$', views.create_edit_tag, name='create-tag'),
     url(r'^tags/(?P<tag_id>\d+)/edit/$', views.create_edit_tag, name='edit-tag'),
@@ -36,4 +34,4 @@ urlpatterns = patterns('',
     url(r'^survey/path/add/$', views.questionpath, name='add_path'),
     url(r'^survey/path/update/(\d+)/$', views.questionpath, name='insert_path'),
     url(r'^survey/path/delete/(\d+)/$', views.deletepath, name='delete_path'),
-)
+]

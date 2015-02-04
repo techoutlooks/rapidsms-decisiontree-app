@@ -1,0 +1,12 @@
+language: python
+sudo: false
+python:
+  - "2.7"
+env:
+  - TOXENV=py26-django1.6.X
+  - TOXENV=py27-django1.6.X
+  - TOXENV=py27-django1.7.X
+install:
+  - pip install -q --use-mirrors tox==1.8.1
+script:
+  - tox

@@ -8,9 +8,9 @@ setup(
     author_email='solutions@caktusgroup.com',
     packages=find_packages(),
     include_package_data=True,
-    url='http://github.com/caktus/rapidsms-decisiontree-app/',
+    url='https://github.com/caktus/rapidsms-decisiontree-app/',
     license='BSD',
-    description='RapidSMS Decisiontree',
+    description=" ".join(__import__('decisiontree').__doc__.splitlines()).strip(),
     long_description=open('README.rst').read(),
     classifiers=(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -25,4 +25,5 @@ setup(
         'Operating System :: OS Independent',
     ),
     zip_safe=False,
+    install_requires=['RapidSMS>=0.19.0'],
 )

@@ -1,7 +1,7 @@
 from django.conf import settings
 
 
-NOTIFICATIONS_ENABLED =  getattr(settings, 'DECISIONTREE_NOTIFICATIONS', False)
+NOTIFICATIONS_ENABLED = getattr(settings, 'DECISIONTREE_NOTIFICATIONS', False)
 
 SESSION_END_TRIGGER = getattr(settings, 'DECISIONTREE_SESSION_END_TRIGGER', 'end')
 

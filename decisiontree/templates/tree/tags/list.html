@@ -1,5 +1,7 @@
 {% extends "tree/base.html" %}
+
 {% load i18n %}
+{% load static from staticfiles %}
 
 {% block title %}Tags{% endblock %}
 
@@ -7,7 +9,7 @@
 
 <h2>Tags</h2>
 <ul class='horizontal'>
-    <li><a title='{% trans "Add tag" %}' href="{% url create-tag %}">{% trans "Add tag" %}</a></li>
+    <li><a title='{% trans "Add tag" %}' href="{% url 'create-tag' %}">{% trans "Add tag" %}</a></li>
 </ul>
 
 <table class='list auto'>
@@ -23,14 +25,14 @@
             <td>{{ tag.pk }}</td>
             <td>{{ tag.name }}</td>
             <td>
-                <a href="{% url edit-tag tag.id %}" title="Edit" class="edit-link">
-                    <img class='action' alt='Edit' src="{{ STATIC_URL }}icons/silk/reload.png" />
+                <a href="{% url 'edit-tag' tag.id %}" title="Edit" class="edit-link">
+                    <img class='action' alt='Edit' src="{% static "icons/silk/reload.png" %}" />
                 </a>
             </td>
             <td>
-                <form action="{% url delete-tag tag.id %}" method="post" style="border:0px;">
+                <form action="{% url 'delete-tag' tag.id %}" method="post" style="border:0px;">
                     {% csrf_token %}
-                    <input type="image" src="{{ STATIC_URL }}icons/silk/delete.png" />
+                    <input type="image" src="{% static "icons/silk/delete.png" %}" />
                 </form>
             </td>
         </tr>

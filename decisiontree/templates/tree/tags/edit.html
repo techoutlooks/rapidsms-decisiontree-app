@@ -1,4 +1,5 @@
 {% extends "tree/base.html" %}
+
 {% load i18n %}
 
 {% block title %}{% if auto_tag %}Edit{% else %}Create{% endif %} Tag{% endblock %}
@@ -12,9 +13,9 @@
     <table id='tags' class='auto'>
         {{ form }}
     </table>
-    <p class="buttons"> 
+    <p class="buttons">
     <button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
-    <a class="button negative icon cross" href="{% url list-tags %}">{% trans "Cancel" %}</a>
+    <a class="button negative icon cross" href="{% url 'list-tags' %}">{% trans "Cancel" %}</a>
     </p>
 </form>
 

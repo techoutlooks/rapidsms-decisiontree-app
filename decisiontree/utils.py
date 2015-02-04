@@ -1,5 +1,4 @@
-from django.utils.encoding import force_unicode
-from django.utils.functional import wraps
+from django.utils.encoding import force_text
 
 
 def parse_tags(tagstring):
@@ -16,7 +15,7 @@ def parse_tags(tagstring):
     if not tagstring:
         return []
 
-    tagstring = force_unicode(tagstring)
+    tagstring = force_text(tagstring)
 
     # Special case - if there are no commas or double quotes in the
     # input, we don't *do* a recall... I mean, we know we only need to
@@ -115,12 +114,3 @@ def edit_string_for_tags(tags):
         else:
             names.append(name)
     return u', '.join(sorted(names))
-
-
-def require_instance_manager(func):
-    @wraps(func)
-    def inner(self, *args, **kwargs):
-        if self.instance is None:
-            raise TypeError("Can't call %s with a non-instance manager" % func.__name__)
-        return func(self, *args, **kwargs)
-    return inner

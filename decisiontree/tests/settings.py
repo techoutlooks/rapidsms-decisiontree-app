@@ -4,28 +4,35 @@ DATABASES = {
         'NAME': 'test.db',
     }
 }
-        
-INSTALLED_APPS = (
-    "djtables",
+
+INSTALLED_APPS = [
     "rapidsms",
-    "rapidsms.contrib.scheduler",
+
     "django.contrib.sites",
     "django.contrib.auth",
     "django.contrib.admin",
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     "django.contrib.messages",
-    'decisiontree',
-)
 
-SITE_ID = 1
-        
-SECRET_KEY = 'super-secret',
+    'decisiontree',
+]
+
+INSTALLED_BACKENDS = {
+    'message_tester': {
+        'ENGINE': 'rapidsms.backends.database.DatabaseBackend',
+    },
+}
+
+MIDDLEWARE_CLASSES = [
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+]
 
 ROOT_URLCONF = 'decisiontree.tests.urls',
 
-PASSWORD_HASHERS=(
-    'django.contrib.auth.hashers.MD5PasswordHasher',
-)
+SECRET_KEY = 'super-secret',
+
+SITE_ID = 1
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"

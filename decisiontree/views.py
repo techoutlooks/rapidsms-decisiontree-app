@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
 import csv
-import logging
 from StringIO import StringIO
 
 from django.contrib import messages
@@ -10,24 +7,22 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.datastructures import SortedDict
 from django.views.decorators.http import require_POST
 
 from decisiontree import forms
-from decisiontree.models import Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState
+from decisiontree.models import (
+    Answer, Entry, Question, Session, Tag, Transition, Tree, TreeState)
 
 
 @login_required
 def index(request):
     trees = Tree.objects.select_related('root_state__question')
     trees = trees.annotate(count=Count('sessions'))
-    context = {
+    return render(request, "tree/index.html", {
         'surveys': trees.order_by('trigger'),
-    }
-    return render_to_response("tree/index.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
@@ -98,32 +93,28 @@ def data(request, id):
         stat_map[current_state]['values'] = columns[current_state]
     for state in states:
         state.stats = stat_map.get(state.pk, {})
-    context = {
+    return render(request, "tree/report/report.html", {
         'form': form,
         'tree': tree,
         'sessions': sessions,
         'states': states,
-    }
-    return render_to_response("tree/report/report.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def recent_sessions(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     sessions = tree.sessions.select_related()
-    context = {
+    return render(request, "tree/report/sessions.html", {
         'tree': tree,
         'ordered_sessions': sessions.order_by('-start_date')[:25],
-    }
-    return render_to_response("tree/report/sessions.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def update_tree_summary(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
-    
+
     if request.method == 'POST':
         form = forms.TreeSummaryForm(request.POST, instance=tree)
         if form.is_valid():
@@ -133,19 +124,17 @@ def update_tree_summary(request, tree_id):
             return redirect(url)
     else:
         form = forms.TreeSummaryForm(instance=tree)
-    context = {
+    return render(request, "tree/summary.html", {
         'form': form,
         'tree': tree,
-    }
-    return render_to_response("tree/summary.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
-def export(req, tree_id):
+def export(request, tree_id):
     tree = get_object_or_404(Tree, pk=tree_id)
     all_states = tree.get_all_states()
-    loops = tree.has_loops() 
+    loops = tree.has_loops()
     if not loops:
         output = StringIO()
         w = csv.writer(output)
@@ -160,23 +149,22 @@ def export(req, tree_id):
             for transition in transitions:
                 states_w_transitions[transition.current_state] = transition
             for state in all_states:
-                if states_w_transitions.has_key(state):
+                if state in states_w_transitions:
                     values.append(states_w_transitions[state].answer)
                 else:
                     values.append("")
             w.writerow(values)
         # rewind the virtual file
         output.seek(0)
-        response = HttpResponse(output.read(),
-                            mimetype='application/ms-excel')
+        response = HttpResponse(output.read(), content_type='application/ms-excel')
         response["content-disposition"] = "attachment; filename=%s.csv" % tree.trigger
         return response
     else:
-        return render_to_response("tree/index.html", request_context=RequestContext(req))
+        return render(request, "tree/index.html", {})
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addtree(request, treeid=None):
     tree = None
     if treeid:
@@ -187,7 +175,7 @@ def addtree(request, treeid=None):
         if form.is_valid():
             tree = form.save()
             if treeid:
-                validationMsg =("Survey successfully updated")
+                validationMsg = ("Survey successfully updated")
             else:
                 validationMsg = "You have successfully inserted a Survey %s." % tree.trigger
             messages.info(request, validationMsg)
@@ -195,17 +183,15 @@ def addtree(request, treeid=None):
     else:
         form = forms.TreesForm(instance=tree)
 
-    context = {
+    return render(request, 'tree/survey.html', {
         'tree': tree,
         'form': form,
-    }
-    return render_to_response('tree/survey.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletetree(request, treeid):
     tree = get_object_or_404(Tree, pk=treeid)
     tree.delete()
@@ -214,7 +200,7 @@ def deletetree(request, treeid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addquestion(request, questionid=None):
     question = None
     if questionid:
@@ -225,35 +211,31 @@ def addquestion(request, questionid=None):
         if form.is_valid():
             question = form.save()
             if questionid:
-                validationMsg =("You have successfully updated the Question")
-            else:                   
+                validationMsg = ("You have successfully updated the Question")
+            else:
                 validationMsg = "You have successfully inserted a Question %s." % question.text
             messages.info(request, validationMsg)
             return redirect('list-questions')
     else:
         form = forms.QuestionForm(instance=question)
 
-    context = {
+    return render(request, 'tree/question.html', {
         'question': question,
         'form': form,
         'questionid': questionid,
-    }
-    return render_to_response('tree/question.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def questionlist(request):
-    context = {
+    return render(request, 'tree/questions_list.html', {
         'questions': Question.objects.order_by('text')
-    }
-    return render_to_response('tree/questions_list.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletequestion(request, questionid):
     tree = get_object_or_404(Question, pk=questionid)
     tree.delete()
@@ -262,7 +244,7 @@ def deletequestion(request, questionid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addanswer(request, answerid=None):
     answer = None
     if answerid:
@@ -273,28 +255,25 @@ def addanswer(request, answerid=None):
         if form.is_valid():
             answer = form.save()
             if answerid:
-                validationMsg =("You have successfully updated the Answer")
+                validationMsg = ("You have successfully updated the Answer")
             else:
                 validationMsg = "You have successfully inserted Answer %s." % answer.answer
-                mycontext = {'validationMsg':validationMsg}
             messages.info(request, validationMsg)
             return redirect('answer_list')
 
     else:
         form = forms.AnswerForm(instance=answer)
 
-    context = {
+    return render(request, 'tree/answer.html', {
         'answer': answer,
         'form': form,
         'answerid': answerid,
-    }
-    return render_to_response('tree/answer.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deleteanswer(request, answerid):
     answer = get_object_or_404(Answer, pk=answerid)
     answer.delete()
@@ -304,26 +283,22 @@ def deleteanswer(request, answerid):
 
 @login_required
 def answerlist(request):
-    context = {
+    return render(request, "tree/answers_list.html", {
         'answers': Answer.objects.order_by('name'),
-    }
-    return render_to_response("tree/answers_list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def list_entries(request):
     """ List most recent survey activity """
     entries = Entry.objects.select_related().order_by('-time')[:25]
-    context = {
+    return render(request, "tree/entry/list.html", {
         'entries': entries,
-    }
-    return render_to_response("tree/entry/list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def update_entry(request, entry_id):
     """ Manually update survey entry tags """
     entry = get_object_or_404(Entry, pk=entry_id)
@@ -335,16 +310,14 @@ def update_entry(request, entry_id):
             return redirect('survey-report', id=entry.session.tree.id)
     else:
         form = forms.EntryTagForm(instance=entry)
-    context = {
+    return render(request, "tree/entry/edit.html", {
         'form': form,
         'entry': entry,
-    }
-    return render_to_response("tree/entry/edit.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def addstate(request, stateid=None):
     state = None
     if stateid:
@@ -355,7 +328,7 @@ def addstate(request, stateid=None):
         if form.is_valid():
             state = form.save()
             if stateid:
-                validationMsg =("State updated sucessfully")
+                validationMsg = ("State updated sucessfully")
             else:
                 validationMsg = "You have successfully inserted State %s." % state.name
             messages.info(request, validationMsg)
@@ -363,28 +336,24 @@ def addstate(request, stateid=None):
     else:
         form = forms.StateForm(instance=state)
 
-    context = {
+    return render(request, 'tree/state.html', {
         'state': state,
         'form': form,
         'stateid': stateid,
-    }
-    return render_to_response('tree/state.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def statelist(request):
     states = TreeState.objects.select_related('question').order_by('question')
-    context = {
+    return render(request, "tree/states_list.html", {
         'states': states,
-    }
-    return render_to_response("tree/states_list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletestate(request, stateid):
     state = get_object_or_404(TreeState, pk=stateid)
     state.delete()
@@ -408,16 +377,14 @@ def questionpathlist(request):
         path_map[trans_tag.transition_id].append(trans_tag.tag)
     for path in paths:
         path.cached_tags = path_map.get(path.pk, [])
-    context = {
+    return render(request, 'tree/path_list.html', {
         'paths': paths,
-    }
-    return render_to_response('tree/path_list.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def deletepath(request, pathid):
     path = get_object_or_404(Transition, pk=pathid)
     path.delete()
@@ -426,7 +393,7 @@ def deletepath(request, pathid):
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def questionpath(request, pathid=None):
     path = None
     if pathid:
@@ -437,7 +404,7 @@ def questionpath(request, pathid=None):
         if form.is_valid():
             path = form.save()
             if pathid:
-                validationMsg =("Path successfully updated")
+                validationMsg = ("Path successfully updated")
             else:
                 validationMsg = "You have successfully inserted Question Path %s." % path.id
             messages.info(request, validationMsg)
@@ -445,26 +412,22 @@ def questionpath(request, pathid=None):
     else:
         form = forms.PathForm(instance=path)
 
-    context = {
+    return render(request, 'tree/path.html', {
         'path': path,
         'form': form,
         'pathid': pathid,
-    }
-    return render_to_response('tree/path.html', context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
 def list_tags(request):
-    context = {
+    return render(request, "tree/tags/list.html", {
         'tags': Tag.objects.order_by('name'),
-    }
-    return render_to_response("tree/tags/list.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def create_edit_tag(request, tag_id=None):
     tag = None
     if tag_id:
@@ -472,25 +435,22 @@ def create_edit_tag(request, tag_id=None):
     if request.method == 'POST':
         form = forms.TagForm(request.POST, instance=tag)
         if form.is_valid():
-            saved_tag = form.save()
+            form.save()
             messages.info(request, 'Tag successfully saved')
             return redirect('list-tags')
     else:
         form = forms.TagForm(instance=tag)
-    context = {
+    return render(request, "tree/tags/edit.html", {
         'tag': tag,
         'form': form,
-    }
-    return render_to_response("tree/tags/edit.html", context,
-                              context_instance=RequestContext(request))
+    })
 
 
 @require_POST
 @login_required
-@transaction.commit_on_success
+@transaction.atomic
 def delete_tag(request, tag_id):
     tag = get_object_or_404(Tag, pk=tag_id)
     tag.delete()
     messages.info(request, 'Tag successfully deleted')
     return redirect('list-tags')
-

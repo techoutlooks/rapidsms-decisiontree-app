@@ -3,7 +3,7 @@
 {% block content %}
 {% load i18n %}
 <form action="" method="POST" class="pretty"> {% csrf_token %}
-<fieldset> 
+<fieldset>
 <legend>
 {% if answerid %}
 {% trans "Update Answer" %}
@@ -16,10 +16,10 @@
 {{ form }}
 </table>
 
-<p class="buttons"> 
+<p class="buttons">
 <button type="submit" class="button positive icon tick">{% trans "Save" %}</button>
-<a class="button negative icon cross" href="{% url answer_list %}">{% trans "Cancel" %}</a>
-</p> 
+<a class="button negative icon cross" href="{% url 'answer_list' %}">{% trans "Cancel" %}</a>
+</p>
 </fieldset>
 </form>
 
