@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from .utils import multitenancy_enabled
 
 
-class TenantMixin(object):
+class TenantViewMixin(object):
     """Mixin for generic class-based views to handle tenant-enabled objects.
 
     Use with:
@@ -25,19 +25,19 @@ class TenantMixin(object):
         else:
             self.group = None
             self.tenant = None
-        return super(TenantMixin, self).dispatch(request, *args, **kwargs)
+        return super(TenantViewMixin, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs['group'] = self.group
         kwargs['tenant'] = self.tenant
-        return super(TenantMixin, self).get_context_data(**kwargs)
+        return super(TenantViewMixin, self).get_context_data(**kwargs)
 
     def get_queryset(self):
         """Limit queryset based on tenant if multitenancy is enabled."""
-        qs = super(TenantMixin, self).get_queryset()
+        qs = super(TenantViewMixin, self).get_queryset()
         if multitenancy_enabled():
             if not hasattr(self.model, 'tenantlink'):
-                raise ImproperlyConfigured("TenantMixin can only be used with "
-                                           "tenant-enabled models.")
+                raise ImproperlyConfigured("TenantViewMixin can only be used "
+                                           "with tenant-enabled models.")
             qs = qs.filter(tenantlink__tenant=self.tenant)
         return qs

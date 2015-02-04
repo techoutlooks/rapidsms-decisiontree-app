@@ -8,7 +8,7 @@ from django.views.generic import DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin, ProcessFormView
 
-from decisiontree.multitenancy.views import TenantMixin
+from decisiontree.multitenancy.views import TenantViewMixin
 
 
 def cbv_decorator(function_decorator):
@@ -38,7 +38,7 @@ class SuccessMessageMixin(object):
 
 
 @cbv_decorator(login_required)
-class TreeListView(TenantMixin, ListView):
+class TreeListView(TenantViewMixin, ListView):
     limit = None
     order_by = None
     select_related = None
@@ -55,19 +55,19 @@ class TreeListView(TenantMixin, ListView):
 
 
 @cbv_decorator(login_required)
-class TreeDetailView(TenantMixin, DetailView):
+class TreeDetailView(TenantViewMixin, DetailView):
     pass
 
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeUpdateView(SuccessMessageMixin, TenantMixin, UpdateView):
+class TreeUpdateView(SuccessMessageMixin, TenantViewMixin, UpdateView):
     pass
 
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeCreateUpdateView(SuccessMessageMixin, TenantMixin,
+class TreeCreateUpdateView(SuccessMessageMixin, TenantViewMixin,
                            SingleObjectTemplateResponseMixin, ModelFormMixin,
                            ProcessFormView):
     """Combines logic for UpdateView and CreateView."""
@@ -101,5 +101,5 @@ class TreeCreateUpdateView(SuccessMessageMixin, TenantMixin,
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeDeleteView(SuccessMessageMixin, TenantMixin, DeleteView):
+class TreeDeleteView(SuccessMessageMixin, TenantViewMixin, DeleteView):
     http_method_names = ['post', 'delete']
