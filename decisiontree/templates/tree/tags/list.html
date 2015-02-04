@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load static from staticfiles %}
+{% load tree_tags %}
 
 {% block title %}Tags{% endblock %}
 
@@ -20,7 +21,7 @@
         <th>Delete</th>
     </thead>
     <tbody>
-    {% for tag in tags %}
+    {% for tag in object_list %}
         <tr>
             <td>{{ tag.pk }}</td>
             <td>{{ tag.name }}</td>

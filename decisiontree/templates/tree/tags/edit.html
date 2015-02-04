@@ -1,12 +1,13 @@
 {% extends "tree/base.html" %}
 
 {% load i18n %}
+{% load tree_tags %}
 
-{% block title %}{% if auto_tag %}Edit{% else %}Create{% endif %} Tag{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Tag{% endblock %}
 
 {% block content %}
 
-<h2>{% if auto_tag %}Edit{% else %}Create{% endif %} Tag</h2>
+<h2>{% if object %}Edit{% else %}Create{% endif %} Tag</h2>
 
 <form action="" method="post" accept-charset="utf-8">
     {% csrf_token %}

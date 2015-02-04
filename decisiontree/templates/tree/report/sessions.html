@@ -1,5 +1,7 @@
 {% extends "tree/report/base.html" %}
+
 {% load i18n %}
+{% load tree_tags %}
 
 {% block content %}
 
@@ -11,7 +13,7 @@
         <th>Date</th>
     </thead>
     <tbody>
-    {% for session in ordered_sessions %}
+    {% for session in recent_sessions %}
         <tr>
             <td>{{ session.connection }}</td>
             <td>{{ session.start_date|date:"Y-m-d h:i a" }}</td>

@@ -26,7 +26,7 @@
         <th>Tags</th>
     </thead>
     <tbody>
-    {% for entry in entries %}
+    {% for entry in object_list %}
         <tr>
             <td>{{ entry.session.tree.trigger }}</td>
             <td>{{ entry.session.connection.contact }}</td>

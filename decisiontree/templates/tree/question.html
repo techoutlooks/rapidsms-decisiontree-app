@@ -1,12 +1,13 @@
 {% extends "tree/base.html" %}
 
 {% load i18n %}
+{% load tree_tags %}
 
 {% block content %}
 <form action="" method="POST" class="pretty"> {% csrf_token %}
 <fieldset>
 <legend>
-{% if questionid %}
+{% if object %}
 {% trans "Question Update Form" %}
 {% else %}
 {% trans "New Question Form" %}
