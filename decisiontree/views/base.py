@@ -21,7 +21,7 @@ def cbv_decorator(function_decorator):
 class SuccessMessageMixin(object):
     """Add a user message when an action is successfully completed."""
     success_message = None
-    success_message_level = 'info'
+    success_message_level = messages.INFO
 
     def get_success_message(self):
         if self.success_message:
@@ -31,7 +31,7 @@ class SuccessMessageMixin(object):
     def get_success_url(self):
         message = self.get_success_message()
         if message:
-            messages.add_message(self.success_message_level, message)
+            messages.add_message(self.request, self.success_message_level, message)
         return super(SuccessMessageMixin, self).get_success_url()
 
 
