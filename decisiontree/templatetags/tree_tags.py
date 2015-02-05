@@ -62,8 +62,16 @@ def render_state(state):
 @register.simple_tag(takes_context=True)
 @register.assignment_tag(takes_context=True, name='assign_tenancy_url')
 def tenancy_url(context, url_name, *args, **kwargs):
+    if args and kwargs:
+        # Emulate error raised by regular {% url %} tag.
+        raise ValueError("Don't mix *args and **kwargs in call to reverse!")
     from decisiontree.multitenancy.utils import multitenancy_enabled
     if multitenancy_enabled():
-        kwargs.setdefault('group_slug', context['request'].group_slug)
-        kwargs.setdefault('tenant_slug', context['request'].tenant_slug)
+        group_slug = context['request'].group_slug
+        tenant_slug = context['request'].tenant_slug
+        if args:
+            args = (group_slug, tenant_slug) + args
+        else:
+            kwargs.setdefault('group_slug', group_slug)
+            kwargs.setdefault('tenant_slug', tenant_slug)
     return reverse(url_name, args=args, kwargs=kwargs)
