@@ -1,6 +1,7 @@
 {% extends "tree/base.html" %}
 
 {% load static from staticfiles %}
+{% load tree_tags %}
 
 {% block title %}Survey{% endblock %}
 
@@ -22,7 +23,7 @@
         <th>Report</th>
     </thead>
     <tbody>
-    {% for survey in surveys %}
+    {% for survey in object_list %}
         <tr>
             <td>{{ survey.pk }}</td>
             <td>{{ survey.trigger }}</td>

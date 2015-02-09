@@ -1,6 +1,7 @@
 {% extends "tree/base.html" %}
 
 {% load static from staticfiles %}
+{% load tree_tags %}
 
 {% block title %}Questions{% endblock %}
 
@@ -22,7 +23,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for question in questions %}
+        {% for question in object_list %}
             <tr>
                 <td>{{ question.pk }}</td>
                 <td>{{ question.text }}</td>

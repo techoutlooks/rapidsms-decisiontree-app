@@ -1,6 +1,7 @@
 {% extends "tree/base.html" %}
 
 {% load static from staticfiles %}
+{% load tree_tags %}
 
 {% block title %}Answers{% endblock %}
 
@@ -24,7 +25,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for answer in answers %}
+        {% for answer in object_list %}
             <tr>
                 <td>{{ answer.pk }}</td>
                 <td>{{ answer.name }}</td>
