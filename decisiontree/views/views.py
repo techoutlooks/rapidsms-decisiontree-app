@@ -1,11 +1,10 @@
 import csv
 from StringIO import StringIO
 
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect
 from django.utils.datastructures import SortedDict
 
 from .. import forms
