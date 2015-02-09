@@ -138,7 +138,7 @@ class SurveyExport(base.TreeDetailView):
         headings = ["Person", "Date"]
         headings.extend([state.question for state in all_states])
         w.writerow(headings)
-        sessions = models.Session.objects.all().filter(tree=tree)
+        sessions = models.Session.objects.filter(tree=tree)
         for session in sessions:
             values = [str(session.connection), session.start_date]
             transitions = map((lambda x: x.transition), session.entries.all())
