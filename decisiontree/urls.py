@@ -11,7 +11,7 @@ urlpatterns = [
         views.SurveyCreateUpdate.as_view(),
         name='insert_tree'),
     url(r'^(?P<pk>\d+)/report/$',
-        views.survey_report,
+        views.SurveyReport.as_view(),
         name='survey-report'),
     url(r'^(?P<pk>\d+)/report/sessions/$',
         views.SurveySessions.as_view(),

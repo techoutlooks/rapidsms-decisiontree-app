@@ -138,7 +138,7 @@ class SurveyExport(base.TreeDetailView):
         headings = ["Person", "Date"]
         headings.extend([state.question for state in all_states])
         w.writerow(headings)
-        sessions = models.Session.objects.all().filter(tree=tree)
+        sessions = models.Session.objects.filter(tree=tree)
         for session in sessions:
             values = [str(session.connection), session.start_date]
             transitions = map((lambda x: x.transition), session.entries.all())
@@ -158,80 +158,82 @@ class SurveyExport(base.TreeDetailView):
         return response
 
 
-@login_required
-def survey_report(request, pk):
-    tree = get_object_or_404(models.Tree, pk=pk)
-    tag = None
-    if request.method == 'POST':
-        form = forms.AnswerSearchForm(request.POST, tree=tree)
-        if form.is_valid():
-            tag = form.cleaned_data['tag']
-            # what now?
-    else:
-        form = forms.AnswerSearchForm(tree=tree)
+class SurveyReport(base.TreeDetailView):
+    model = models.Tree
+    template_name = "tree/report/report.html"
 
-    entry_tags = models.Entry.tags.through.objects
-    entry_tags = entry_tags.filter(entry__session__tree=tree)
-    entry_tags = entry_tags.select_related('tag')
-    tag_map = {}
-    for entry_tag in entry_tags:
-        if entry_tag.entry_id not in tag_map:
-            tag_map[entry_tag.entry_id] = []
-        tag_map[entry_tag.entry_id].append(entry_tag.tag)
-    # pre-fetch all entries for this tree and create a map so we can
-    # efficiently pair everything up in Python, rather than lots of SQL
-    entries = models.Entry.objects.filter(session__tree=tree).select_related()
-    if tag:
-        entries = entries.filter(tags=tag)
-    entry_map = {}
-    for entry in entries:
-        entry.cached_tags = tag_map.get(entry.pk, [])
-        state = entry.transition.current_state
-        if entry.session.pk not in entry_map:
-            entry_map[entry.session.pk] = {}
-        entry_map[entry.session.pk][state.pk] = entry
-    states = tree.get_all_states()
-    sessions = tree.sessions.select_related('connection__contact',
-                                            'connection__backend')
-    sessions = sessions.order_by('-start_date')
-    columns = SortedDict()
-    for state in states:
-        columns[state.pk] = []
-    # for each session, created an ordered list of (state, entry) pairs
-    # using the map from above. this will ease template display.
-    for session in sessions:
-        session.ordered_states = []
+    def dispatch(self, request, *args, **kwargs):
+        tree = self.get_object()
+        tag = None
+        if request.method == 'POST':
+            form = forms.AnswerSearchForm(request.POST, tree=tree)
+            if form.is_valid():
+                tag = form.cleaned_data['tag']
+                # what now?
+        else:
+            form = forms.AnswerSearchForm(tree=tree)
+        entry_tags = models.Entry.tags.through.objects
+        entry_tags = entry_tags.filter(entry__session__tree=tree)
+        entry_tags = entry_tags.select_related('tag')
+        tag_map = {}
+        for entry_tag in entry_tags:
+            if entry_tag.entry_id not in tag_map:
+                tag_map[entry_tag.entry_id] = []
+            tag_map[entry_tag.entry_id].append(entry_tag.tag)
+        # pre-fetch all entries for this tree and create a map so we can
+        # efficiently pair everything up in Python, rather than lots of SQL
+        entries = models.Entry.objects.filter(session__tree=tree).select_related()
+        if tag:
+            entries = entries.filter(tags=tag)
+        entry_map = {}
+        for entry in entries:
+            entry.cached_tags = tag_map.get(entry.pk, [])
+            state = entry.transition.current_state
+            if entry.session.pk not in entry_map:
+                entry_map[entry.session.pk] = {}
+            entry_map[entry.session.pk][state.pk] = entry
+        states = tree.get_all_states()
+        sessions = tree.sessions.select_related('connection__contact',
+                                                'connection__backend')
+        sessions = sessions.order_by('-start_date')
+        columns = SortedDict()
         for state in states:
-            try:
-                entry = entry_map[session.pk][state.pk]
-            except KeyError:
-                entry = None
-            session.ordered_states.append((state, entry))
-            if entry:
-                columns[state.pk].append(entry.text)
-    # count answers grouped by state
-    stats = models.Transition.objects.filter(entries__session__tree=tree,
-                                             entries__in=[e.pk for e in entries])
-    stats = stats.values('current_state', 'answer__name')
-    stats = stats.annotate(count=Count('answer'))
-    stat_map = {}
-    for stat in stats:
-        current_state = stat['current_state']
-        answer = stat['answer__name']
-        count = stat['count']
-        if current_state not in stat_map:
-            stat_map[current_state] = {'answers': {}, 'total': 0}
-        stat_map[current_state]['answers'][answer] = count
-        stat_map[current_state]['total'] += count
-        stat_map[current_state]['values'] = columns[current_state]
-    for state in states:
-        state.stats = stat_map.get(state.pk, {})
-    return render(request, "tree/report/report.html", {
-        'form': form,
-        'tree': tree,
-        'sessions': sessions,
-        'states': states,
-    })
+            columns[state.pk] = []
+        # for each session, created an ordered list of (state, entry) pairs
+        # using the map from above. this will ease template display.
+        for session in sessions:
+            session.ordered_states = []
+            for state in states:
+                try:
+                    entry = entry_map[session.pk][state.pk]
+                except KeyError:
+                    entry = None
+                session.ordered_states.append((state, entry))
+                if entry:
+                    columns[state.pk].append(entry.text)
+        # count answers grouped by state
+        stats = models.Transition.objects.filter(entries__session__tree=tree,
+                                                 entries__in=[e.pk for e in entries])
+        stats = stats.values('current_state', 'answer__name')
+        stats = stats.annotate(count=Count('answer'))
+        stat_map = {}
+        for stat in stats:
+            current_state = stat['current_state']
+            answer = stat['answer__name']
+            count = stat['count']
+            if current_state not in stat_map:
+                stat_map[current_state] = {'answers': {}, 'total': 0}
+            stat_map[current_state]['answers'][answer] = count
+            stat_map[current_state]['total'] += count
+            stat_map[current_state]['values'] = columns[current_state]
+        for state in states:
+            state.stats = stat_map.get(state.pk, {})
+        return self.render_to_response({
+            'form': form,
+            'tree': tree,
+            'sessions': sessions,
+            'states': states,
+        })
 
 
 class SurveySessions(base.TreeDetailView):
