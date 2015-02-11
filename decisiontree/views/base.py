@@ -30,11 +30,11 @@ class SuccessMessageMixin(object):
             return self.success_message.format(obj=self.object)
         return None
 
-    def get_success_url(self):
+    def get_success_url(self, *args, **kwargs):
         message = self.get_success_message()
         if message:
             messages.add_message(self.request, self.success_message_level, message)
-        return super(SuccessMessageMixin, self).get_success_url()
+        return super(SuccessMessageMixin, self).get_success_url(*args, **kwargs)
 
 
 @cbv_decorator(login_required)

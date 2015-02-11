@@ -1,7 +1,6 @@
 import csv
 from StringIO import StringIO
 
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -23,14 +22,14 @@ class AnswerCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "You have successfully updated the Answer"
     form_class = forms.AnswerForm
     model = models.Answer
-    success_url = reverse_lazy("answer_list")
+    success_url_name = 'answer_list'
     template_name = "tree/answer.html"
 
 
 class AnswerDelete(base.TreeDeleteView):
     model = models.Answer
     success_message = "Answer successfully deleted"
-    success_url = reverse_lazy('answer_list')
+    success_url_name = 'answer_list'
 
 
 class EntryList(base.TreeListView):
@@ -45,7 +44,7 @@ class EntryUpdate(base.TreeUpdateView):
     model = models.Entry
     form_class = forms.EntryTagForm
     success_message = "Tags successfully updated"
-    success_url = reverse_lazy("survey-report")
+    success_url_name = 'survey-report'
     template_name = "tree/entry/edit.html"
 
 
@@ -61,14 +60,14 @@ class PathCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "Path successfully updated"
     form_class = forms.PathForm
     model = models.Transition
-    success_url = reverse_lazy("path_list")
+    success_url_name = 'path_list'
     template_name = "tree/path.html"
 
 
 class PathDelete(base.TreeDeleteView):
     model = models.Transition
     success_message = "Path successfully deleted"
-    success_url = reverse_lazy("path_list")
+    success_url_name = 'path_list'
 
 
 class QuestionList(base.TreeListView):
@@ -82,14 +81,14 @@ class QuestionCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "You have successfully updated the Question"
     form_class = forms.QuestionForm
     model = models.Question
-    success_url = reverse_lazy('list-questions')
+    success_url_name = 'list-questions'
     template_name = 'tree/question.html'
 
 
 class QuestionDelete(base.TreeDeleteView):
     model = models.Question
     success_message = "Question successfully deleted"
-    success_url = reverse_lazy('list-questions')
+    success_url_name = 'list-questions'
 
 
 class StateList(base.TreeListView):
@@ -104,14 +103,14 @@ class StateCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "State updated successfully"
     model = models.TreeState
     form_class = forms.StateForm
-    success_url = reverse_lazy("state_list")
+    success_url_name = 'state_list'
     template_name = "tree/state.html"
 
 
 class StateDelete(base.TreeDeleteView):
     model = models.TreeState
     success_message = "State successfully deleted"
-    success_url = reverse_lazy("state_list")
+    success_url_name = 'state_list'
 
 
 class SurveyList(base.TreeListView):
@@ -250,7 +249,7 @@ class SurveyCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "Survey successfully updated"
     form_class = forms.TreesForm
     model = models.Tree
-    success_url = reverse_lazy('list-surveys')
+    success_url_name = 'list-surveys'
     template_name = 'tree/survey.html'
 
 
@@ -258,16 +257,17 @@ class SurveyUpdateSummary(base.TreeUpdateView):
     model = models.Tree
     form_class = forms.TreeSummaryForm
     success_message = "Survey summary updated"
+    success_url_name = 'survey-report'
     template_name = "tree/summary.html"
 
     def get_success_url(self):
-        return reverse('survey-report', args=[self.object.pk])
+        return super(SurveyUpdateSummary, self).get_success_url(self.object.pk)
 
 
 class SurveyDelete(base.TreeDeleteView):
     model = models.Tree
     success_message = "Survey successfully deleted"
-    success_url = reverse_lazy('list-surveys')
+    success_url_name = 'list-surveys'
 
 
 class TagList(base.TreeListView):
@@ -281,11 +281,11 @@ class TagCreateUpdate(base.TreeCreateUpdateView):
     edit_success_message = "Tag successfully saved"
     model = models.Tag
     form_class = forms.TagForm
-    success_url = reverse_lazy('list-tags')
+    success_url_name = 'list-tags'
     template_name = 'tree/tags/edit.html'
 
 
 class TagDelete(base.TreeDeleteView):
     model = models.Tag
     success_message = "Tag successfully deleted"
-    success_url = reverse_lazy('list-tags')
+    success_url_name = 'list-tags'
