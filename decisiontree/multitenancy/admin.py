@@ -4,10 +4,9 @@ from django.contrib import admin
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_text
 
-from decisiontree import models as tree_models
 from decisiontree import admin as tree_admin
+from decisiontree import models as tree_models
 
-from . import models as link_models
 from . import utils
 from .forms import RequiredInlineFormSet
 
@@ -43,7 +42,7 @@ class MultitenancyAdminMixin(object):
         """Limit FK choices to objects for tenants the user manages."""
         related_model = db_field.related.parent_model
         if hasattr(related_model, 'tenantlink'):
-            tenants = get_tenants_for_user(request.user)
+            tenants = utils.get_tenants_for_user(request.user)
             qs = kwargs.get('queryset', related_model.objects.all())
             kwargs['queryset'] = qs.filter(tenantlink__tenant__in=tenants)
         return super(MultitenancyAdminMixin, self).formfield_for_foreignkey(
