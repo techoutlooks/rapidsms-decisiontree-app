@@ -71,11 +71,12 @@ class App(AppBase):
                 # maximum allowed then end their session and
                 # send them an error message.
                 session.num_tries = session.num_tries + 1
-                if state.num_retries and session.num_tries >= state.num_retries:
-                    session.state = None
-                    msg.respond("Sorry, invalid answer %(retries)s times. "
-                                "Your session will now end. Please try again "
-                                "later.", retries=session.num_tries)
+                if state.num_retries is not None:
+                    if session.num_tries >= state.num_retries:
+                        session.state = None
+                        msg.respond("Sorry, invalid answer %(retries)s times. "
+                                    "Your session will now end. Please try again "
+                                    "later.", retries=session.num_tries)
                 # send them some hints about how to respond
                 elif state.question.error_response:
                     msg.respond(state.question.error_response)
