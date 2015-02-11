@@ -21,9 +21,8 @@ class App(AppBase):
     session_listeners = {}
 
     def handle(self, msg):
-        sessions = Session.objects.filter(state__isnull=False,
-                                          connection=msg.connection)
-        sessions = sessions.select_related('state')
+        sessions = msg.connection.session_set.open().select_related('state')
+
         # if no open sessions exist for this contact, find the tree's trigger
         if sessions.count() == 0:
             logger.debug("No session found")
@@ -194,9 +193,7 @@ class App(AppBase):
     def _end_session(self, session, canceled=False, message=None):
         """Ends a session, by setting its state to none,
            and alerting any session listeners"""
-        session.state = None
-        session.canceled = canceled
-        session.save()
+        session.close(canceled)
         if session.tree.trigger in self.session_listeners:
             for func in self.session_listeners[session.tree.trigger]:
                 func(session, True)
@@ -206,8 +203,7 @@ class App(AppBase):
     def end_sessions(self, connection):
         """ Ends all open sessions with this connection.
             does nothing if there are no open sessions """
-        sessions = Session.objects.filter(connection=connection).exclude(state=None)
-        for session in sessions:
+        for session in connection.session_set.open():
             self._end_session(session, True)
 
     def register_custom_transition(self, name, function):

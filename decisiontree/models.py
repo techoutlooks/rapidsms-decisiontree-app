@@ -2,6 +2,7 @@ import datetime
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -198,6 +199,27 @@ class Transition(models.Model):
         return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)
 
 
+class SessionQuerySet(models.query.QuerySet):
+
+    def open(self):
+        return self.exclude(Q(state=None) | Q(canceled=True))
+
+    def complete(self):
+        return self.filter(Q(state=None) | Q(canceled=True))
+
+
+class SessionManager(models.Manager):
+
+    def get_queryset(self):
+        return SessionQuerySet(self.model, using=self._db)
+
+    def open(self):
+        return self.get_queryset().open()
+
+    def complete(self):
+        return self.get_queryset().complete()
+
+
 @python_2_unicode_compatible
 class Session(models.Model):
     """
@@ -220,9 +242,31 @@ class Session(models.Model):
     canceled = models.NullBooleanField(blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
 
+    objects = SessionManager()
+
     def __str__(self):
         state = self.state or "completed"
         return u"%s : %s" % (self.connection.identity, state)
+
+    def cancel(self):
+        return self.close(canceled=True)
+
+    def close(self, canceled=False):
+        """Forcibly close this session.
+
+        No operation if session is already closed.
+        """
+        # TODO: call app listeners?
+        if not self.is_closed():
+            self.state = None
+            self.canceled = canceled
+            self.save()
+
+    def is_closed(self):
+        return not bool(self.state) or self.canceled
+
+    def is_open(self):
+        return bool(self.state) and not self.canceled
 
 
 @python_2_unicode_compatible
