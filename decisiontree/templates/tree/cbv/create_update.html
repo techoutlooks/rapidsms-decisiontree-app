@@ -1,0 +1,22 @@
+{% extends "tree/base.html" %}
+
+{% load i18n %}
+{% load tree_tags %}
+
+{% block title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock title %}
+{% block page_title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock page_title %}
+
+{% block survey_content %}
+  <form action="." method="POST">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %} {{ view.model|verbose_name|title }}{% endif %}
+      </button>
+      <a href="#" class="btn">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock survey_content %}

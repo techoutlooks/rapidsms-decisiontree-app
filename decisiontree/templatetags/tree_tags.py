@@ -75,3 +75,13 @@ def tenancy_url(context, url_name, *args, **kwargs):
             kwargs.setdefault('group_slug', group_slug)
             kwargs.setdefault('tenant_slug', tenant_slug)
     return reverse(url_name, args=args, kwargs=kwargs)
+
+
+@register.filter
+def verbose_name(model):
+    return model._meta.verbose_name
+
+
+@register.filter
+def verbose_name_plural(model):
+    return model._meta.verbose_name_plural

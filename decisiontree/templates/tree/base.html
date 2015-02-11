@@ -4,17 +4,24 @@
 {% load tree_tags %}
 
 {% block stylesheets %}
-    {{ block.super }}
-    <link type="text/css" rel="stylesheet" href="{% static "tree/stylesheets/tree.css" %}" />
-{% endblock %}
+  {{ block.super }}
+  <link type="text/css" rel="stylesheet" href="{% static "tree/stylesheets/tree.css" %}" />
+{% endblock stylesheets %}
 
-{% block submenu %}
-    <ul>
-        <li><a href='{% tenancy_url 'list-surveys' %}'>Surveys</a></li>
-        <li><a href='{% tenancy_url 'list-questions' %}'>Questions</a></li>
-        <li><a href='{% tenancy_url 'answer_list' %}'>Answers</a></li>
-        <li><a href='{% tenancy_url 'state_list' %}'>States</a></li>
-        <li><a href='{% tenancy_url 'path_list' %}'>Paths</a></li>
-        <li><a href='{% tenancy_url 'list-tags' %}'>Tags</a></li>
-    </ul>
-{% endblock %}
+{% block left %}
+  <ul class="nav nav-list">
+    <li class="nav-header">{{ tenant.name }} Surveys</li>
+    <li><a href="{% tenancy_url 'list-surveys' %}">Surveys</a></li>
+    <li><a href="{% tenancy_url 'list-questions' %}">Questions</a></li>
+    <li><a href="{% tenancy_url 'answer_list' %}">Answers</a></li>
+    <li><a href="{% tenancy_url 'state_list' %}">States</a></li>
+    <li><a href="{% tenancy_url 'path_list' %}">Paths</a></li>
+    <li><a href="{% tenancy_url 'list-tags' %}">Tags</a></li>
+  </ul>
+{% endblock left %}
+
+{% block right %}
+  <h1>{% block page_title %}{% endblock page_title %}</h1>
+
+  {% block survey_content %}{% endblock survey_content %}
+{% endblock right %}

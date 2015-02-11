@@ -296,7 +296,7 @@ class App(AppBase):
             for notification in notifications:
                 tags.appendlist(notification.tag, notification)
             context = {'tags': tags}
-            body = render_to_string('tree/digest.txt', context)
+            body = render_to_string('tree/emails/digest.txt', context)
             try:
                 send_mail(subject='Survey Response Report', message=body,
                           recipient_list=[email],

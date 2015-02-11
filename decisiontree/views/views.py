@@ -12,9 +12,10 @@ from . import base
 
 
 class AnswerList(base.TreeListView):
+    create_url_name = 'add_answer'
     model = models.Answer
     order_by = ['name']
-    template_name = 'tree/answers_list.html'
+    template_name = 'tree/answers/list.html'
 
 
 class AnswerCreateUpdate(base.TreeCreateUpdateView):
@@ -23,7 +24,6 @@ class AnswerCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.AnswerCreateUpdateForm
     model = models.Answer
     success_url_name = 'answer_list'
-    template_name = "tree/answer.html"
 
 
 class AnswerDelete(base.TreeDeleteView):
@@ -37,7 +37,7 @@ class EntryList(base.TreeListView):
     model = models.Entry
     order_by = ['-time']
     select_related = []
-    template_name = "tree/entry/list.html"
+    template_name = "tree/entries/list.html"
 
 
 class EntryUpdate(base.TreeUpdateView):
@@ -45,14 +45,14 @@ class EntryUpdate(base.TreeUpdateView):
     form_class = forms.EntryTagForm
     success_message = "Tags successfully updated"
     success_url_name = 'survey-report'
-    template_name = "tree/entry/edit.html"
 
 
 class PathList(base.TreeListView):
+    create_url_name = 'add_path'
     model = models.Transition
     order_by = ['current_state__question__text']
     select_related = ['current_state__question', 'next_state__question', 'answer', 'tags']
-    template_name = "tree/path_list.html"
+    template_name = "tree/paths/list.html"
 
 
 class PathCreateUpdate(base.TreeCreateUpdateView):
@@ -61,7 +61,6 @@ class PathCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.PathCreateUpdateForm
     model = models.Transition
     success_url_name = 'path_list'
-    template_name = "tree/path.html"
 
 
 class PathDelete(base.TreeDeleteView):
@@ -71,9 +70,10 @@ class PathDelete(base.TreeDeleteView):
 
 
 class QuestionList(base.TreeListView):
+    create_url_name = 'add_question'
     model = models.Question
     order_by = ['text']
-    template_name = 'tree/questions_list.html'
+    template_name = 'tree/questions/list.html'
 
 
 class QuestionCreateUpdate(base.TreeCreateUpdateView):
@@ -82,7 +82,6 @@ class QuestionCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.QuestionCreateUpdateForm
     model = models.Question
     success_url_name = 'list-questions'
-    template_name = 'tree/question.html'
 
 
 class QuestionDelete(base.TreeDeleteView):
@@ -92,10 +91,11 @@ class QuestionDelete(base.TreeDeleteView):
 
 
 class StateList(base.TreeListView):
+    create_url_name = 'add_state'
     model = models.TreeState
     order_by = ['question']
     select_related = ['question']
-    template_name = "tree/states_list.html"
+    template_name = "tree/states/list.html"
 
 
 class StateCreateUpdate(base.TreeCreateUpdateView):
@@ -104,7 +104,6 @@ class StateCreateUpdate(base.TreeCreateUpdateView):
     model = models.TreeState
     form_class = forms.StateCreateUpdateForm
     success_url_name = 'state_list'
-    template_name = "tree/state.html"
 
 
 class StateDelete(base.TreeDeleteView):
@@ -114,10 +113,11 @@ class StateDelete(base.TreeDeleteView):
 
 
 class SurveyList(base.TreeListView):
+    create_url_name = 'add_tree'
     model = models.Tree
     order_by = ['trigger']
     select_related = ['root_state__question']
-    template_name = 'tree/index.html'
+    template_name = 'tree/surveys/list.html'
 
     def get_queryset(self):
         return super(SurveyList, self).get_queryset().annotate(count=Count('sessions'))
@@ -158,18 +158,12 @@ class SurveyExport(base.TreeDetailView):
 
 class SurveyReport(base.TreeDetailView):
     model = models.Tree
-    template_name = "tree/report/report.html"
+    template_name = "tree/surveys/report.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        tree = self.get_object()
+    def get_context_data(self, **kwargs):
+        tree = self.object
         tag = None
-        if request.method == 'POST':
-            form = forms.AnswerSearchForm(request.POST, tree=tree)
-            if form.is_valid():
-                tag = form.cleaned_data['tag']
-                # what now?
-        else:
-            form = forms.AnswerSearchForm(tree=tree)
+        form = forms.AnswerSearchForm(self.request.GET, tree=tree)
         entry_tags = models.Entry.tags.through.objects
         entry_tags = entry_tags.filter(entry__session__tree=tree)
         entry_tags = entry_tags.select_related('tag')
@@ -226,17 +220,18 @@ class SurveyReport(base.TreeDetailView):
             stat_map[current_state]['values'] = columns[current_state]
         for state in states:
             state.stats = stat_map.get(state.pk, {})
-        return self.render_to_response({
+        kwargs.update({
             'form': form,
             'tree': tree,
             'sessions': sessions,
             'states': states,
         })
+        return super(SurveyReport, self).get_context_data(**kwargs)
 
 
 class SurveySessions(base.TreeDetailView):
     model = models.Tree
-    template_name = "tree/report/sessions.html"
+    template_name = "tree/surveys/sessions.html"
 
     def get_context_data(self, **kwargs):
         sessions = self.object.sessions.select_related().order_by('-start_date')[:25]
@@ -250,18 +245,6 @@ class SurveyCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.SurveyCreateUpdateForm
     model = models.Tree
     success_url_name = 'list-surveys'
-    template_name = 'tree/survey.html'
-
-
-class SurveyUpdateSummary(base.TreeUpdateView):
-    model = models.Tree
-    form_class = forms.SurveySummaryForm
-    success_message = "Survey summary updated"
-    success_url_name = 'survey-report'
-    template_name = "tree/summary.html"
-
-    def get_success_url(self):
-        return super(SurveyUpdateSummary, self).get_success_url(self.object.pk)
 
 
 class SurveyDelete(base.TreeDeleteView):
@@ -271,6 +254,7 @@ class SurveyDelete(base.TreeDeleteView):
 
 
 class TagList(base.TreeListView):
+    create_url_name = 'create-tag'
     model = models.Tag
     order_by = ['name']
     template_name = "tree/tags/list.html"
@@ -282,7 +266,6 @@ class TagCreateUpdate(base.TreeCreateUpdateView):
     model = models.Tag
     form_class = forms.TagCreateUpdateForm
     success_url_name = 'list-tags'
-    template_name = 'tree/tags/edit.html'
 
 
 class TagDelete(base.TreeDeleteView):

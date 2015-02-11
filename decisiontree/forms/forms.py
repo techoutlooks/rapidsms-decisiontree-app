@@ -22,7 +22,9 @@ class AnswerSearchForm(forms.Form):
     # )
     # answer = forms.ModelChoiceField(queryset=models.Answer.objects.none())
     # analysis = forms.ChoiceField(choices=ANALYSIS_TYPES)
-    tag = forms.ModelChoiceField(queryset=models.Tag.objects.none(), required=False)
+    tag = forms.ModelChoiceField(
+        required=False, empty_label="All Tags",
+        queryset=models.Tag.objects.none())
 
     def __init__(self, *args, **kwargs):
         tree = kwargs.pop('tree')
@@ -96,16 +98,6 @@ class SurveyCreateUpdateForm(TenancyModelForm):
         root_state.label = 'First State'
         root_state.queryset = root_state.queryset.select_related('question')
         root_state.queryset = root_state.queryset.order_by('question__text')
-
-
-class SurveySummaryForm(TenancyModelForm):
-
-    class Meta:
-        model = models.Tree
-        fields = ['summary']
-
-    def __init__(self, *args, **kwargs):
-        super(SurveySummaryForm, self).__init__(*args, **kwargs)
         self.fields['summary'].widget = forms.Textarea()
 
 

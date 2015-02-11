@@ -1,0 +1,48 @@
+{% extends "tree/cbv/list.html" %}
+
+{% load tree_tags %}
+
+{% block list_table %}
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Current State</th>
+        <th>Answer</th>
+        <th>Next State</th>
+        <th>Auto Tags</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for path in object_list %}
+        <tr>
+          <td>{{ path.pk }}</td>
+          <td>{{ path.current_state }}</td>
+          <td>{{ path.answer }}</td>
+          <td>{{ path.next_state }}</td>
+          <td>
+            {% for tag in path.tags.all %}
+              {{ tag }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            <a href="{% tenancy_url 'insert_path' path.id %}" title="Edit">
+              <i class="icon-pencil"></i>
+            </a>
+          </td>
+          <td>
+            <form action="{% tenancy_url 'delete_path' path.id %}" method="post"
+                  style="border: 0; margin: 0;">
+              {% csrf_token %}
+              <a href="#" onclick="$(this).closest('form').submit()">
+                <i class="icon-remove"></i>
+              </a>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock list_table %}

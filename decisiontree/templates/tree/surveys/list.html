@@ -1,17 +1,8 @@
-{% extends "tree/base.html" %}
+{% extends "tree/cbv/list.html" %}
 
-{% load static from staticfiles %}
 {% load tree_tags %}
 
-{% block title %}Survey{% endblock %}
-
-{% block content %}
-  <h1>Surveys</h1>
-
-  <ul class="inline">
-    <li><a class="btn" href="{% tenancy_url 'add_tree' %}">Add Survey</a></li>
-  </ul>
-
+{% block list_table %}
   <table class="table table-bordered table-condensed table-hover">
     <thead>
       <tr>
@@ -46,12 +37,12 @@
             </form>
           </td>
           <td>
-              <a class="report-link" href="{% tenancy_url 'survey-report' survey.id %}" title="Edit">
-                <i class="icon-search"></i>
-              </a>
+            <a class="report-link" href="{% tenancy_url 'survey-report' survey.id %}" title="Edit">
+              <i class="icon-search"></i>
+            </a>
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
-{% endblock %}
+{% endblock list_table %}
