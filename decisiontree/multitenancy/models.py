@@ -9,7 +9,7 @@ class AnswerLink(TenantEnabled):
     linked = models.OneToOneField('decisiontree.Answer', related_name='tenantlink')
 
     def __str__(self):
-        return self.answer.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -17,7 +17,7 @@ class EntryLink(TenantEnabled):
     linked = models.OneToOneField('decisiontree.Entry', related_name='tenantlink')
 
     def __str__(self):
-        return self.entry.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -26,7 +26,7 @@ class QuestionLink(TenantEnabled):
         'decisiontree.Question', related_name='tenantlink')
 
     def __str__(self):
-        return self.question.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -35,7 +35,7 @@ class SessionLink(TenantEnabled):
         'decisiontree.Session', related_name='tenantlink')
 
     def __str__(self):
-        return self.session.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -44,7 +44,7 @@ class TagLink(TenantEnabled):
         'decisiontree.Tag', related_name='tenantlink')
 
     def __str__(self):
-        return self.tag.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -53,7 +53,7 @@ class TagNotificationLink(TenantEnabled):
         'decisiontree.TagNotification', related_name='tenantlink')
 
     def __str__(self):
-        return self.tag_notification.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -62,7 +62,7 @@ class TransitionLink(TenantEnabled):
         'decisiontree.Transition', related_name='tenantlink')
 
     def __str__(self):
-        return self.transition.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -71,7 +71,7 @@ class TreeLink(TenantEnabled):
         'decisiontree.Tree', related_name='tenantlink')
 
     def __str__(self):
-        return self.tree.__str__()
+        return self.linked.__str__()
 
 
 @python_2_unicode_compatible
@@ -80,4 +80,4 @@ class TreeStateLink(TenantEnabled):
         'decisiontree.TreeState', related_name='tenantlink')
 
     def __str__(self):
-        return self.tree_state.__str__()
+        return self.linked.__str__()
