@@ -44,21 +44,6 @@ def mode(values):
     return counts[max(counts.keys())]
 
 
-@register.inclusion_tag("tree/partials/tree.html")
-def render_tree(tree):
-    return {"tree": tree}
-
-
-@register.inclusion_tag("tree/partials/question.html")
-def render_question(question):
-    return {"question": question}
-
-
-@register.inclusion_tag("tree/partials/state.html")
-def render_state(state):
-    return {"state": state}
-
-
 @register.simple_tag(takes_context=True)
 @register.assignment_tag(takes_context=True, name='assign_tenancy_url')
 def tenancy_url(context, url_name, *args, **kwargs):
