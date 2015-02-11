@@ -11,14 +11,6 @@ class TestSurveySessionClose(DecisionTreeTestCase):
 
     def setUp(self):
         super(TestSurveySessionClose, self).setUp()
-
-        self.contact = mommy.make('rapidsms.Contact')
-        self.contact_link = mommy.make('multitenancy.ContactLink',
-                                       contact=self.contact, tenant=self.tenant)
-        self.connection = mommy.make('rapidsms.Connection',
-                                     contact=self.contact, backend=self.backend,
-                                     identity='1112223333')
-
         self.user = mommy.make('auth.User', is_superuser=True)
         self.make_tenant_manager(self.user)
         self.login_user(self.user)

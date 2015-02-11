@@ -21,6 +21,12 @@ class DecisionTreeTestCase(TestCase):
         self.backend = mommy.make('rapidsms.Backend')
         self.backend_link = mommy.make('multitenancy.BackendLink',
                                        backend=self.backend, tenant=self.tenant)
+        self.contact = mommy.make('rapidsms.Contact')
+        self.contact_link = mommy.make('multitenancy.ContactLink',
+                                       contact=self.contact, tenant=self.tenant)
+        self.connection = mommy.make('rapidsms.Connection',
+                                     contact=self.contact, backend=self.backend,
+                                     identity='1112223333')
 
     def assertRedirectsNoFollow(self, response, expected_url, use_params=True,
                                 status_code=302):

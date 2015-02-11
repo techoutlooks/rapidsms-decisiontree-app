@@ -8,9 +8,10 @@ from rapidsms.apps.base import AppBase
 from rapidsms.messages import OutgoingMessage, IncomingMessage
 from rapidsms.models import Connection
 
-from decisiontree import conf
-from decisiontree.models import Entry, Session, TagNotification, Transition, Tree
-from decisiontree.signals import session_end_signal
+from . import conf
+from .models import Entry, Session, TagNotification, Transition
+from .signals import session_end_signal
+from .utils import get_survey
 
 
 logger = logging.getLogger(__name__)
@@ -26,13 +27,12 @@ class App(AppBase):
         # if no open sessions exist for this contact, find the tree's trigger
         if sessions.count() == 0:
             logger.debug("No session found")
-            try:
-                tree = Tree.objects.get(trigger__iexact=msg.text)
-            except Tree.DoesNotExist:
+            survey = get_survey(msg.text, msg.connection)
+            if not survey:
                 logger.info('Tree not found: %s', msg.text)
                 return False
             # start a new session for this person and save it
-            self.start_tree(tree, msg.connection, msg)
+            self.start_tree(survey, msg.connection, msg)
             return True
 
         # the caller is part-way though a question

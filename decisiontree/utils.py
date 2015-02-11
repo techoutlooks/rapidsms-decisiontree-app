@@ -1,5 +1,17 @@
 from django.utils.encoding import force_text
 
+from .models import Tree
+
+
+def get_survey(trigger, connection):
+    """Returns a survey only if it matches the connection's tenant."""
+    from decisiontree.multitenancy.utils import multitenancy_enabled
+    queryset = Tree.objects.filter(trigger__iexact=trigger)
+    if multitenancy_enabled():
+        tenant = connection.backend.tenantlink.tenant
+        queryset = queryset.filter(tenantlink__tenant=tenant)
+    return queryset[0] if queryset else None
+
 
 def parse_tags(tagstring):
     """
