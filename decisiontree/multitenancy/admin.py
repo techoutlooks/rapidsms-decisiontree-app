@@ -18,11 +18,17 @@ class ByTenantListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         tenants = utils.get_tenants_for_user(request.user)
-        return [(tenant.pk, force_text(tenant)) for tenant in tenants]
+        lookups = [(tenant.pk, force_text(tenant)) for tenant in tenants]
+        if request.user.is_superuser:
+            lookups = lookups + [("", "None")]
+        return lookups
 
     def queryset(self, request, queryset):
         if self.value() is not None:
-            queryset = queryset.filter(tenantlink__tenant=self.value())
+            if not self.value():  # value == ""
+                queryset = queryset.filter(tenantlink=None)
+            else:
+                queryset = queryset.filter(tenantlink__tenant=self.value())
         return queryset
 
 
@@ -42,14 +48,16 @@ class MultitenancyAdminMixin(object):
         """Limit FK choices to objects for tenants the user manages."""
         related_model = db_field.related.parent_model
         if hasattr(related_model, 'tenantlink'):
-            tenants = utils.get_tenants_for_user(request.user)
-            qs = kwargs.get('queryset', related_model.objects.all())
-            kwargs['queryset'] = qs.filter(tenantlink__tenant__in=tenants)
+            if not request.user.is_superuser:
+                tenants = utils.get_tenants_for_user(request.user)
+                qs = kwargs.get('queryset', related_model.objects.all())
+                kwargs['queryset'] = qs.filter(tenantlink__tenant__in=tenants)
         return super(MultitenancyAdminMixin, self).formfield_for_foreignkey(
             db_field, request, **kwargs)
 
     @property
     def tenant_link_model(self):
+        """The link model should be specified as a property or an attribute."""
         raise ImproperlyConfigured("Implementing class must specify the "
                                    "tenant link model.")
 
@@ -81,9 +89,11 @@ class MultitenancyAdminMixin(object):
 
     def get_queryset(self, request):
         """Only show objects for tenants the user manages."""
-        tenants = utils.get_tenants_for_user(request.user)
         qs = super(MultitenancyAdminMixin, self).get_queryset(request)
-        return qs.filter(tenantlink__tenant__in=tenants)
+        if not request.user.is_superuser:
+            tenants = utils.get_tenants_for_user(request.user)
+            qs = qs.filter(tenantlink__tenant__in=tenants)
+        return qs
 
     def tenant(self, obj):
         return obj.tenantlink.tenant
