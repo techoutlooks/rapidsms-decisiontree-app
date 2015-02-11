@@ -1,5 +1,6 @@
 from django import template
-from django.core.urlresolvers import reverse
+
+from decisiontree.multitenancy.utils import tenancy_reverse
 
 
 register = template.Library()
@@ -47,26 +48,16 @@ def mode(values):
 @register.simple_tag(takes_context=True)
 @register.assignment_tag(takes_context=True, name='assign_tenancy_url')
 def tenancy_url(context, url_name, *args, **kwargs):
-    if args and kwargs:
-        # Emulate error raised by regular {% url %} tag.
-        raise ValueError("Don't mix *args and **kwargs in call to reverse!")
-    from decisiontree.multitenancy.utils import multitenancy_enabled
-    if multitenancy_enabled():
-        group_slug = context['request'].group_slug
-        tenant_slug = context['request'].tenant_slug
-        if args:
-            args = (group_slug, tenant_slug) + args
-        else:
-            kwargs.setdefault('group_slug', group_slug)
-            kwargs.setdefault('tenant_slug', tenant_slug)
-    return reverse(url_name, args=args, kwargs=kwargs)
+    return tenancy_reverse(context['request'], url_name, *args, **kwargs)
 
 
 @register.filter
 def verbose_name(model):
+    """Workaround for Django disallowing access to _meta attribute."""
     return model._meta.verbose_name
 
 
 @register.filter
 def verbose_name_plural(model):
+    """Workaround for Django disallowing access to _meta attribute."""
     return model._meta.verbose_name_plural

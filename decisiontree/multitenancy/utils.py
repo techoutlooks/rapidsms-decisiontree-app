@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 
 
@@ -22,3 +23,15 @@ def get_link_class_from_model(model):
     if not hasattr(model_class, 'tenantlink'):
         raise TypeError("This method should only be used on tenant-enabled models.")
     return model_class.tenantlink.related.model
+
+
+def tenancy_reverse(request, url_name, *args, **kwargs):
+    """Add tenancy information to the URL reversal if multitenancy is enabled."""
+    if multitenancy_enabled():
+        # reverse disallows mixing *args and **kwargs.
+        if args:
+            args = (request.group_slug, request.tenant_slug) + args
+        else:
+            kwargs.setdefault('group_slug', request.group_slug)
+            kwargs.setdefault('tenant_slug', request.tenant_slug)
+    return reverse(url_name, args=args, kwargs=kwargs)

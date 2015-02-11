@@ -1,9 +1,8 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_text
 
-from .utils import multitenancy_enabled
+from . import utils
 
 
 class TenantViewMixin(object):
@@ -20,7 +19,7 @@ class TenantViewMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         """Attach the tenant and group to the class."""
-        if multitenancy_enabled():
+        if utils.multitenancy_enabled():
             from multitenancy.auth import get_user_groups, get_user_tenants
             available_groups = get_user_groups(request.user)
             self.group = get_object_or_404(available_groups, slug=kwargs['group_slug'])
@@ -45,7 +44,7 @@ class TenantViewMixin(object):
     def get_queryset(self):
         """Limit queryset based on tenant if multitenancy is enabled."""
         qs = super(TenantViewMixin, self).get_queryset()
-        if multitenancy_enabled():
+        if utils.multitenancy_enabled():
             if not hasattr(self.model, 'tenantlink'):
                 raise ImproperlyConfigured("TenantViewMixin can only be used "
                                            "with tenant-enabled models.")
@@ -57,12 +56,6 @@ class TenantViewMixin(object):
         if self.success_url:
             return force_text(self.success_url)
         if self.success_url_name:
-            if multitenancy_enabled():
-                if args:
-                    args = (self.group.slug, self.tenant.slug) + args
-                else:
-                    kwargs['group_slug'] = self.group.slug
-                    kwargs['tenant_slug'] = self.tenant.slug
-            return reverse(self.success_url_name, args=args, kwargs=kwargs)
+            return utils.tenancy_reverse(self.request, self.success_url_name, *args, **kwargs)
         raise ImproperlyConfigured("No URL to redirect to. Provide a "
                                    "success_url or success_url_name.")
