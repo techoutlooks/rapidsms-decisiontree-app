@@ -37,6 +37,11 @@ class TenantViewMixin(object):
         kwargs['tenant'] = self.tenant
         return super(TenantViewMixin, self).get_context_data(**kwargs)
 
+    def get_form_kwargs(self):
+        kwargs = super(TenantViewMixin, self).get_form_kwargs()
+        kwargs.setdefault('tenant', self.tenant)
+        return kwargs
+
     def get_queryset(self):
         """Limit queryset based on tenant if multitenancy is enabled."""
         qs = super(TenantViewMixin, self).get_queryset()

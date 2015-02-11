@@ -20,7 +20,7 @@ class AnswerList(base.TreeListView):
 class AnswerCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "You have successfully inserted Answer {obj.answer}"
     edit_success_message = "You have successfully updated the Answer"
-    form_class = forms.AnswerForm
+    form_class = forms.AnswerCreateUpdateForm
     model = models.Answer
     success_url_name = 'answer_list'
     template_name = "tree/answer.html"
@@ -58,7 +58,7 @@ class PathList(base.TreeListView):
 class PathCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "You have successfully inserted Question Path {obj.id}"
     edit_success_message = "Path successfully updated"
-    form_class = forms.PathForm
+    form_class = forms.PathCreateUpdateForm
     model = models.Transition
     success_url_name = 'path_list'
     template_name = "tree/path.html"
@@ -79,7 +79,7 @@ class QuestionList(base.TreeListView):
 class QuestionCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "You have successfully inserted a Question {obj.text}"
     edit_success_message = "You have successfully updated the Question"
-    form_class = forms.QuestionForm
+    form_class = forms.QuestionCreateUpdateForm
     model = models.Question
     success_url_name = 'list-questions'
     template_name = 'tree/question.html'
@@ -102,7 +102,7 @@ class StateCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "You have successfully inserted State {obj.name}."
     edit_success_message = "State updated successfully"
     model = models.TreeState
-    form_class = forms.StateForm
+    form_class = forms.StateCreateUpdateForm
     success_url_name = 'state_list'
     template_name = "tree/state.html"
 
@@ -247,7 +247,7 @@ class SurveySessions(base.TreeDetailView):
 class SurveyCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "You have successfully inserted a Survey {obj.trigger}"
     edit_success_message = "Survey successfully updated"
-    form_class = forms.TreesForm
+    form_class = forms.SurveyCreateUpdateForm
     model = models.Tree
     success_url_name = 'list-surveys'
     template_name = 'tree/survey.html'
@@ -255,7 +255,7 @@ class SurveyCreateUpdate(base.TreeCreateUpdateView):
 
 class SurveyUpdateSummary(base.TreeUpdateView):
     model = models.Tree
-    form_class = forms.TreeSummaryForm
+    form_class = forms.SurveySummaryForm
     success_message = "Survey summary updated"
     success_url_name = 'survey-report'
     template_name = "tree/summary.html"
@@ -280,7 +280,7 @@ class TagCreateUpdate(base.TreeCreateUpdateView):
     create_success_message = "Tag successfully saved"
     edit_success_message = "Tag successfully saved"
     model = models.Tag
-    form_class = forms.TagForm
+    form_class = forms.TagCreateUpdateForm
     success_url_name = 'list-tags'
     template_name = 'tree/tags/edit.html'
 

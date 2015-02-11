@@ -35,7 +35,7 @@ class Tree(models.Model):
     transitions.
     """
     trigger = models.CharField(
-        max_length=30, unique=True,
+        max_length=30, unique=True, verbose_name="Keyword",
         help_text="The incoming message which triggers this Tree.")
     root_state = models.ForeignKey(
         "TreeState", related_name="tree_set",
