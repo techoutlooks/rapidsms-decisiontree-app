@@ -14,7 +14,7 @@ from rapidsms.models import Connection, Contact, Backend
 from rapidsms.messages.incoming import IncomingMessage
 
 from decisiontree.multitenancy.models import TransitionLink, TagLink
-
+from decisiontree import tasks
 from decisiontree import models as dt
 from decisiontree.handlers.results import ResultsHandler
 from decisiontree.app import App as DecisionApp
@@ -272,7 +272,7 @@ class DigestTest(CreateDataTest):
         self._send('food')
         self._send(trans1.answer.answer)
         self._send(trans2.answer.answer)
-        self.app.status_update()
+        tasks.status_update()
         self.assertEquals(len(mail.outbox), 1)
         notification = dt.TagNotification.objects.all()[0]
         self.assertTrue(notification.sent)
