@@ -1,14 +1,17 @@
 from copy import copy
 
 from django.contrib import admin
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_text
-
-from decisiontree import admin as tree_admin
-from decisiontree import models as tree_models
 
 from . import utils
 from .forms import RequiredInlineFormSet
+
+
+def create_multitenancy_admin(model, model_admin=None):
+    """Extend an existing model admin class with multitenancy admin utilities."""
+    model_admin = model_admin or admin.ModelAdmin
+    admin_name = 'Multitenancy{}'.format(type(model_admin).__name__)
+    return type(admin_name, (MultitenancyAdminMixin, model_admin), {})
 
 
 class ByTenantListFilter(admin.SimpleListFilter):
@@ -55,21 +58,16 @@ class MultitenancyAdminMixin(object):
         return super(MultitenancyAdminMixin, self).formfield_for_foreignkey(
             db_field, request, **kwargs)
 
-    @property
-    def tenant_link_model(self):
-        """The link model should be specified as a property or an attribute."""
-        raise ImproperlyConfigured("Implementing class must specify the "
-                                   "tenant link model.")
-
     def get_tenant_link_inline(self, request, obj=None):
         """Return the inline class for the model's tenant link class."""
-        inline_name = '{}Inline'.format(self.tenant_link_model.__name__)
+        tenant_link_model = utils.get_link_class_from_model(self.model)
+        inline_name = '{}Inline'.format(tenant_link_model.__name__)
         return type(inline_name, (TenantLinkInlineMixin, admin.TabularInline), {
-            'model': self.tenant_link_model,
+            'model': tenant_link_model,
         })
 
     def get_inline_instances(self, request, obj=None):
-        """Add an inline for the object's tenant link."""
+        """Add an inline fo the object's tenant link."""
         link_inline = self.get_tenant_link_inline(request, obj)
         _original_inlines = copy(self.inlines)
         self.inlines = [link_inline] + list(self.inlines)
@@ -97,31 +95,3 @@ class MultitenancyAdminMixin(object):
 
     def tenant(self, obj):
         return obj.tenantlink.tenant
-
-
-if utils.multitenancy_enabled():
-    # Unregister tree models, and re-register them with tenant-enabled admins.
-    # FIXME: This assumes that the tree models have already been registered
-    # (i.e., that `decisiontree` comes before `decisiontree.multitenancy` in
-    # when apps are loaded)
-
-    tree_models = [
-        (tree_models.Answer, tree_admin.AnswerAdmin),
-        (tree_models.Entry, tree_admin.EntryAdmin),
-        (tree_models.Question, tree_admin.QuestionAdmin),
-        (tree_models.Session, tree_admin.SessionAdmin),
-        (tree_models.TagNotification, tree_admin.TagNotificationAdmin),
-        (tree_models.Tag, tree_admin.TagAdmin),
-        (tree_models.Transition, tree_admin.TransitionAdmin),
-        (tree_models.Tree, tree_admin.TreeAdmin),
-        (tree_models.TreeState, tree_admin.StateAdmin),
-    ]
-
-    for model, model_admin in tree_models:
-        link_model = utils.get_link_class_from_model(model)
-        admin.site.unregister(model)
-        admin_name = 'Multitenancy{}'.format(model_admin.__name__)
-        ModelMultitenancyAdmin = type(admin_name, (MultitenancyAdminMixin, model_admin), {
-            'tenant_link_model': link_model,
-        })
-        admin.site.register(model, ModelMultitenancyAdmin)
