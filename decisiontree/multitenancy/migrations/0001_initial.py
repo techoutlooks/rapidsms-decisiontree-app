@@ -8,8 +8,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('decisiontree', '0003_auto_20150211_1345'),
         ('multitenancy', '0003_auto_20141115_1029'),
-        ('decisiontree', '0001_initial'),
     ]
 
     operations = [
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='AnswerLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('answer', models.OneToOneField(related_name='tenantlink', to='decisiontree.Answer')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Answer')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             name='EntryLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('entry', models.OneToOneField(related_name='tenantlink', to='decisiontree.Entry')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Entry')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             name='QuestionLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('question', models.OneToOneField(related_name='tenantlink', to='decisiontree.Question')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Question')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
             name='SessionLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('session', models.OneToOneField(related_name='tenantlink', to='decisiontree.Session')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Session')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
             name='TagLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('tag', models.OneToOneField(related_name='tenantlink', to='decisiontree.Tag')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Tag')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
             name='TagNotificationLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('tag_notification', models.OneToOneField(related_name='tenantlink', to='decisiontree.TagNotification')),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.TagNotification')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
             ],
             options={
@@ -89,8 +89,8 @@ class Migration(migrations.Migration):
             name='TransitionLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Transition')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
-                ('transition', models.OneToOneField(related_name='tenantlink', to='decisiontree.Transition')),
             ],
             options={
                 'abstract': False,
@@ -101,8 +101,8 @@ class Migration(migrations.Migration):
             name='TreeLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.Tree')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
-                ('tree', models.OneToOneField(related_name='tenantlink', to='decisiontree.Tree')),
             ],
             options={
                 'abstract': False,
@@ -113,8 +113,8 @@ class Migration(migrations.Migration):
             name='TreeStateLink',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('linked', models.OneToOneField(related_name='tenantlink', to='decisiontree.TreeState')),
                 ('tenant', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, default=None, to='multitenancy.Tenant', null=True)),
-                ('tree_state', models.OneToOneField(related_name='tenantlink', to='decisiontree.TreeState')),
             ],
             options={
                 'abstract': False,
