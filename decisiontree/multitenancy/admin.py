@@ -108,7 +108,7 @@ if utils.multitenancy_enabled():
     ]
 
     for model, model_admin in tree_models:
-        link_model = utils.get_tenant_link_from_model(model)
+        link_model = utils.get_link_class_from_model(model)
         admin.site.unregister(model)
         admin_name = 'Multitenancy{}'.format(model_admin.__name__)
         ModelMultitenancyAdmin = type(admin_name, (MultitenancyAdminMixin, model_admin), {

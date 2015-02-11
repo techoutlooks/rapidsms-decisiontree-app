@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible
 class AnswerLink(TenantEnabled):
-    answer = models.OneToOneField('decisiontree.Answer', related_name='tenantlink')
+    linked = models.OneToOneField('decisiontree.Answer', related_name='tenantlink')
 
     def __str__(self):
         return self.answer.__str__()
@@ -14,7 +14,7 @@ class AnswerLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class EntryLink(TenantEnabled):
-    entry = models.OneToOneField('decisiontree.Entry', related_name='tenantlink')
+    linked = models.OneToOneField('decisiontree.Entry', related_name='tenantlink')
 
     def __str__(self):
         return self.entry.__str__()
@@ -22,7 +22,7 @@ class EntryLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class QuestionLink(TenantEnabled):
-    question = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.Question', related_name='tenantlink')
 
     def __str__(self):
@@ -31,7 +31,7 @@ class QuestionLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class SessionLink(TenantEnabled):
-    session = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.Session', related_name='tenantlink')
 
     def __str__(self):
@@ -40,7 +40,7 @@ class SessionLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class TagLink(TenantEnabled):
-    tag = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.Tag', related_name='tenantlink')
 
     def __str__(self):
@@ -49,7 +49,7 @@ class TagLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class TagNotificationLink(TenantEnabled):
-    tag_notification = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.TagNotification', related_name='tenantlink')
 
     def __str__(self):
@@ -58,7 +58,7 @@ class TagNotificationLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class TransitionLink(TenantEnabled):
-    transition = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.Transition', related_name='tenantlink')
 
     def __str__(self):
@@ -67,7 +67,7 @@ class TransitionLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class TreeLink(TenantEnabled):
-    tree = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.Tree', related_name='tenantlink')
 
     def __str__(self):
@@ -76,7 +76,7 @@ class TreeLink(TenantEnabled):
 
 @python_2_unicode_compatible
 class TreeStateLink(TenantEnabled):
-    tree_state = models.OneToOneField(
+    linked = models.OneToOneField(
         'decisiontree.TreeState', related_name='tenantlink')
 
     def __str__(self):

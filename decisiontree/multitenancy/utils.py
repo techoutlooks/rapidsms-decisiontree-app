@@ -16,8 +16,9 @@ def get_tenants_for_user(user):
     return tenants
 
 
-def get_tenant_link_from_model(model):
+def get_link_class_from_model(model):
     """Get the tenant link model associated with the model class."""
-    if not hasattr(model, 'tenantlink'):
-        raise TypeError("")  # TODO
-    return model.tenantlink.related.model
+    model_class = model if isinstance(model, type) else type(model)
+    if not hasattr(model_class, 'tenantlink'):
+        raise TypeError("This method should only be used on tenant-enabled models.")
+    return model_class.tenantlink.related.model
