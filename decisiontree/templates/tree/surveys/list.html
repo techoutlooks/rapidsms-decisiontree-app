@@ -28,8 +28,8 @@
             </a>
           </td>
           <td>
-            <form action="{% tenancy_url 'delete_tree' survey.id %}" method="post"
-                  style="border: 0; margin: 0;">
+            <form class="form-link" method="POST"
+                  action="{% tenancy_url 'delete_tree' survey.id %}">
               {% csrf_token %}
               <a href="#" onclick="$(this).closest('form').submit()">
                 <i class="icon-remove"></i>

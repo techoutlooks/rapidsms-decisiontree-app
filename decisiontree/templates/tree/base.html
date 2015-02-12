@@ -3,10 +3,9 @@
 {% load static from staticfiles %}
 {% load tree_tags %}
 
-{% block stylesheets %}
-  {{ block.super }}
+{% block extra_stylesheets %}
   <link type="text/css" rel="stylesheet" href="{% static "tree/stylesheets/tree.css" %}" />
-{% endblock stylesheets %}
+{% endblock extra_stylesheets %}
 
 {% block left %}
   <ul class="nav nav-list">
