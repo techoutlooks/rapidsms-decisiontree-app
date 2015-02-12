@@ -21,6 +21,7 @@
       <tr>
         <th>Connection</th>
         <th>Date</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +29,17 @@
         <tr>
           <td>{{ session.connection }}</td>
           <td>{{ session.start_date|date:"Y-m-d h:i a" }}</td>
+          <td>
+            {% if session.is_open %}Open{% else %}Closed{% endif %}
+            {% if session.is_open %}
+              <form class="form-link" method="POST"
+                    action="{% tenancy_url 'session_close' session.pk %}">
+                {% csrf_token %}
+                <a class="label label-important" href="#"
+                   onclick="$(this).closest('form').submit()">Terminate</a>
+              </form>
+            {% endif %}
+          </td>
           {% for entry in session.entries.select_related %}
             <td scope="row">
               <span class='question'>{{ entry.transition.current_state.question.text }}</span>
