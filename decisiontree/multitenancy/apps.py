@@ -19,6 +19,9 @@ class DecisionTreeMultitenancyConfig(AppConfig):
                 "INSTALLED_APPS setting to use multitenancy with "
                 "rapidsms-decisiontree.")
 
+        # Import signals.
+        from . import signals  # noqa
+
         # Add multitenancy utilities to the regular decision tree admin
         # classes.
         for model, model_admin in admin.site._registry.items():
