@@ -6,6 +6,10 @@ from django.utils.encoding import python_2_unicode_compatible
 
 @python_2_unicode_compatible
 class TenantLink(TenantEnabled):
+    # Whether the linked object's relationship to a tenant is direct or
+    # derived. Derived relationships are handled by the signals in
+    # decisiontree/multitenancy/signals.py.
+    direct = True
 
     class Meta:
         abstract = True
@@ -19,6 +23,7 @@ class AnswerLink(TenantLink):
 
 
 class EntryLink(TenantLink):
+    direct = False
     linked = models.OneToOneField('decisiontree.Entry', related_name='tenantlink')
 
 
@@ -27,6 +32,7 @@ class QuestionLink(TenantLink):
 
 
 class SessionLink(TenantLink):
+    direct = False
     linked = models.OneToOneField('decisiontree.Session', related_name='tenantlink')
 
 
@@ -35,6 +41,7 @@ class TagLink(TenantLink):
 
 
 class TagNotificationLink(TenantLink):
+    direct = False
     linked = models.OneToOneField('decisiontree.TagNotification', related_name='tenantlink')
 
 

@@ -7,11 +7,11 @@ from . import utils
 from .forms import RequiredInlineFormSet
 
 
-def create_multitenancy_admin(model, model_admin=None):
+def create_multitenancy_admin(model, model_admin=None, **kwargs):
     """Extend an existing model admin class with multitenancy admin utilities."""
     model_admin = model_admin or admin.ModelAdmin
     admin_name = 'Multitenancy{}'.format(type(model_admin).__name__)
-    return type(admin_name, (MultitenancyAdminMixin, model_admin), {})
+    return type(admin_name, (MultitenancyAdminMixin, model_admin), kwargs)
 
 
 class ByTenantListFilter(admin.SimpleListFilter):
@@ -68,11 +68,17 @@ class MultitenancyAdminMixin(object):
 
     def get_inline_instances(self, request, obj=None):
         """Add an inline fo the object's tenant link."""
-        link_inline = self.get_tenant_link_inline(request, obj)
-        _original_inlines = copy(self.inlines)
-        self.inlines = [link_inline] + list(self.inlines)
-        instances = super(MultitenancyAdminMixin, self).get_inline_instances(request, obj)
-        self.inlines = _original_inlines
+        tenant_link_model = utils.get_link_class_from_model(self.model)
+        if tenant_link_model.direct:
+            link_inline = self.get_tenant_link_inline(request, obj)
+            _original_inlines = copy(self.inlines)
+            self.inlines = [link_inline] + list(self.inlines)
+            instances = super(MultitenancyAdminMixin, self).get_inline_instances(request, obj)
+            self.inlines = _original_inlines
+        else:
+            # Don't display the tenant link inline for models whose
+            # relationship to a tenant is inferred.
+            instances = super(MultitenancyAdminMixin, self).get_inline_instances(request, obj)
         return instances
 
     def get_list_display(self, request):
