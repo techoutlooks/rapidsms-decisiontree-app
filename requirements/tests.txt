@@ -1,3 +1,4 @@
+celery>=3.1.17
 coverage>=3.7.1
 model-mommy>=1.2.1
 django_nose>=1.2
