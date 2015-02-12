@@ -48,10 +48,14 @@ class TreeListView(TenantViewMixin, ListView):
     template_name = "tree/cbv/list.html"
 
     def get_create_url(self):
-        if multitenancy_enabled():
-            kwargs = {'group_slug': self.group.slug, 'tenant_slug': self.tenant.slug}
-            return reverse(self.create_url_name, kwargs=kwargs)
-        return reverse(self.create_url_name)
+        if self.create_url_name:
+            if multitenancy_enabled():
+                return reverse(self.create_url_name, kwargs={
+                    'group_slug': self.group.slug,
+                    'tenant_slug': self.tenant.slug,
+                })
+            return reverse(self.create_url_name)
+        return None
 
     def get_queryset(self):
         qs = super(TreeListView, self).get_queryset()

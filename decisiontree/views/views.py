@@ -37,7 +37,7 @@ class EntryList(base.TreeListView):
     model = models.Entry
     order_by = ['-time']
     select_related = []
-    template_name = "tree/entries/list.html"
+    template_name = 'tree/entries/list.html'
 
 
 class EntryUpdate(base.TreeUpdateView):
