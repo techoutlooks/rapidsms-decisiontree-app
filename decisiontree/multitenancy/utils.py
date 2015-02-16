@@ -30,7 +30,7 @@ def tenancy_reverse(request, url_name, *args, **kwargs):
     if multitenancy_enabled():
         # reverse disallows mixing *args and **kwargs.
         if args:
-            args = (request.group_slug, request.tenant_slug) + args
+            args = (request.group_slug, request.tenant_slug) + tuple(args)
         else:
             kwargs.setdefault('group_slug', request.group_slug)
             kwargs.setdefault('tenant_slug', request.tenant_slug)
