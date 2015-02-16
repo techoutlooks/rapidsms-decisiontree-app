@@ -67,7 +67,7 @@ class MultitenancyAdminMixin(object):
         })
 
     def get_inline_instances(self, request, obj=None):
-        """Add an inline fo the object's tenant link."""
+        """Add an inline to the object's tenant link."""
         tenant_link_model = utils.get_link_class_from_model(self.model)
         if tenant_link_model.direct:
             link_inline = self.get_tenant_link_inline(request, obj)
