@@ -1,11 +1,7 @@
 import datetime
+import logging
 import re
-import smtplib
 
-from django.conf import settings
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.datastructures import MultiValueDict
 from django.utils.translation import ugettext as _
 
 from rapidsms.apps.base import AppBase
@@ -17,36 +13,12 @@ from decisiontree.models import Entry, Session, TagNotification, Transition, Tre
 from decisiontree.signals import session_end_signal
 
 
-SCHEDULE_DESC = 'decisiontree-cron-job'
-CALLBACK = 'decisiontree.app.scheduler_callback'
-
-
-def scheduler_callback(router):
-    app = router.get_app("decisiontree")
-    app.status_update()
+logger = logging.getLogger(__name__)
 
 
 class App(AppBase):
-
     registered_functions = {}
     session_listeners = {}
-
-    def start(self):
-        # FIXME: this method is deprecated in RapidSMS
-        notifications_enabled = conf.NOTIFICATIONS_ENABLED
-        if notifications_enabled and "rapidsms.contrib.scheduler" not in settings.INSTALLED_APPS:
-            self.info("rapidsms.contrib.scheduler not in INSTALLED_APPS, disabling notifications")
-            notifications_enabled = False
-        if notifications_enabled:
-            from rapidsms.contrib.scheduler.models import EventSchedule
-            try:
-                schedule = EventSchedule.objects.get(description=SCHEDULE_DESC)
-            except EventSchedule.DoesNotExist:
-                schedule = EventSchedule(description=SCHEDULE_DESC)
-            schedule.callback = CALLBACK
-            schedule.minutes = set([0, 30])
-            schedule.save()
-        self.info('started')
 
     def handle(self, msg):
         sessions = Session.objects.filter(state__isnull=False,
@@ -54,11 +26,11 @@ class App(AppBase):
         sessions = sessions.select_related('state')
         # if no open sessions exist for this contact, find the tree's trigger
         if sessions.count() == 0:
-            self.debug("No session found")
+            logger.debug("No session found")
             try:
                 tree = Tree.objects.get(trigger__iexact=msg.text)
             except Tree.DoesNotExist:
-                self.info('Tree not found: %s' % msg.text)
+                logger.info('Tree not found: %s', msg.text)
                 return False
             # start a new session for this person and save it
             self.start_tree(tree, msg.connection, msg)
@@ -68,7 +40,7 @@ class App(AppBase):
         # tree, so check their answer and respond
         session = sessions[0]
         state = session.state
-        self.debug(state)
+        logger.debug(state)
 
         end_trigger = conf.SESSION_END_TRIGGER
         if end_trigger is not None and msg.text == end_trigger:
@@ -91,7 +63,7 @@ class App(AppBase):
         # not a valid answer, so remind the user of the valid options.
         if not found_transition:
             if transitions.count() == 0:
-                self.error('No questions found!')
+                logger.error('No questions found!')
                 msg.respond(_("No questions found"))
                 self._end_session(session, message=msg)
             else:
@@ -130,7 +102,7 @@ class App(AppBase):
         entry = Entry.objects.create(session=session, sequence_id=sequence,
                                      transition=found_transition,
                                      text=msg.text)
-        self.debug("entry %s saved" % entry)
+        logger.debug("entry %s saved", entry)
 
         # apply auto tags
         entry.tags = entry.transition.tags.all()
@@ -189,7 +161,7 @@ class App(AppBase):
         session = Session(connection=connection,
                           tree=tree, state=tree.root_state, num_tries=0)
         session.save()
-        self.debug("new session %s saved" % session)
+        logger.debug("new session %s saved", session)
 
         # also notify any session listeners of this
         # so they can do their thing
@@ -203,7 +175,7 @@ class App(AppBase):
         state = session.state
         if state and state.question:
             response = state.question.text
-            self.info("Sending: %s" % response)
+            logger.info("Sending: %s", response)
             if msg:
                 msg.respond(response)
             else:
@@ -216,9 +188,8 @@ class App(AppBase):
                     self.router.outgoing(outgoing_msg)
                 else:
                     # todo: do we want to fail more loudly than this?
-                    error = ("Can't find backend %s. Messages will not be "
-                             "sent" % connection.backend.slug)
-                    self.error(error)
+                    logger.error("Can't find backend %s. Messages will not "
+                                 "be sent", connection.backend.slug)
 
     def _end_session(self, session, canceled=False, message=None):
         """Ends a session, by setting its state to none,
@@ -242,7 +213,7 @@ class App(AppBase):
     def register_custom_transition(self, name, function):
         """ Registers a handler for custom logic within a
             state transition """
-        self.info("Registering keyword: %s for function %s" % (name, function.func_name))
+        logger.info("Registering keyword: %s for function %s", name, function.func_name)
         self.registered_functions[name] = function
 
     def set_session_listener(self, tree_key, function):
@@ -253,7 +224,7 @@ class App(AppBase):
            end of the session.
         """
 
-        self.info("Registering session listener %s for tree %s" % (function.func_name, tree_key))
+        logger.info("Registering session listener %s for tree %s", function.func_name, tree_key)
         # I can't figure out how to deal with duplicates, so only allowing
         # a single registered function at a time.
         #
@@ -279,36 +250,3 @@ class App(AppBase):
             else:
                 raise Exception("Can't find a function to match custom key: %s", answer)
         raise Exception("Don't know how to process answer type: %s", answer.type)
-
-    def status_update(self):
-        self.debug('{0} running'.format(SCHEDULE_DESC))
-        notifications = TagNotification.objects.filter(sent=False)
-        notifications = notifications.select_related().order_by('tag', 'entry')
-        self.info('found {0} notifications'.format(notifications.count()))
-        users = {}
-        for notification in notifications:
-            email = notification.user.email
-            if email not in users:
-                users[email] = []
-            users[email].append(notification)
-        for email, notifications in users.iteritems():
-            tags = MultiValueDict()
-            for notification in notifications:
-                tags.appendlist(notification.tag, notification)
-            context = {'tags': tags}
-            body = render_to_string('tree/emails/digest.txt', context)
-            try:
-                send_mail(subject='Survey Response Report', message=body,
-                          recipient_list=[email],
-                          from_email=settings.DEFAULT_FROM_EMAIL,
-                          fail_silently=False)
-                sent = True
-            except smtplib.SMTPException, e:
-                self.exception(e)
-                sent = False
-            if sent:
-                for notification in notifications:
-                    notification.sent = True
-                    notification.date_sent = datetime.datetime.now()
-                    notification.save()
-                self.info('Sent report to %s' % email)
