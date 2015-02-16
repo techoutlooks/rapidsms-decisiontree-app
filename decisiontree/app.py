@@ -30,7 +30,7 @@ class App(AppBase):
             try:
                 tree = Tree.objects.get(trigger__iexact=msg.text)
             except Tree.DoesNotExist:
-                logger.info('Tree not found: %s' % msg.text)
+                logger.info('Tree not found: %s', msg.text)
                 return False
             # start a new session for this person and save it
             self.start_tree(tree, msg.connection, msg)
@@ -102,7 +102,7 @@ class App(AppBase):
         entry = Entry.objects.create(session=session, sequence_id=sequence,
                                      transition=found_transition,
                                      text=msg.text)
-        logger.debug("entry %s saved" % entry)
+        logger.debug("entry %s saved", entry)
 
         # apply auto tags
         entry.tags = entry.transition.tags.all()
@@ -161,7 +161,7 @@ class App(AppBase):
         session = Session(connection=connection,
                           tree=tree, state=tree.root_state, num_tries=0)
         session.save()
-        logger.debug("new session %s saved" % session)
+        logger.debug("new session %s saved", session)
 
         # also notify any session listeners of this
         # so they can do their thing
@@ -175,7 +175,7 @@ class App(AppBase):
         state = session.state
         if state and state.question:
             response = state.question.text
-            logger.info("Sending: %s" % response)
+            logger.info("Sending: %s", response)
             if msg:
                 msg.respond(response)
             else:
@@ -188,9 +188,8 @@ class App(AppBase):
                     self.router.outgoing(outgoing_msg)
                 else:
                     # todo: do we want to fail more loudly than this?
-                    error = ("Can't find backend %s. Messages will not be "
-                             "sent" % connection.backend.slug)
-                    logger.error(error)
+                    logger.error("Can't find backend %s. Messages will not "
+                                 "be sent", connection.backend.slug)
 
     def _end_session(self, session, canceled=False, message=None):
         """Ends a session, by setting its state to none,
@@ -214,7 +213,7 @@ class App(AppBase):
     def register_custom_transition(self, name, function):
         """ Registers a handler for custom logic within a
             state transition """
-        logger.info("Registering keyword: %s for function %s" % (name, function.func_name))
+        logger.info("Registering keyword: %s for function %s", name, function.func_name)
         self.registered_functions[name] = function
 
     def set_session_listener(self, tree_key, function):
@@ -225,7 +224,7 @@ class App(AppBase):
            end of the session.
         """
 
-        logger.info("Registering session listener %s for tree %s" % (function.func_name, tree_key))
+        logger.info("Registering session listener %s for tree %s", function.func_name, tree_key)
         # I can't figure out how to deal with duplicates, so only allowing
         # a single registered function at a time.
         #
