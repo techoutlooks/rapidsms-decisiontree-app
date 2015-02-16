@@ -5,24 +5,28 @@
 {% block list_table %}
   <table class="table table-bordered table-condensed table-hover">
     <thead>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Edit</th>
-      <th>Delete</th>
+      <tr>
+        <th>ID</th>
+        <th>Text</th>
+        <th>Error Response</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
     </thead>
     <tbody>
-      {% for tag in object_list %}
+      {% for question in object_list %}
         <tr>
-          <td>{{ tag.pk }}</td>
-          <td>{{ tag.name }}</td>
+          <td>{{ question.pk }}</td>
+          <td>{{ question.text }}</td>
+          <td>{{ question.error_response|truncatewords:10 }}</td>
           <td>
-            <a href="{% tenancy_url 'edit-tag' tag.id %}" title="Edit">
+            <a href="{% tenancy_url 'insert_question' question.id %}" title="Edit" class="edit-link">
               <i class="icon-pencil"></i>
             </a>
           </td>
           <td>
-            <form class="form-link" action="POST"
-                  action="{% tenancy_url 'delete-tag' tag.id %}">
+            <form class="form-link" method="POST"
+                  action="{% tenancy_url 'delete_question' question.id %}">
               {% csrf_token %}
               <a href="#" onclick="$(this).closest('form').submit()">
                 <i class="icon-remove"></i>

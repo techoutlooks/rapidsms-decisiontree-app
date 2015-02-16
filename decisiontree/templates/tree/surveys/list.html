@@ -1,0 +1,48 @@
+{% extends "tree/cbv/list.html" %}
+
+{% load tree_tags %}
+
+{% block list_table %}
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Keyword</th>
+        <th>First State</th>
+        <th># Sessions</th>
+        <th>Edit</th>
+        <th>Delete</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for survey in object_list %}
+        <tr>
+          <td>{{ survey.pk }}</td>
+          <td>{{ survey.trigger }}</td>
+          <td>{{ survey.root_state.question.text }}</td>
+          <td>{{ survey.count }}</td>
+          <td>
+            <a class="edit-link" href="{% tenancy_url 'insert_tree' survey.id %}" title="Edit">
+              <i class="icon-pencil"></i>
+            </a>
+          </td>
+          <td>
+            <form class="form-link" method="POST"
+                  action="{% tenancy_url 'delete_tree' survey.id %}">
+              {% csrf_token %}
+              <a href="#" onclick="$(this).closest('form').submit()">
+                <i class="icon-remove"></i>
+              </a>
+            </form>
+          </td>
+          <td>
+            <a class="report-link" href="{% tenancy_url 'survey-report' survey.id %}" title="Edit">
+              <i class="icon-search"></i>
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock list_table %}

@@ -1,0 +1,44 @@
+{% extends "tree/base.html" %}
+
+{% load i18n %}
+{% load tree_tags %}
+
+{% block title %}Recent Sessions: "{{ object.trigger }}"{% endblock title %}
+{% block page_title %}Recent Sessions: "{{ object.trigger }}"{% endblock page_title %}
+
+{% block survey_content %}
+  <ul class="nav nav-pills">
+    <li>
+      <a href="{% tenancy_url 'survey-report' object.pk %}">Survey Report</a>
+    </li>
+    <li class="active">
+      <a href="{% tenancy_url 'recent_sessions' object.pk %}">Recent Sessions</a>
+    </li>
+  </ul>
+
+  <table class="table table-bordered table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>Connection</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for session in recent_sessions %}
+        <tr>
+          <td>{{ session.connection }}</td>
+          <td>{{ session.start_date|date:"Y-m-d h:i a" }}</td>
+          {% for entry in session.entries.select_related %}
+            <td scope="row">
+              <span class='question'>{{ entry.transition.current_state.question.text }}</span>
+              <span class='answer'>{{ entry.text }}</span>
+            </td>
+            {% if not forloop.last %}
+              <td class='transition'>&rarr;</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock survey_content %}

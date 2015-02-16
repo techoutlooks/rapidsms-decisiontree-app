@@ -2,11 +2,15 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import ModelFormMixin, ProcessFormView
+
+from decisiontree.multitenancy.views import TenantViewMixin
+from decisiontree.multitenancy.utils import multitenancy_enabled
 
 
 def cbv_decorator(function_decorator):
@@ -28,18 +32,30 @@ class SuccessMessageMixin(object):
             return self.success_message.format(obj=self.object)
         return None
 
-    def get_success_url(self):
+    def get_success_url(self, *args, **kwargs):
         message = self.get_success_message()
         if message:
             messages.add_message(self.request, self.success_message_level, message)
-        return super(SuccessMessageMixin, self).get_success_url()
+        return super(SuccessMessageMixin, self).get_success_url(*args, **kwargs)
 
 
 @cbv_decorator(login_required)
-class TreeListView(ListView):
+class TreeListView(TenantViewMixin, ListView):
+    create_url_name = None
     limit = None
     order_by = None
     select_related = None
+    template_name = "tree/cbv/list.html"
+
+    def get_create_url(self):
+        if self.create_url_name:
+            if multitenancy_enabled():
+                return reverse(self.create_url_name, kwargs={
+                    'group_slug': self.group.slug,
+                    'tenant_slug': self.tenant.slug,
+                })
+            return reverse(self.create_url_name)
+        return None
 
     def get_queryset(self):
         qs = super(TreeListView, self).get_queryset()
@@ -53,24 +69,26 @@ class TreeListView(ListView):
 
 
 @cbv_decorator(login_required)
-class TreeDetailView(DetailView):
+class TreeDetailView(TenantViewMixin, DetailView):
     pass
 
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeUpdateView(SuccessMessageMixin, UpdateView):
-    pass
+class TreeUpdateView(SuccessMessageMixin, TenantViewMixin, UpdateView):
+    template_name = "tree/cbv/create_update.html"
 
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeCreateUpdateView(SuccessMessageMixin, SingleObjectTemplateResponseMixin,
-                           ModelFormMixin, ProcessFormView):
+class TreeCreateUpdateView(SuccessMessageMixin, TenantViewMixin,
+                           SingleObjectTemplateResponseMixin, ModelFormMixin,
+                           ProcessFormView):
     """Combines logic for UpdateView and CreateView."""
     create_success_message = None
     edit_success_message = None
     template_suffix_name = "_form"
+    template_name = "tree/cbv/create_update.html"
 
     def get(self, request, *args, **kwargs):
         self.set_object(request, *args, **kwargs)
@@ -98,5 +116,5 @@ class TreeCreateUpdateView(SuccessMessageMixin, SingleObjectTemplateResponseMixi
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeDeleteView(SuccessMessageMixin, DeleteView):
+class TreeDeleteView(SuccessMessageMixin, TenantViewMixin, DeleteView):
     http_method_names = ['post', 'delete']

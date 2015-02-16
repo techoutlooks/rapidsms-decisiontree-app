@@ -35,7 +35,7 @@ class Tree(models.Model):
     transitions.
     """
     trigger = models.CharField(
-        max_length=30, unique=True,
+        max_length=30, unique=True, verbose_name="Keyword",
         help_text="The incoming message which triggers this Tree.")
     root_state = models.ForeignKey(
         "TreeState", related_name="tree_set",
@@ -51,6 +51,7 @@ class Tree(models.Model):
         permissions = [
             ("can_view", "Can view tree data"),
         ]
+        verbose_name = 'survey'
 
     def __str__(self):
         return u"T%s: %s -> %s" % (self.pk, self.trigger, self.root_state)
@@ -130,6 +131,9 @@ class TreeState(models.Model):
                   "If empty, there is no limit. When the number of retries is "
                   "hit, the user's session will be terminated.")
 
+    class Meta:
+        verbose_name = 'survey state'
+
     def __str__(self):
         return self.question.text
 
@@ -188,6 +192,7 @@ class Transition(models.Model):
         unique_together = [
             ('current_state', 'answer'),
         ]
+        verbose_name = 'path'
 
     def __str__(self):
         return u"%s : %s --> %s" % (self.current_state, self.answer, self.next_state)

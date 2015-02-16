@@ -15,7 +15,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.messages",
 
-    'decisiontree',
+    "multitenancy",
+
+    "decisiontree",
+    "decisiontree.multitenancy",
 ]
 
 INSTALLED_BACKENDS = {

@@ -1,6 +1,10 @@
 import string
 import random
 
+from model_mommy import mommy
+
+from multitenancy.models import BackendLink, ContactLink
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -9,8 +13,9 @@ from rapidsms.tests.harness import MockRouter
 from rapidsms.models import Connection, Contact, Backend
 from rapidsms.messages.incoming import IncomingMessage
 
-from decisiontree import models as dt
+from decisiontree.multitenancy.models import TransitionLink, TagLink
 
+from decisiontree import models as dt
 from decisiontree.handlers.results import ResultsHandler
 from decisiontree.app import App as DecisionApp
 
@@ -18,8 +23,13 @@ from decisiontree.app import App as DecisionApp
 class ResultsTest(TestCase):
 
     def setUp(self):
+        self.tenant = mommy.make('multitenancy.Tenant')
         self.backend = Backend.objects.create(name='test-backend')
+        self.backend_link = BackendLink.all_tenants.create(
+            backend=self.backend, tenant=self.tenant)
         self.contact = Contact.objects.create(name='John Doe')
+        self.contact_link = ContactLink.all_tenants.create(
+            contact=self.contact, tenant=self.tenant)
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
@@ -125,8 +135,13 @@ class CreateDataTest(TestCase):
 class BasicSurveyTest(CreateDataTest):
 
     def setUp(self):
+        self.tenant = mommy.make('multitenancy.Tenant')
         self.backend = Backend.objects.create(name='test-backend')
+        self.backend_link = BackendLink.all_tenants.create(
+            backend=self.backend, tenant=self.tenant)
         self.contact = Contact.objects.create(name='John Doe')
+        self.contact_link = ContactLink.all_tenants.create(
+            contact=self.contact, tenant=self.tenant)
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
@@ -212,8 +227,13 @@ class BasicSurveyTest(CreateDataTest):
 class DigestTest(CreateDataTest):
 
     def setUp(self):
+        self.tenant = mommy.make('tenant')
         self.backend = Backend.objects.create(name='test-backend')
+        self.backend_link = BackendLink.all_tenants.create(
+            backend=self.backend, tenant=self.tenant)
         self.contact = Contact.objects.create(name='John Doe')
+        self.contact_link = ContactLink.all_tenants.create(
+            contact=self.contact, tenant=self.tenant)
         self.connection = Connection.objects.create(contact=self.contact,
                                                     backend=self.backend,
                                                     identity='1112223333')
@@ -221,6 +241,8 @@ class DigestTest(CreateDataTest):
         self.app = DecisionApp(router=self.router)
         self.user = get_user_model().objects.create_user('test', 'a@a.com', 'abc')
         self.fruit_tag = dt.Tag.objects.create(name='fruit')
+        self.tag_link = TagLink.all_tenants.create(
+            linked=self.fruit_tag, tenant=self.tenant)
         self.fruit_tag.recipients.add(self.user)
 
     def _send(self, text):
@@ -232,6 +254,7 @@ class DigestTest(CreateDataTest):
         tree = self.create_tree(data={'trigger': 'food'})
         trans1 = self.create_trans(data={'current_state': tree.root_state})
         trans1.tags.add(self.fruit_tag)
+        TransitionLink.all_tenants.create(linked=trans1, tenant=self.tenant)
         self._send('food')
         self._send(trans1.answer.answer)
         entry = trans1.entries.order_by('-sequence_id')[0]
@@ -242,8 +265,10 @@ class DigestTest(CreateDataTest):
     def test_cron_job(self):
         tree = self.create_tree(data={'trigger': 'food'})
         trans1 = self.create_trans(data={'current_state': tree.root_state})
-        trans2 = self.create_trans(data={'current_state': trans1.next_state})
         trans1.tags.add(self.fruit_tag)
+        TransitionLink.all_tenants.create(linked=trans1, tenant=self.tenant)
+        trans2 = self.create_trans(data={'current_state': trans1.next_state})
+        TransitionLink.all_tenants.create(linked=trans2, tenant=self.tenant)
         self._send('food')
         self._send(trans1.answer.answer)
         self._send(trans2.answer.answer)
