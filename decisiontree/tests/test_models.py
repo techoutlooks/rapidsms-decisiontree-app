@@ -1,27 +1,14 @@
 from model_mommy import mommy
 
-from django.test import TestCase
-
 from decisiontree import models
 
+from .cases import DecisionTreeTestCase
 
-class TestSessionModel(TestCase):
+
+class TestSessionModel(DecisionTreeTestCase):
 
     def setUp(self):
         super(TestSessionModel, self).setUp()
-        self.tenant = mommy.make('multitenancy.Tenant')
-
-        self.backend = mommy.make('rapidsms.Backend')
-        mommy.make(
-            'multitenancy.BackendLink', backend=self.backend, tenant=self.tenant)
-
-        self.contact = mommy.make('rapidsms.Contact')
-        mommy.make(
-            'multitenancy.ContactLink', contact=self.contact, tenant=self.tenant)
-
-        self.connection = mommy.make(
-            'rapidsms.Connection', backend=self.backend, contact=self.contact)
-
         self.session = mommy.make('decisiontree.Session', connection=self.connection)
 
     def test_open(self):
