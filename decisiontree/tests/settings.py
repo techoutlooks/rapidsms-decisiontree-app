@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     "django.contrib.messages",
+    "django.contrib.staticfiles",
 
     "multitenancy",
 
@@ -29,13 +30,19 @@ INSTALLED_BACKENDS = {
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'multitenancy.middleware.MultitenancyMiddleware',
 ]
 
-ROOT_URLCONF = 'decisiontree.tests.urls',
+ROOT_URLCONF = 'decisiontree.tests.urls'
 
-SECRET_KEY = 'super-secret',
+SECRET_KEY = 'super-secret'
 
 SITE_ID = 1
 
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+STATIC_URL = '/static/'
