@@ -3,7 +3,7 @@ sudo: false
 python:
   - "2.7"
 env:
-  - TOXENV=py27-django1.7.X
+  - TOXENV=python2.7-django1.7.X
 install:
   - pip install -q --use-mirrors tox==1.8.1
 script:

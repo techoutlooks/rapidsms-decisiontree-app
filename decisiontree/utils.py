@@ -10,7 +10,7 @@ def get_survey(trigger, connection):
     if multitenancy_enabled():
         tenant = connection.backend.tenantlink.tenant
         queryset = queryset.filter(tenantlink__tenant=tenant)
-    return queryset[0] if queryset else None
+    return queryset.first()
 
 
 def parse_tags(tagstring):

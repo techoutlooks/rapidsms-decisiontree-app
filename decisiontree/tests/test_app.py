@@ -5,7 +5,6 @@ from django.core import mail
 
 from rapidsms.messages.incoming import IncomingMessage
 
-from decisiontree.multitenancy import models as link_models
 from decisiontree import tasks
 from decisiontree import models as dt
 
@@ -17,14 +16,14 @@ class BasicSurveyTest(DecisionTreeTestCase):
     def setUp(self):
         super(BasicSurveyTest, self).setUp()
         self.survey = mommy.make('decisiontree.Tree', trigger='food')
-        link_models.TreeLink.all_tenants.create(
-            linked=self.survey, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TreeLink', linked=self.survey, tenant=self.tenant)
         self.answer = mommy.make('decisiontree.Answer', type='A')
         self.transition = mommy.make(
             'decisiontree.Transition', current_state=self.survey.root_state,
             answer=self.answer, next_state=mommy.make('decisiontree.TreeState'))
-        link_models.TransitionLink.all_tenants.create(
-            linked=self.transition, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TransitionLink', linked=self.transition, tenant=self.tenant)
 
     def _send(self, text):
         msg = IncomingMessage([self.connection], text)
@@ -71,8 +70,8 @@ class BasicSurveyTest(DecisionTreeTestCase):
         transition2 = mommy.make(
             'decisiontree.Transition', current_state=self.transition.next_state,
             answer=answer2)
-        link_models.TransitionLink.all_tenants.create(
-            linked=transition2, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TransitionLink', linked=transition2, tenant=self.tenant)
         self._send('food')
         self._send(self.transition.answer.answer)
         self._send(transition2.answer.answer)
@@ -100,12 +99,12 @@ class DigestTest(DecisionTreeTestCase):
 
         self.fruit_tag = mommy.make('decisiontree.Tag', name='fruit')
         self.fruit_tag.recipients.add(self.user)
-        link_models.TagLink.all_tenants.create(
-            linked=self.fruit_tag, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TagLink', linked=self.fruit_tag, tenant=self.tenant)
 
         self.survey = mommy.make('decisiontree.Tree', trigger='food')
-        link_models.TreeLink.all_tenants.create(
-            linked=self.survey, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TreeLink', linked=self.survey, tenant=self.tenant)
 
     def _send(self, text):
         msg = IncomingMessage([self.connection], text)
@@ -118,8 +117,8 @@ class DigestTest(DecisionTreeTestCase):
             answer=mommy.make('decisiontree.Answer', type='A'),
             next_state=mommy.make('decisiontree.TreeState'))
         trans1.tags.add(self.fruit_tag)
-        link_models.TransitionLink.all_tenants.create(
-            linked=trans1, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TransitionLink', linked=trans1, tenant=self.tenant)
 
         self._send('food')
         self._send(trans1.answer.answer)
@@ -134,14 +133,15 @@ class DigestTest(DecisionTreeTestCase):
             answer=mommy.make('decisiontree.Answer', type='A'),
             next_state=mommy.make('decisiontree.TreeState'))
         trans1.tags.add(self.fruit_tag)
-        link_models.TransitionLink.all_tenants.create(
-            linked=trans1, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TransitionLink', linked=trans1, tenant=self.tenant)
 
         trans2 = mommy.make(
             'decisiontree.Transition', current_state=trans1.next_state,
+            answer=mommy.make('decisiontree.Answer', type='A'),
             next_state=mommy.make('decisiontree.TreeState'))
-        link_models.TransitionLink.all_tenants.create(
-            linked=trans2, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TransitionLink', linked=trans2, tenant=self.tenant)
 
         self._send('food')
         self._send(trans1.answer.answer)

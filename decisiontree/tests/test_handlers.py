@@ -2,8 +2,6 @@ from model_mommy import mommy
 
 from rapidsms.messages.incoming import IncomingMessage
 
-from decisiontree.multitenancy import models as link_models
-
 from decisiontree.handlers.results import ResultsHandler
 
 from .cases import DecisionTreeTestCase
@@ -15,20 +13,20 @@ class ResultsTest(DecisionTreeTestCase):
         super(ResultsTest, self).setUp()
         self.q = mommy.make(
             'decisiontree.Question', text='Do you like apples or squash more?')
-        link_models.QuestionLink.all_tenants.create(
-            linked=self.q, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.QuestionLink', linked=self.q, tenant=self.tenant)
         self.fruit = mommy.make(
             'decisiontree.Answer', type='A', name='apples', answer='apples')
-        link_models.AnswerLink.all_tenants.create(
-            linked=self.fruit, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.AnswerLink', linked=self.fruit, tenant=self.tenant)
         self.state = mommy.make(
             'decisiontree.TreeState', name='food', question=self.q)
-        link_models.TreeStateLink.all_tenants.create(
-            linked=self.state, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TreeStateLink', linked=self.state, tenant=self.tenant)
         self.survey = mommy.make(
             'decisiontree.Tree', trigger='food', root_state=self.state)
-        link_models.TreeLink.all_tenants.create(
-            linked=self.survey, tenant=self.tenant)
+        mommy.make(
+            'decisiontree_multitenancy.TreeLink', linked=self.survey, tenant=self.tenant)
 
     def _send(self, text):
         msg = IncomingMessage([self.connection], text)
