@@ -6,7 +6,7 @@ from .admin import create_multitenancy_admin
 
 
 class DecisionTreeMultitenancyConfig(AppConfig):
-    label = "decisiontree.multitenancy"
+    label = "decisiontree_multitenancy"
     name = "decisiontree.multitenancy"
     verbose_name = "Decision Tree Multitenancy"
 

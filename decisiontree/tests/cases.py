@@ -2,6 +2,8 @@ from urlparse import parse_qs, urlparse
 
 from model_mommy import mommy
 
+from rapidsms.tests.harness import MockRouter
+
 from multitenancy.models import TenantRole
 
 from django.conf import settings
@@ -10,6 +12,8 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import HttpRequest
 from django.test import TestCase
 from django.utils.encoding import force_text
+
+from decisiontree.app import App as DecisionApp
 
 
 class DecisionTreeTestCase(TestCase):
@@ -21,6 +25,14 @@ class DecisionTreeTestCase(TestCase):
         self.backend = mommy.make('rapidsms.Backend')
         self.backend_link = mommy.make('multitenancy.BackendLink',
                                        backend=self.backend, tenant=self.tenant)
+        self.contact = mommy.make('rapidsms.Contact')
+        self.contact_link = mommy.make('multitenancy.ContactLink',
+                                       contact=self.contact, tenant=self.tenant)
+        self.connection = mommy.make('rapidsms.Connection',
+                                     contact=self.contact, backend=self.backend,
+                                     identity='1112223333')
+        self.router = MockRouter()
+        self.app = DecisionApp(router=self.router)
 
     def assertRedirectsNoFollow(self, response, expected_url, use_params=True,
                                 status_code=302):
