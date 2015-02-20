@@ -229,14 +229,31 @@ class SurveyReport(base.TreeDetailView):
         return super(SurveyReport, self).get_context_data(**kwargs)
 
 
-class SurveySessions(base.TreeDetailView):
+class SurveySessionList(base.TreeDetailView):
     model = models.Tree
     template_name = "tree/surveys/sessions.html"
 
     def get_context_data(self, **kwargs):
         sessions = self.object.sessions.select_related().order_by('-start_date')[:25]
         kwargs['recent_sessions'] = sessions
-        return super(SurveySessions, self).get_context_data(**kwargs)
+        return super(SurveySessionList, self).get_context_data(**kwargs)
+
+
+class SurveySessionClose(base.TreeDeleteView):
+    http_method_names = ['post']
+    model = models.Session
+    success_message = "Session successfully closed."
+    success_url_name = 'recent_sessions'
+
+    def post(self, request, *args, **kwargs):
+        """Mark the session as canceled."""
+        self.object = self.get_object()
+        self.object.cancel()
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        kwargs = {'pk': self.object.tree.pk}
+        return super(SurveySessionClose, self).get_success_url(**kwargs)
 
 
 class SurveyCreateUpdate(base.TreeCreateUpdateView):
