@@ -200,24 +200,13 @@ class Transition(models.Model):
 
 
 class SessionQuerySet(models.query.QuerySet):
+    _closed_conditions = Q(state=None) | Q(canceled=True)
 
     def open(self):
-        return self.exclude(Q(state=None) | Q(canceled=True))
+        return self.exclude(self._closed_conditions)
 
-    def complete(self):
-        return self.filter(Q(state=None) | Q(canceled=True))
-
-
-class SessionManager(models.Manager):
-
-    def get_queryset(self):
-        return SessionQuerySet(self.model, using=self._db)
-
-    def open(self):
-        return self.get_queryset().open()
-
-    def complete(self):
-        return self.get_queryset().complete()
+    def closed(self):
+        return self.filter(self._closed_conditions)
 
 
 @python_2_unicode_compatible
@@ -242,7 +231,7 @@ class Session(models.Model):
     canceled = models.NullBooleanField(blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
 
-    objects = SessionManager()
+    objects = SessionQuerySet.as_manager()
 
     def __str__(self):
         state = self.state or "completed"
@@ -263,10 +252,10 @@ class Session(models.Model):
             self.save()
 
     def is_closed(self):
-        return not bool(self.state) or self.canceled
+        return not bool(self.state_id) or self.canceled
 
     def is_open(self):
-        return bool(self.state) and not self.canceled
+        return bool(self.state_id) and not self.canceled
 
 
 @python_2_unicode_compatible
