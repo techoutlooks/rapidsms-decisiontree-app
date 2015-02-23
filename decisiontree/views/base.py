@@ -24,20 +24,20 @@ def cbv_decorator(function_decorator):
     return class_decorator
 
 
-class CancelationMixin(object):
+class CancellationMixin(object):
     """Specify a URL to go to if the user cancels their action."""
-    cancelation_url_name = None
+    cancellation_url_name = None
 
-    def get_cancelation_url(self, *args, **kwargs):
+    def get_cancellation_url(self, *args, **kwargs):
         """Which URL to go to if the user cancels their action."""
-        if self.cancelation_url_name:
-            return reverse(self.cancelation_url_name, args=args, kwargs=kwargs)
-        raise ImproperlyConfigured("No cancelation URL known. Provide a "
-                                   "cancelation_url_name.")
+        if self.cancellation_url_name:
+            return reverse(self.cancellation_url_name, args=args, kwargs=kwargs)
+        raise ImproperlyConfigured("No cancellation URL known. Provide a "
+                                   "cancellation_url_name.")
 
     def get_context_data(self, **kwargs):
-        kwargs.setdefault('cancelation_url', self.get_cancelation_url())
-        return super(CancelationMixin, self).get_context_data(**kwargs)
+        kwargs.setdefault('cancellation_url', self.get_cancellation_url())
+        return super(CancellationMixin, self).get_context_data(**kwargs)
 
 
 class SuccessMessageMixin(object):
@@ -93,7 +93,7 @@ class TreeDetailView(TenantViewMixin, DetailView):
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeUpdateView(SuccessMessageMixin, TenantViewMixin, CancelationMixin,
+class TreeUpdateView(SuccessMessageMixin, TenantViewMixin, CancellationMixin,
                      UpdateView):
     template_name = "tree/cbv/create_update.html"
 
@@ -101,11 +101,11 @@ class TreeUpdateView(SuccessMessageMixin, TenantViewMixin, CancelationMixin,
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
 class TreeCreateUpdateView(SuccessMessageMixin, TenantViewMixin,
-                           CancelationMixin, SingleObjectTemplateResponseMixin,
+                           CancellationMixin, SingleObjectTemplateResponseMixin,
                            ModelFormMixin, ProcessFormView):
     """Combines logic for UpdateView and CreateView."""
-    CREATE = 'create'
-    UPDATE = 'edit'
+    CREATE_MODE = 'create'
+    UPDATE_MODE = 'edit'
 
     create_success_message = None
     edit_success_message = None
@@ -117,9 +117,9 @@ class TreeCreateUpdateView(SuccessMessageMixin, TenantViewMixin,
         return super(TreeCreateUpdateView, self).get(request, *args, **kwargs)
 
     def get_success_message(self):
-        if self.mode == TreeCreateUpdateView.UPDATE and self.edit_success_message:
+        if self.mode == self.UPDATE_MODE and self.edit_success_message:
             return self.edit_success_message.format(obj=self.object)
-        elif self.mode == TreeCreateUpdateView.CREATE and self.create_success_message:
+        elif self.mode == self.CREATE_MODE and self.create_success_message:
             return self.create_success_message.format(obj=self.object)
         return None
 
@@ -129,16 +129,16 @@ class TreeCreateUpdateView(SuccessMessageMixin, TenantViewMixin,
 
     def set_object(self, request, *args, **kwargs):
         if kwargs.get(self.pk_url_kwarg) or kwargs.get(self.slug_url_kwarg):
-            self.mode = TreeCreateUpdateView.UPDATE
+            self.mode = self.UPDATE_MODE
             self.object = self.get_object()
         else:
-            self.mode = TreeCreateUpdateView.CREATE
+            self.mode = self.CREATE_MODE
             self.object = None
 
 
 @cbv_decorator(login_required)
 @cbv_decorator(transaction.atomic)
-class TreeDeleteView(SuccessMessageMixin, TenantViewMixin, CancelationMixin,
+class TreeDeleteView(SuccessMessageMixin, TenantViewMixin, CancellationMixin,
                      DeleteView):
     template_name = "tree/cbv/delete.html"
 

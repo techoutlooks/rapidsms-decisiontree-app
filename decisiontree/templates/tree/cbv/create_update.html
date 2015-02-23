@@ -16,7 +16,7 @@
       <button type="submit" class="btn btn-primary">
         {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %} {{ view.model|verbose_name|title }}{% endif %}
       </button>
-      <a href="{{ cancelation_url }}" class="btn">{% trans "Cancel" %}</a>
+      <a href="{{ cancellation_url }}" class="btn">{% trans "Cancel" %}</a>
     </div>
   </form>
 {% endblock survey_content %}
