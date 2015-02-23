@@ -2,8 +2,52 @@ from model_mommy import mommy
 
 from django.core.urlresolvers import reverse
 
+from decisiontree.multitenancy import models as link_models
+
 from .. import models
-from .cases import DecisionTreeTestCase
+from .cases import DecisionTreeTestCase, DeleteViewTestMixin
+
+
+class TestAnswerDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.AnswerLink
+    model = models.Answer
+    success_url_name = 'answer_list'
+    url_name = 'delete_answer'
+
+
+class TestPathDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.TransitionLink
+    model = models.Transition
+    success_url_name = 'path_list'
+    url_name = 'delete_path'
+
+
+class TestQuestionDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.QuestionLink
+    model = models.Question
+    success_url_name = 'list-questions'
+    url_name = 'delete_question'
+
+
+class TestStateDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.TreeStateLink
+    model = models.TreeState
+    success_url_name = 'state_list'
+    url_name = 'delete_state'
+
+
+class TestSurveyDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.TreeLink
+    model = models.Tree
+    success_url_name = 'list-surveys'
+    url_name = 'delete_tree'
+
+
+class TestTagDelete(DeleteViewTestMixin, DecisionTreeTestCase):
+    link_model = link_models.TagLink
+    model = models.Tag
+    success_url_name = 'list-tags'
+    url_name = 'delete-tag'
 
 
 class TestSurveySessionClose(DecisionTreeTestCase):
