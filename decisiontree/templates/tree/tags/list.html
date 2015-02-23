@@ -21,13 +21,9 @@
             </a>
           </td>
           <td>
-            <form class="form-link" action="POST"
-                  action="{% tenancy_url 'delete-tag' tag.id %}">
-              {% csrf_token %}
-              <a href="#" onclick="$(this).closest('form').submit()">
-                <i class="icon-remove"></i>
-              </a>
-            </form>
+            <a href="{% tenancy_url 'delete-tag' tag.id %}">
+              <i class="icon-remove"></i>
+            </a>
           </td>
         </tr>
       {% endfor %}

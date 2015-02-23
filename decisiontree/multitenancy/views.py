@@ -30,6 +30,14 @@ class TenantViewMixin(object):
             self.tenant = None
         return super(TenantViewMixin, self).dispatch(request, *args, **kwargs)
 
+    def get_cancellation_url(self, *args, **kwargs):
+        """Which URL to go to if the user cancels their action."""
+        if self.cancellation_url_name:
+            return utils.tenancy_reverse(
+                self.request, self.cancellation_url_name, *args, **kwargs)
+        raise ImproperlyConfigured("No cancellation URL known. Provide a "
+                                   "cancellation_url_name.")
+
     def get_context_data(self, **kwargs):
         """Add the tenant and group to the template context."""
         kwargs['group'] = self.group

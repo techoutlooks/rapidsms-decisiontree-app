@@ -28,13 +28,9 @@
             </a>
           </td>
           <td>
-            <form class="form-link" method="POST"
-                  action="{% tenancy_url 'delete_tree' survey.id %}">
-              {% csrf_token %}
-              <a href="#" onclick="$(this).closest('form').submit()">
-                <i class="icon-remove"></i>
-              </a>
-            </form>
+            <a href="{% tenancy_url 'delete_tree' survey.id %}">
+              <i class="icon-remove"></i>
+            </a>
           </td>
           <td>
             <a class="report-link" href="{% tenancy_url 'survey-report' survey.id %}" title="Edit">

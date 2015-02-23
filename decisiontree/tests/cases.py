@@ -8,7 +8,7 @@ from multitenancy.models import TenantRole
 
 from django.conf import settings
 from django.contrib.auth import login
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpRequest
 from django.test import TestCase
 from django.utils.encoding import force_text
@@ -17,7 +17,7 @@ from decisiontree.app import App as DecisionApp
 
 
 class DecisionTreeTestCase(TestCase):
-    login_url = reverse_lazy('login')
+    login_url = reverse_lazy('rapidsms-login')
 
     def setUp(self):
         super(DecisionTreeTestCase, self).setUp()
@@ -124,3 +124,86 @@ class DecisionTreeTestCase(TestCase):
         mommy.make('multitenancy.TenantRole',
                    group=tenant.group, tenant=tenant, user=user,
                    role=TenantRole.ROLE_TENANT_MANAGER)
+
+
+class DeleteViewTestMixin(object):
+    """
+    Test mixin that describes common delete view behavior for a
+    rapidsms-decisiontree model.
+    """
+
+    link_model = None
+    model = None
+    success_url_name = None
+    template_name = 'tree/cbv/delete.html'
+    url_name = None
+
+    def setUp(self):
+        super(DeleteViewTestMixin, self).setUp()
+        self.user = mommy.make('auth.User', is_superuser=True)
+        self.make_tenant_manager(self.user)
+        self.login_user(self.user)
+
+        self.obj = self.get_object()
+
+    def get_object(self):
+        obj = mommy.make(self.model)
+        mommy.make(self.link_model, linked=obj, tenant=self.tenant)
+        return obj
+
+    def get_url(self):
+        return reverse(self.url_name, kwargs={
+            'group_slug': self.tenant.group.slug,
+            'tenant_slug': self.tenant.slug,
+            'pk': self.obj.pk,
+        })
+
+    def get_success_url(self):
+        return reverse(self.success_url_name, kwargs={
+            'group_slug': self.tenant.group.slug,
+            'tenant_slug': self.tenant.slug,
+        })
+
+    def test_get_unauthenticated(self):
+        """Users must be authenticated to delete an object."""
+        self.client.logout()
+        response = self.client.get(self.get_url())
+        self.assertRedirectsToLogin(response)
+        self.assertEqual(self.model.objects.count(), 1)
+        self.assertTrue(self.obj in self.model.objects.all())
+
+    def test_post_unauthenticated(self):
+        """Users must be authenticated to delete an object."""
+        self.client.logout()
+        response = self.client.post(self.get_url())
+        self.assertRedirectsToLogin(response)
+        self.assertEqual(self.model.objects.count(), 1)
+        self.assertTrue(self.obj in self.model.objects.all())
+
+    def test_delete_unauthenticated(self):
+        """Users must be authenticated to delete an object."""
+        self.client.logout()
+        response = self.client.delete(self.get_url())
+        self.assertRedirectsToLogin(response)
+        self.assertEqual(self.model.objects.count(), 1)
+        self.assertTrue(self.obj in self.model.objects.all())
+
+    def test_get(self):
+        """Making a GET request to the delete view returns a confirmation page."""
+        response = self.client.get(self.get_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template_name)
+        self.assertEqual(self.model.objects.count(), 1)
+        self.assertTrue(self.obj in self.model.objects.all())
+
+    def test_post(self):
+        """Delete an object through a POST request to the delete view."""
+        response = self.client.post(self.get_url())
+        self.assertRedirectsNoFollow(response, self.get_success_url())
+        self.assertEqual(self.model.objects.count(), 0)
+
+    def test_delete(self):
+        """Delete an object through a DELETE request to the delete view."""
+        response = self.client.delete(self.get_url())
+        self.assertRedirectsNoFollow(response, self.get_success_url())
+        self.assertEqual(self.model.objects.count(), 0)

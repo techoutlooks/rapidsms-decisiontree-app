@@ -1,3 +1,11 @@
+TEMPLATE_CONTEXT_PROCESSORS = [
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.static',
+    'django.core.context_processors.request',
+    'django.contrib.messages.context_processors.messages',
+]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -6,8 +14,6 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
-    "rapidsms",
-
     "django.contrib.sites",
     "django.contrib.auth",
     "django.contrib.admin",
@@ -16,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "rapidsms",
     "multitenancy",
 
     "decisiontree",

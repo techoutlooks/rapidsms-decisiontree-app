@@ -19,6 +19,7 @@ class AnswerList(base.TreeListView):
 
 
 class AnswerCreateUpdate(base.TreeCreateUpdateView):
+    cancellation_url_name = 'answer_list'
     create_success_message = "You have successfully inserted Answer {obj.answer}"
     edit_success_message = "You have successfully updated the Answer"
     form_class = forms.AnswerCreateUpdateForm
@@ -27,6 +28,7 @@ class AnswerCreateUpdate(base.TreeCreateUpdateView):
 
 
 class AnswerDelete(base.TreeDeleteView):
+    cancellation_url_name = 'answer_list'
     model = models.Answer
     success_message = "Answer successfully deleted"
     success_url_name = 'answer_list'
@@ -41,10 +43,19 @@ class EntryList(base.TreeListView):
 
 
 class EntryUpdate(base.TreeUpdateView):
+    cancellation_url_name = 'survey-report'
     model = models.Entry
     form_class = forms.EntryTagForm
     success_message = "Tags successfully updated"
     success_url_name = 'survey-report'
+
+    def get_cancellation_url(self):
+        pk = self.object.session.tree.pk
+        return super(EntryUpdate, self).get_cancellation_url(pk=pk)
+
+    def get_success_url(self):
+        pk = self.object.session.tree.pk
+        return super(EntryUpdate, self).get_success_url(pk=pk)
 
 
 class PathList(base.TreeListView):
@@ -56,6 +67,7 @@ class PathList(base.TreeListView):
 
 
 class PathCreateUpdate(base.TreeCreateUpdateView):
+    cancellation_url_name = 'path_list'
     create_success_message = "You have successfully inserted Question Path {obj.id}"
     edit_success_message = "Path successfully updated"
     form_class = forms.PathCreateUpdateForm
@@ -64,6 +76,7 @@ class PathCreateUpdate(base.TreeCreateUpdateView):
 
 
 class PathDelete(base.TreeDeleteView):
+    cancellation_url_name = 'path_list'
     model = models.Transition
     success_message = "Path successfully deleted"
     success_url_name = 'path_list'
@@ -77,6 +90,7 @@ class QuestionList(base.TreeListView):
 
 
 class QuestionCreateUpdate(base.TreeCreateUpdateView):
+    cancellation_url_name = 'list-questions'
     create_success_message = "You have successfully inserted a Question {obj.text}"
     edit_success_message = "You have successfully updated the Question"
     form_class = forms.QuestionCreateUpdateForm
@@ -85,6 +99,7 @@ class QuestionCreateUpdate(base.TreeCreateUpdateView):
 
 
 class QuestionDelete(base.TreeDeleteView):
+    cancellation_url_name = 'list-questions'
     model = models.Question
     success_message = "Question successfully deleted"
     success_url_name = 'list-questions'
@@ -99,6 +114,7 @@ class StateList(base.TreeListView):
 
 
 class StateCreateUpdate(base.TreeCreateUpdateView):
+    cancellation_url_name = 'state_list'
     create_success_message = "You have successfully inserted State {obj.name}."
     edit_success_message = "State updated successfully"
     model = models.TreeState
@@ -107,6 +123,7 @@ class StateCreateUpdate(base.TreeCreateUpdateView):
 
 
 class StateDelete(base.TreeDeleteView):
+    cancellation_url_name = 'state_list'
     model = models.TreeState
     success_message = "State successfully deleted"
     success_url_name = 'state_list'
@@ -263,11 +280,24 @@ class SurveyCreateUpdate(base.TreeCreateUpdateView):
     model = models.Tree
     success_url_name = 'list-surveys'
 
+    def get_cancellation_url(self):
+        if self.mode == self.CREATE_MODE:
+            self.cancellation_url_name = 'list-surveys'
+            kwargs = {}
+        if self.mode == self.UPDATE_MODE:
+            self.cancellation_url_name = 'survey-report'
+            kwargs = {'pk': self.object.pk}
+        return super(SurveyCreateUpdate, self).get_cancellation_url(**kwargs)
+
 
 class SurveyDelete(base.TreeDeleteView):
+    cancellation_url_name = 'survey-report'
     model = models.Tree
     success_message = "Survey successfully deleted"
     success_url_name = 'list-surveys'
+
+    def get_cancellation_url(self):
+        return super(SurveyDelete, self).get_cancellation_url(pk=self.object.pk)
 
 
 class TagList(base.TreeListView):
@@ -278,6 +308,7 @@ class TagList(base.TreeListView):
 
 
 class TagCreateUpdate(base.TreeCreateUpdateView):
+    cancellation_url_name = 'list-tags'
     create_success_message = "Tag successfully saved"
     edit_success_message = "Tag successfully saved"
     model = models.Tag
@@ -286,6 +317,7 @@ class TagCreateUpdate(base.TreeCreateUpdateView):
 
 
 class TagDelete(base.TreeDeleteView):
+    cancellation_url_name = 'list-tags'
     model = models.Tag
     success_message = "Tag successfully deleted"
     success_url_name = 'list-tags'
