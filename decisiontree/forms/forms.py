@@ -61,14 +61,11 @@ class PathCreateUpdateForm(TenancyModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PathCreateUpdateForm, self).__init__(*args, **kwargs)
-        states = models.TreeState.objects.select_related('question')
-        states = states.order_by('question__text')
+        states = models.TreeState.objects.all()
+        states = states.select_related('question').distinct().order_by('question__text')
         self.fields['current_state'].queryset = states
-        self.fields['current_state'].label = 'Current State'
-        self.fields['answer'].label = 'Answer'
-        self.fields['answer'].queryset = models.Answer.objects.order_by('answer')
-        self.fields['next_state'].label = 'Next State'
         self.fields['next_state'].queryset = states
+        self.fields['answer'].queryset = models.Answer.objects.order_by('answer')
         self.fields['tags'].label = 'Auto tags'
 
 
