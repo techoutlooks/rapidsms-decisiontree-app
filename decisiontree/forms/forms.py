@@ -78,6 +78,11 @@ class QuestionCreateUpdateForm(TenancyModelForm):
         model = models.Question
         fields = ['text', 'error_response']
 
+    def __init__(self, *args, **kwargs):
+        super(QuestionCreateUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['text'].widget = forms.Textarea()
+        self.fields['error_response'].widget = forms.Textarea()
+
 
 class StateCreateUpdateForm(TenancyModelForm):
 
@@ -98,6 +103,7 @@ class SurveyCreateUpdateForm(TenancyModelForm):
         root_state.label = 'First State'
         root_state.queryset = root_state.queryset.select_related('question')
         root_state.queryset = root_state.queryset.order_by('question__text')
+        self.fields['completion_text'].widget = forms.Textarea()
         self.fields['summary'].widget = forms.Textarea()
 
 
