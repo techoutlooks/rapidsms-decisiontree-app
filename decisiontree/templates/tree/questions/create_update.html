@@ -11,7 +11,19 @@
   <form action="." method="POST">
     {% csrf_token %}
 
-    {{ form.as_p }}
+    <div class="counterField">
+      {{ form.text.errors }}
+      {{ form.text.label_tag }}
+      <div>{{ form.text.help_text }}</div>
+      {{ form.text }}
+    </div>
+
+    <div class="counterField">
+      {{ form.error_response.errors }}
+      {{ form.error_response.label_tag }}
+      <div>{{ form.error_response.help_text }}</div>
+      {{ form.error_response }}
+    </div>
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">
