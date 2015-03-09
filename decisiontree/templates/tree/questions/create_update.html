@@ -1,10 +1,21 @@
 {% extends "tree/base.html" %}
 
 {% load i18n %}
+{% load staticfiles %}
 {% load tree_tags %}
 
 {% block title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock title %}
 {% block page_title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock page_title %}
+
+{% block extra_stylesheets %}
+  <link type="text/css" rel="stylesheet" href="{% static 'tree/stylesheets/jquery.maxlength.css' %}" />
+{% endblock %}
+
+{% block extra_javascript %}
+  <script type="text/javascript" src="{% static 'tree/javascripts/jquery.plugin.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tree/javascripts/jquery.maxlength.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tree/javascripts/decisiontree.js' %}"></script>
+{% endblock extra_javascript %}
 
 {% block survey_content %}
 
