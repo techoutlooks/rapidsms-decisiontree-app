@@ -21,6 +21,12 @@
 
   <form action="." method="POST">
     {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.max_length.errors }}
+      This message is in: {{ form.max_length }}
+    </div>
 
     <div class="counterField">
       {{ form.text.errors }}

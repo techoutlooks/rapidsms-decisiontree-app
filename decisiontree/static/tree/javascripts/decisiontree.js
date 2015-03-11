@@ -9,7 +9,7 @@ $(function () {
     $("#messages").children().alert("close");
   }
   $('.counterField textarea').maxlength(
-    {max: 160,
+    {max: $('#id_max_length').val(),
      truncate: false,
      onFull: function(overflowing){
        if (!overflowing) {
@@ -24,4 +24,7 @@ $(function () {
        }
      }
     });
+  $('#id_max_length').change(function(event){
+    $('.counterField textarea').maxlength('option', 'max', $('#id_max_length').val());
+  });
 });
