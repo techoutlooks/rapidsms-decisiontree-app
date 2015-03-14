@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 
+from colorful.fields import RGBColorField
+
 
 @python_2_unicode_compatible
 class Question(models.Model):
@@ -96,6 +98,7 @@ class Answer(models.Model):
     name = models.CharField(max_length=30, unique=True)
     type = models.CharField(max_length=1, choices=ANSWER_TYPES)
     answer = models.CharField(max_length=160)
+    color = RGBColorField(default=u"#000000")
     description = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
