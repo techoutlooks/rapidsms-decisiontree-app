@@ -25,5 +25,8 @@ setup(
         'Operating System :: OS Independent',
     ),
     zip_safe=False,
-    install_requires=['RapidSMS>=0.19.0'],
+    install_requires=[
+        'RapidSMS>=0.19.0',
+        'django-colorful>=1.0.1',
+    ],
 )

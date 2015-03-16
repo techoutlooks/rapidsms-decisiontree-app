@@ -17,7 +17,7 @@ class AnswerCreateUpdateForm(TenancyModelForm):
 
     class Meta:
         model = models.Answer
-        fields = ['name', 'type', 'answer', 'description']
+        fields = ['name', 'type', 'answer', 'color', 'description']
 
 
 class AnswerSearchForm(forms.Form):
