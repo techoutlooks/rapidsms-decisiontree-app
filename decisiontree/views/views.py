@@ -96,6 +96,7 @@ class QuestionCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.QuestionCreateUpdateForm
     model = models.Question
     success_url_name = 'list-questions'
+    template_name = "tree/questions/create_update.html"
 
 
 class QuestionDelete(base.TreeDeleteView):
@@ -279,6 +280,7 @@ class SurveyCreateUpdate(base.TreeCreateUpdateView):
     form_class = forms.SurveyCreateUpdateForm
     model = models.Tree
     success_url_name = 'list-surveys'
+    template_name = "tree/surveys/create_update.html"
 
     def get_cancellation_url(self):
         if self.mode == self.CREATE_MODE:
