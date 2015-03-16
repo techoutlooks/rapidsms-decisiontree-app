@@ -89,6 +89,26 @@ class BasicSurveyTest(DecisionTreeTestCase):
         self.assertEqual(msg.responses[0]['text'],
                          "Your session with 'food' has ended")
 
+    def test_num_tries_increments(self):
+        self.survey.root_state.num_retries = 3
+        self.survey.root_state.save()
+        self._send('food')
+        self._send('bad-answer')  # first try
+        self._send('bad-answer')  # second try
+        session = self.connection.session_set.all()[0]
+        self.assertEqual(session.num_tries, 2)
+
+    def test_fail_if_too_many_tries(self):
+        self.survey.root_state.num_retries = 2
+        self.survey.root_state.save()
+        self.assertEqual(self.survey.root_state.num_retries, 2)
+        self._send('food')
+        self._send('bad-answer')        # first try
+        msg = self._send('bad-answer')  # second try
+        session = self.connection.session_set.all()[0]
+        self.assertEqual(session.num_tries, 2)
+        self.assertIn("Sorry, invalid answer 2 times", msg.responses[0]['text'])
+
 
 class DigestTest(DecisionTreeTestCase):
 

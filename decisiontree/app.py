@@ -74,17 +74,17 @@ class App(AppBase):
                 if state.num_retries is not None:
                     if session.num_tries >= state.num_retries:
                         session.state = None
-                        msg.respond("Sorry, invalid answer %(retries)s times. "
+                        msg.respond("Sorry, invalid answer %d times. "
                                     "Your session will now end. Please try again "
-                                    "later.", retries=session.num_tries)
+                                    "later." % session.num_tries)
                 # send them some hints about how to respond
                 elif state.question.error_response:
                     msg.respond(state.question.error_response)
                 else:
                     answers = [t.answer.helper_text() for t in transitions]
                     answers = " or ".join(answers)
-                    response = '"%(answer)s" is not a valid answer. You must enter ' + answers
-                    msg.respond(response, answer=msg.text)
+                    response = '"%s" is not a valid answer. You must enter ' + answers
+                    msg.respond(response % msg.text)
 
                 session.save()
             return True
