@@ -43,7 +43,7 @@
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary">
+      <button id="submit-button" type="submit" class="btn btn-primary">
         {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %} {{ view.model|verbose_name|title }}{% endif %}
       </button>
       <a href="{{ cancellation_url }}" class="btn">{% trans "Cancel" %}</a>
