@@ -227,6 +227,7 @@ class Session(models.Model):
         TreeState, blank=True, null=True,
         help_text="None if the session is complete.")
     num_tries = models.PositiveIntegerField(
+        default=0,
         help_text="The number of times the user has tried to answer the "
                   "current question.")
     # this flag stores the difference between completed
