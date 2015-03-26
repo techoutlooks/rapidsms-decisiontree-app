@@ -1,11 +1,13 @@
+from django.db.models import get_model
 from django.utils.encoding import force_text
 
-from .models import Tree
+from rapidsms.router import send
 
 
 def get_survey(trigger, connection):
     """Returns a survey only if it matches the connection's tenant."""
     from decisiontree.multitenancy.utils import multitenancy_enabled
+    Tree = get_model('decisiontree', 'Tree')
     queryset = Tree.objects.filter(trigger__iexact=trigger)
     if multitenancy_enabled():
         tenant = connection.backend.tenantlink.tenant
@@ -126,3 +128,30 @@ def edit_string_for_tags(tags):
         else:
             names.append(name)
     return u', '.join(sorted(names))
+
+
+def start_survey(survey, connections):
+    """For each connection, establish a new Session and send the first question.
+
+    Cancels any open sessions the connections might have had.
+    """
+    # First, close any open survey sessions.
+    Session = get_model('decisiontree', 'Session')
+    open_sessions = Session.objects.open().filter(connection__in=connections)
+    open_sessions.update(state=None, canceled=True)
+
+    # Create a new, open survey session for each connection.
+    sessions = []
+    for connection in connections:
+        sessions.append(Session.objects.create(
+            connection=connection,
+            tree=survey,
+            state=survey.root_state,
+        ))
+
+    # Send the first question to each connection.
+    message = survey.root_state.question.text
+    send(message, connections)
+    # TODO: notify app listeners?
+
+    return sessions
