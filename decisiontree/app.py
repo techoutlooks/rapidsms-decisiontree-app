@@ -9,7 +9,7 @@ from rapidsms.messages import OutgoingMessage, IncomingMessage
 from rapidsms.models import Connection
 
 from . import conf
-from .models import Entry, Session, TagNotification, Transition
+from .models import Entry, Session, TagNotification, Transition, TranscriptMessage
 from .signals import session_end_signal
 from .utils import get_survey
 
@@ -20,6 +20,21 @@ logger = logging.getLogger(__name__)
 class App(AppBase):
     registered_functions = {}
     session_listeners = {}
+
+    def record_message(self, msg, session):
+        TranscriptMessage.objects.create(
+            session=session,
+            direction=TranscriptMessage.INCOMING,
+            message=msg.text,
+        )
+
+    def send_response(self, msg, session, response):
+        TranscriptMessage.objects.create(
+            session=session,
+            direction=TranscriptMessage.OUTGOING,
+            message=response,
+        )
+        msg.respond(response)
 
     def handle(self, msg):
         sessions = msg.connection.session_set.open().select_related('state')
@@ -38,13 +53,14 @@ class App(AppBase):
         # the caller is part-way though a question
         # tree, so check their answer and respond
         session = sessions[0]
+        self.record_message(msg, session)
         state = session.state
         logger.debug(state)
 
         end_trigger = conf.SESSION_END_TRIGGER
         if end_trigger is not None and msg.text == end_trigger:
             response = _("Your session with '%s' has ended")
-            msg.respond(response % session.tree.trigger)
+            self.send_response(msg, session, response % session.tree.trigger)
             self._end_session(session, True, message=msg)
             return True
 
@@ -63,7 +79,7 @@ class App(AppBase):
         if not found_transition:
             if transitions.count() == 0:
                 logger.error('No questions found!')
-                msg.respond(_("No questions found"))
+                self.send_response(msg, session, _("No questions found"))
                 self._end_session(session, message=msg)
             else:
                 # update the number of times the user has tried
@@ -74,17 +90,19 @@ class App(AppBase):
                 if state.num_retries is not None:
                     if session.num_tries >= state.num_retries:
                         session.state = None
-                        msg.respond("Sorry, invalid answer %d times. "
-                                    "Your session will now end. Please try again "
-                                    "later." % session.num_tries)
+                        self.send_response(
+                            msg, session,
+                            "Sorry, invalid answer %d times. "
+                            "Your session will now end. Please try again "
+                            "later." % session.num_tries)
                 # send them some hints about how to respond
                 elif state.question.error_response:
-                    msg.respond(state.question.error_response)
+                    self.send_response(msg, session, state.question.error_response)
                 else:
                     answers = [t.answer.helper_text() for t in transitions]
                     answers = " or ".join(answers)
                     response = '"%s" is not a valid answer. You must enter ' + answers
-                    msg.respond(response % msg.text)
+                    self.send_response(msg, session, response % msg.text)
 
                 session.save()
             return True
@@ -128,7 +146,7 @@ class App(AppBase):
         # completion text and if so send it
         if not session.state:
             if session.tree.completion_text:
-                msg.respond(session.tree.completion_text)
+                self.send_response(msg, session, session.tree.completion_text)
 
             # end the connection so the caller can start a new session
             self._end_session(session, message=msg)
@@ -155,12 +173,13 @@ class App(AppBase):
             self.router.incoming(msg)
             msg.flush_responses()  # make sure response goes out
 
-    def start_tree(self, tree, connection, msg=None):
+    def start_tree(self, tree, connection, msg):
         """Initiates a new tree sequence, terminating any active sessions"""
         self.end_sessions(connection)
         session = Session(connection=connection,
                           tree=tree, state=tree.root_state, num_tries=0)
         session.save()
+        self.record_message(msg, session)
         logger.debug("new session %s saved", session)
 
         # also notify any session listeners of this
@@ -177,7 +196,7 @@ class App(AppBase):
             response = state.question.text
             logger.info("Sending: %s", response)
             if msg:
-                msg.respond(response)
+                self.send_response(msg, session, response)
             else:
                 # we need to get the real backend from the router
                 # to properly send it
