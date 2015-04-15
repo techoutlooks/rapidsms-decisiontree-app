@@ -45,6 +45,11 @@ class TagNotificationLink(TenantLink):
     linked = models.OneToOneField('decisiontree.TagNotification', related_name='tenantlink')
 
 
+class TranscriptMessageLink(TenantLink):
+    direct = False
+    linked = models.OneToOneField('decisiontree.TranscriptMessage', related_name='tenantlink')
+
+
 class TransitionLink(TenantLink):
     linked = models.OneToOneField('decisiontree.Transition', related_name='tenantlink')
 

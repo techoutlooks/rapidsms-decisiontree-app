@@ -39,3 +39,12 @@ def create_tag_notification_tenant_link(sender, instance, **kwargs):
     tenant_link, _ = link_class.all_tenants.get_or_create(linked=instance)
     tenant_link.tenant_id = tenant_id
     tenant_link.save()
+
+
+@receiver(post_save, sender=tree_models.TranscriptMessage)
+def create_transcript_message_tenant_link(sender, instance, **kwargs):
+    tenant_id = instance.session.tenantlink.tenant_id
+    link_class = utils.get_link_class_from_model(sender)
+    tenant_link, _= link_class.all_tenants.get_or_create(linked=instance)
+    tenant_link.tenant_id = tenant_id
+    tenant_link.save()
