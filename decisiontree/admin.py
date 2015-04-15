@@ -69,6 +69,10 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ('id', 'connection', 'tree', 'canceled')
 
 
+class TranscriptMessageAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(models.Tree, TreeAdmin)
 admin.site.register(models.Question, QuestionAdmin)
 admin.site.register(models.Answer, AnswerAdmin)
@@ -78,3 +82,4 @@ admin.site.register(models.Tag, TagAdmin)
 admin.site.register(models.TagNotification, TagNotificationAdmin)
 admin.site.register(models.Entry, EntryAdmin)
 admin.site.register(models.Session, SessionAdmin)
+admin.site.register(models.TranscriptMessage, TranscriptMessageAdmin)

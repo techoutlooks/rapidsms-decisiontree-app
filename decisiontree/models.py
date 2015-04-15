@@ -330,3 +330,24 @@ class TagNotification(models.Model):
         if not self.pk:
             self.date_added = datetime.datetime.now()
         super(TagNotification, self).save(**kwargs)
+
+
+@python_2_unicode_compatible
+class TranscriptMessage(models.Model):
+    INCOMING = 'I'
+    OUTGOING = 'O'
+    DIRECTION_CHOICES = (
+        (INCOMING, 'Incoming'),
+        (OUTGOING, 'Outgoing'),
+    )
+
+    session = models.ForeignKey('Session')
+    direction = models.CharField(max_length=1, choices=DIRECTION_CHOICES)
+    message = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta(object):
+        ordering = ['created']
+
+    def __str__(self):
+        return self.message
