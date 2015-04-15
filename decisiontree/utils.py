@@ -135,23 +135,29 @@ def start_survey(survey, connections):
 
     Cancels any open sessions the connections might have had.
     """
-    # First, close any open survey sessions.
     Session = get_model('decisiontree', 'Session')
+    TranscriptMessage = get_model('decisiontree', 'TranscriptMessage')
+
+    # First, close any open survey sessions.
     open_sessions = Session.objects.open().filter(connection__in=connections)
     open_sessions.update(state=None, canceled=True)
 
-    # Create a new, open survey session for each connection.
+    # Create a new, open survey session for each connection
+    # and send the first message.
+    message = survey.root_state.question.text
     sessions = []
     for connection in connections:
-        sessions.append(Session.objects.create(
+        session = Session.objects.create(
             connection=connection,
             tree=survey,
             state=survey.root_state,
-        ))
-
-    # Send the first question to each connection.
-    message = survey.root_state.question.text
-    send(message, connections)
-    # TODO: notify app listeners?
-
+        )
+        TranscriptMessage.objects.create(
+            session=session,
+            direction=TranscriptMessage.OUTGOING,
+            message=message,
+        )
+        # TODO: notify app listeners?
+        send(message, [connection])
+        sessions.append(session)
     return sessions
