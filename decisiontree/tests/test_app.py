@@ -39,6 +39,17 @@ class BasicSurveyTest(DecisionTreeTestCase):
         question = self.transition.current_state.question.text
         self.assertTrue(question in msg.responses[0]['text'])
 
+        messages = list(dt.TranscriptMessage.objects.all())
+        self.assertEqual(len(messages), 2)
+        incoming, outgoing = messages
+        self.assertEqual(incoming.session.connection, self.connection)
+        self.assertEqual(incoming.direction, dt.TranscriptMessage.INCOMING)
+        self.assertEqual(incoming.message, "food")
+        self.assertEqual(outgoing.session.connection, self.connection)
+        self.assertEqual(outgoing.direction, dt.TranscriptMessage.OUTGOING)
+        self.assertEqual(outgoing.message, msg.responses[0]['text'])
+        self.assertTrue(incoming.created < outgoing.created)
+
     def test_basic_response(self):
         self._send('food')
         answer = self.transition.answer.answer
@@ -46,10 +57,32 @@ class BasicSurveyTest(DecisionTreeTestCase):
         next_question = self.transition.next_state.question.text
         self.assertTrue(next_question in msg.responses[0]['text'])
 
+        messages = list(dt.TranscriptMessage.objects.all())
+        self.assertEqual(len(messages), 4)
+        incoming, outgoing = messages[-2:]
+        self.assertEqual(incoming.session.connection, self.connection)
+        self.assertEqual(incoming.direction, dt.TranscriptMessage.INCOMING)
+        self.assertEqual(incoming.message, answer)
+        self.assertEqual(outgoing.session.connection, self.connection)
+        self.assertEqual(outgoing.direction, dt.TranscriptMessage.OUTGOING)
+        self.assertEqual(outgoing.message, msg.responses[0]['text'])
+        self.assertTrue(incoming.created < outgoing.created)
+
     def test_error_response(self):
         self._send('food')
         msg = self._send('bad-answer')
         self.assertTrue('is not a valid answer' in msg.responses[0]['text'])
+
+        messages = list(dt.TranscriptMessage.objects.all())
+        self.assertEqual(len(messages), 4)
+        incoming, outgoing = messages[-2:]
+        self.assertEqual(incoming.session.connection, self.connection)
+        self.assertEqual(incoming.direction, dt.TranscriptMessage.INCOMING)
+        self.assertEqual(incoming.message, "bad-answer")
+        self.assertEqual(outgoing.session.connection, self.connection)
+        self.assertEqual(outgoing.direction, dt.TranscriptMessage.OUTGOING)
+        self.assertEqual(outgoing.message, msg.responses[0]['text'])
+        self.assertTrue(incoming.created < outgoing.created)
 
     def test_error_response_from_question(self):
         self.survey.root_state.question.error_response = 'my error response'
@@ -57,6 +90,17 @@ class BasicSurveyTest(DecisionTreeTestCase):
         self._send('food')
         msg = self._send('bad-answer')
         self.assertTrue('my error response' == msg.responses[0]['text'])
+
+        messages = list(dt.TranscriptMessage.objects.all())
+        self.assertEqual(len(messages), 4)
+        incoming, outgoing = messages[-2:]
+        self.assertEqual(incoming.session.connection, self.connection)
+        self.assertEqual(incoming.direction, dt.TranscriptMessage.INCOMING)
+        self.assertEqual(incoming.message, "bad-answer")
+        self.assertEqual(outgoing.session.connection, self.connection)
+        self.assertEqual(outgoing.direction, dt.TranscriptMessage.OUTGOING)
+        self.assertEqual(outgoing.message, msg.responses[0]['text'])
+        self.assertTrue(incoming.created < outgoing.created)
 
     def test_sequence_start(self):
         self._send('food')
@@ -88,6 +132,17 @@ class BasicSurveyTest(DecisionTreeTestCase):
         self.assertTrue(session.canceled)
         self.assertEqual(msg.responses[0]['text'],
                          "Your session with 'food' has ended")
+
+        messages = list(dt.TranscriptMessage.objects.all())
+        self.assertEqual(len(messages), 4)
+        incoming, outgoing = messages[-2:]
+        self.assertEqual(incoming.session.connection, self.connection)
+        self.assertEqual(incoming.direction, dt.TranscriptMessage.INCOMING)
+        self.assertEqual(incoming.message, "end")
+        self.assertEqual(outgoing.session.connection, self.connection)
+        self.assertEqual(outgoing.direction, dt.TranscriptMessage.OUTGOING)
+        self.assertEqual(outgoing.message, msg.responses[0]['text'])
+        self.assertTrue(incoming.created < outgoing.created)
 
     def test_num_tries_increments(self):
         self.survey.root_state.num_retries = 3
