@@ -1,5 +1,16 @@
 {% extends "tree/cbv/list.html" %}
 
+{% block extra_stylesheets %}
+  <style>
+    .color {
+      border: 1px solid black;
+      border-radius: 5px;
+      display: inline-block;
+      width: 30px;
+    }
+  </style>
+{% endblock extra_stylesheets %}
+
 {% load tree_tags %}
 
 {% block list_table %}
@@ -7,6 +18,7 @@
     <thead>
       <tr>
         <th>ID</th>
+        <th>Color</th>
         <th>Name</th>
         <th>Type</th>
         <th>Answer</th>
@@ -19,6 +31,12 @@
       {% for answer in object_list %}
         <tr>
           <td>{{ answer.pk }}</td>
+          <td>
+            <span class="color" style="background-color: {{ answer.color }};">
+              &nbsp;
+            </span>
+            {{ answer.color }}
+          </td>
           <td>{{ answer.name }}</td>
           <td>{{ answer.get_type_display }}</td>
           <td>{{ answer.answer }}</td>
