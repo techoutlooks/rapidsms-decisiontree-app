@@ -33,5 +33,5 @@ class TenancyModelForm(forms.ModelForm):
         obj = super(TenancyModelForm, self).save(*args, **kwargs)
         if utils.multitenancy_enabled():
             TenantLink = utils.get_link_class_from_model(obj._meta.model)
-            TenantLink.all_tenants.get_or_create(tenant=self.tenant, linked=obj)
+            TenantLink.objects.get_or_create(tenant=self.tenant, linked=obj)
         return obj

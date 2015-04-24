@@ -5,7 +5,9 @@ from django.utils.encoding import python_2_unicode_compatible
 
 
 @python_2_unicode_compatible
-class TenantLink(TenantEnabled):
+class TenantLink(models.Model):
+    tenant = models.ForeignKey(
+        'multitenancy.Tenant', null=True, default=None, on_delete=models.SET_NULL)
     # Whether the linked object's relationship to a tenant is direct or
     # derived. Derived relationships are handled by the signals in
     # decisiontree/multitenancy/signals.py.

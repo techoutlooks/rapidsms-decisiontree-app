@@ -27,8 +27,8 @@ def get_link_class_from_model(model):
         related = getattr(link_field, 'related', None)
         if related:
             link_model = getattr(related, 'model', None)
-            from multitenancy.models import TenantEnabled
-            if link_model and issubclass(link_model, TenantEnabled):
+            from decisiontree.multitenancy.models import TenantLink
+            if link_model and issubclass(link_model, TenantLink):
                 return link_model
     raise TypeError("This method should only be used on tenant-enabled models.")
 
