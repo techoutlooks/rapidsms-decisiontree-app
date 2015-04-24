@@ -7,6 +7,14 @@ def multitenancy_enabled():
     return "decisiontree.multitenancy" in settings.INSTALLED_APPS
 
 
+def create_tenant_link(instance, tenant_id):
+    """Link the instance to a tenant."""
+    link_class = get_link_class_from_model(instance)
+    tenant_link, _ = link_class.objects.get_or_create(linked=instance)
+    tenant_link.tenant_id = tenant_id
+    tenant_link.save()
+
+
 def get_tenants_for_user(user):
     """Return all tenants that the user can manage."""
     from multitenancy.models import Tenant
