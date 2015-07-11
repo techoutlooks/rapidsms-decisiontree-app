@@ -62,7 +62,8 @@ class PathList(base.TreeListView):
     create_url_name = 'add_path'
     model = models.Transition
     order_by = ['current_state__question__text']
-    select_related = ['current_state__question', 'next_state__question', 'answer', 'tags']
+#    select_related = ['current_state__question', 'next_state__question', 'answer', 'tags']
+    select_related = ['current_state__question', 'next_state__question', 'answer']
     template_name = "tree/paths/list.html"
 
 

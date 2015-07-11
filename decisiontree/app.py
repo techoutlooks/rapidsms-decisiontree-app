@@ -21,6 +21,10 @@ class App(AppBase):
     registered_functions = {}
     session_listeners = {}
 
+    def start(self):
+        pass
+        
+        
     def handle(self, msg):
         sessions = msg.connection.session_set.open().select_related('state')
 
