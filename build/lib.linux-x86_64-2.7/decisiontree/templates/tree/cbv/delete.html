@@ -1,0 +1,28 @@
+{% extends "tree/base.html" %}
+
+{% load admin_urls %}
+{% load tree_tags %}
+
+{% block title %}Delete {{ view.model|verbose_name|title }}{% endblock title %}
+{% block page_title %}Delete {{ view.model|verbose_name|title }}{% endblock page_title %}
+
+{% block survey_content %}
+  <p>Please confirm deletion of this {{ view.model|verbose_name}}:
+  <strong>"{{ object }}"</strong></p>
+
+  {% if nested_objects|length > 1 %}
+    <p>All of the following related items will be deleted:</p>
+
+    <ul>{{ nested_objects|unordered_list }}</ul>
+  {% endif %}
+
+  <form action="." method="POST">
+    {% csrf_token %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Delete {{ view.model|verbose_name|title }}
+      </button>
+      <a href="{{ cancellation_url }}" class="btn">Cancel</a>
+    </div>
+  </form>
+{% endblock survey_content %}

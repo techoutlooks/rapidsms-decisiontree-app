@@ -1,0 +1,13 @@
+form.form-link {
+    border: 0;
+    display: inline;
+    margin: 0;
+}
+
+span.question {
+    font-style: italic;
+}
+
+span.answer {
+    font-weight: bold;
+}

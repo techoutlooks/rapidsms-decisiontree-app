@@ -1,0 +1,52 @@
+{% extends "tree/base.html" %}
+
+{% load i18n %}
+{% load staticfiles %}
+{% load tree_tags %}
+
+{% block title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock title %}
+{% block page_title %}{% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %} {{ view.model|verbose_name|title }}{% endblock page_title %}
+
+{% block extra_stylesheets %}
+  <link type="text/css" rel="stylesheet" href="{% static 'tree/stylesheets/jquery.maxlength.css' %}" />
+{% endblock %}
+
+{% block extra_javascript %}
+  <script type="text/javascript" src="{% static 'tree/javascripts/jquery.plugin.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tree/javascripts/jquery.maxlength.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tree/javascripts/decisiontree.js' %}"></script>
+{% endblock extra_javascript %}
+
+{% block survey_content %}
+
+  <form action="." method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.max_length.errors }}
+      This message is in: {{ form.max_length }}
+    </div>
+
+    <div class="counterField">
+      {{ form.text.errors }}
+      {{ form.text.label_tag }}
+      <div>{{ form.text.help_text }}</div>
+      {{ form.text }}
+    </div>
+
+    <div class="counterField">
+      {{ form.error_response.errors }}
+      {{ form.error_response.label_tag }}
+      <div>{{ form.error_response.help_text }}</div>
+      {{ form.error_response }}
+    </div>
+
+    <div class="form-actions">
+      <button id="submit-button" type="submit" class="btn btn-primary">
+        {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %} {{ view.model|verbose_name|title }}{% endif %}
+      </button>
+      <a href="{{ cancellation_url }}" class="btn">{% trans "Cancel" %}</a>
+    </div>
+  </form>
+{% endblock survey_content %}

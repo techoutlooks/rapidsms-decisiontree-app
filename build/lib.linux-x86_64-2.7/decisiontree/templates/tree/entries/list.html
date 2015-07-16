@@ -1,0 +1,34 @@
+{% extends "tree/cbv/list.html" %}
+
+{% load tree_tags %}
+
+{% block list_table %}
+  <table class='auto'>
+    <thead>
+      <tr>
+        <th>Survey</th>
+        <th>Contact</th>
+        <th>Date</th>
+        <th>Question</th>
+        <th>Answer</th>
+        <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in object_list %}
+        <tr>
+          <td>{{ entry.session.tree.trigger }}</td>
+          <td>{{ entry.session.connection.contact }}</td>
+          <td>{{ entry.time|date:"Y-m-d h:i a" }}</td>
+          <td>{{ entry.transition.current_state.question.text }}</td>
+          <td>{{ entry.transition.answer }}</td>
+          <td>
+            <a href='{% tenancy_url 'update-entry' entry.pk %}' title='Edit tags'>
+              {% for tag in entry.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock list_table %}

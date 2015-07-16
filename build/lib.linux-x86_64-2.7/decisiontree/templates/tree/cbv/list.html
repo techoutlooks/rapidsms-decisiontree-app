@@ -1,0 +1,27 @@
+{% extends "tree/base.html" %}
+
+{% load tree_tags %}
+
+{% block title %}{{ tenant.name }} {{ view.model|verbose_name_plural|title }}{% endblock title %}
+{% block page_title %}
+  {{ tenant.name }} {{ view.model|verbose_name_plural|title }}
+  {% with create_url=view.get_create_url %}
+    {% if create_url %}
+      <a class="btn btn-primary"
+         href="{{ create_url }}">Create {{ view.model|verbose_name|title }}</a>
+    {% endif %}
+  {% endwith %}
+{% endblock page_title %}
+
+{% block survey_content %}
+  {% if not object_list %}
+    <p>There are no {{ view.model|verbose_name_plural|lower }} to display.</p>
+    {% with create_url=view.get_create_url %}
+      {% if create_url %}
+        <p><a href="{{ create_url }}">Create {{ view.model|verbose_name|title }}</a></p>
+      {% endif %}
+    {% endwith %}
+  {% else %}
+    {% block list_table %}{% endblock list_table %}
+  {% endif %}
+{% endblock survey_content %}
