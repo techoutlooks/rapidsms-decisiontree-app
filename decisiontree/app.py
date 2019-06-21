@@ -76,6 +76,9 @@ class App(AppBase):
                 # send them an error message.
                 session.num_tries = session.num_tries + 1
                 if state.num_retries is not None:
+                    if state.answer_retries and session.num_tries < state.num_retries:
+                        response = 'Invalid answer "%s". Left %s retries.\n' + state.question.error_response 
+                        msg.respond(response %(msg.text, state.num_retries - session.num_tries))
                     if session.num_tries >= state.num_retries:
                         session.state = None
                         msg.respond("Sorry, invalid answer %d times. "
@@ -118,8 +121,16 @@ class App(AppBase):
             msg.logger_msg.entry = entry
             msg.logger_msg.save()
 
+        # notify caller that last answer is correct, if
+        # if a 'success_response' was configured and exists a next question (tree not completed)
+        if state.question.success_response is not None and found_transition.next_state:
+            response = 'Correct answer "%s".\n' + state.question.success_response
+            msg.respond(response % msg.text)
+
+
         # advance to the next question, or remove
         # this caller's state if there are no more
+
 
         # this might be "None" but that's ok, it will be the
         # equivalent of ending the session

@@ -17,6 +17,10 @@ class Question(models.Model):
         max_length=160, blank=True,
         help_text="Optional error message to send if the question is not "
                   "answered properly.")
+    success_response = models.CharField(
+        max_length=160, blank=True,
+        help_text="Optional message to send if the question is answered properly."
+                  "If empty, do not respond caller, but transition to next state (if any)")
 
     def __str__(self):
         return u"Q%s: %s" % (self.pk, self.text)
@@ -134,6 +138,10 @@ class TreeState(models.Model):
         help_text="The number of tries the user has to get out of this state. "
                   "If empty, there is no limit. When the number of retries is "
                   "hit, the user's session will be terminated.")
+    answer_retries = models.BooleanField(
+        default=True,
+        help_text = "Whether respond user with num_retries left"
+                    "also includes this queston's 'error_response' hints.")
 
     class Meta:
         verbose_name = 'survey state'
